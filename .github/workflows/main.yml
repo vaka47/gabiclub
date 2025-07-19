@@ -35,4 +35,6 @@ jobs:
           SOURCE: frontend/out
           TARGET: /home/u3187320/www/gabiclub.ru/
           ARGS: "-rltgoDzvO --delete"
+
+
     
