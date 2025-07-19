@@ -22,14 +22,14 @@ jobs:
         run: npm install
 
       - name: 🔨 Build project
-        run: npm run build && npm run export
+        run: npm run build
 
-      - name: 📂 Upload to REG.RU via SSH
+      - name: 📂 Deploy via SSH
         uses: easingthemes/ssh-deploy@main
         with:
-          REMOTE_HOST: server295.hosting.reg.ru
+          SSH_PRIVATE_KEY: ${{ secrets.REG_RU_DEPLOY_KEY }}
+          REMOTE_HOST: ${{ secrets.H0ST }}
           REMOTE_USER: u3187320
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          TARGET: /home/u3187320/www/gabiclub.ru/
+          TARGET: ${{ secrets.DEPLOY_PATH }}
           SOURCE: out
           ARGS: "-rltgoDzvO --delete"
