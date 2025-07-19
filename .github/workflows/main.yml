@@ -18,36 +18,19 @@ jobs:
           echo "${{ secrets.REG_RU_DEPLOY_KEY }}" > ~/.ssh/id_deploy
           chmod 600 ~/.ssh/id_deploy
           ssh-keygen -lf ~/.ssh/id_deploy || echo "❌ Ключ не прочитан"
-          ssh-keyscan server295.hosting.reg.ru >> ~/.ssh/known_hosts
 
       - name: 📡 Deploy to REG.RU
         run: |
           echo "📡 Подключение по SSH..."
           ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no u3187320@server295.hosting.reg.ru << 'EOF'
-            set -e
             echo "✅ Успешное подключение!"
+            cd ~/gabiclub || exit 1
+            git pull origin main || exit 1
 
-            export NVM_DIR="\$HOME/.nvm"
-            [ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
-            nvm use 18
+            echo "📦 Обновлено. Запуск сборки..."
+            cd frontend || exit 1
+            npm install || exit 1
+            npm run build || exit 1
 
-            echo "📁 Переход в директорию ~/gabiclub"
-            cd ~/gabiclub
-
-            echo "📦 Git pull..."
-            git pull origin main
-
-            echo "📁 Переход в frontend"
-            cd frontend
-
-            echo "📦 Установка зависимостей"
-            npm install
-
-            echo "🛠️ Сборка проекта"
-            npm run build
-
-            echo "🔁 Перезапуск pm2"
             pm2 restart frontend || echo "⚠️ pm2 не найден или процесс не существует"
-
-            echo "✅ Деплой завершён"
           EOF
