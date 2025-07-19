@@ -1,23 +1,23 @@
-name: 🚀 Deploy Frontend via SSH
+name: Deploy Frontend to REG.RU
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
+    name: 🔄 Deploy via SSH
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout code
-        uses: actions/checkout@v3
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
 
-      - name: 🔐 Deploy to server via SSH
+      - name: 🚀 Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
-          username: ${{ secrets.REG_RU_DEPLOY_USER }}
+          username: u3187320
           key: ${{ secrets.REG_RU_DEPLOY_KEY }}
           port: 22
           script: |
@@ -38,7 +38,6 @@ jobs:
 
             echo "🔐 Исправление прав доступа..."
             chmod -R u+rwX,g+rwX,o+rX node_modules || true
-            chmod -R u+x node_modules/.bin || true
 
             echo "📦 Установка зависимостей..."
             npm install
@@ -51,4 +50,3 @@ jobs:
 
             echo "♻️ Перезапуск PM2..."
             pm2 reload frontend || pm2 start npm --name "frontend" -- run start
-
