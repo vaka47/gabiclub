@@ -1,18 +1,19 @@
-name: 🚀 Deploy to REG.RU
+name: 🚀 Deploy to REG.RU (gabiclub.ru)
 
 on:
   push:
-    branches: [main] # или 'master', если у тебя так называется ветка
+    branches:
+      - main  # или 'master' — укажи свою главную ветку
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout code
+      - name: 🧾 Checkout repo
         uses: actions/checkout@v3
 
-      - name: ⚙️ Set up Node.js
+      - name: 🛠️ Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -20,15 +21,16 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🏗️ Build and export
-        run: npm run build && npm run export
+      - name: 🔨 Build project
+        run: npm run build
 
-      - name: 📤 Deploy to REG.RU via SCP
-        uses: appleboy/scp-action@master
+      - name: 📂 Upload to REG.RU via SSH
+        uses: easingthemes/ssh-deploy@main
         with:
-          host: server295.hosting.reg.ru
-          username: u3187320
-          key: ${{ secrets.REG_RU_DEPLOY_KEY }}
-          port: 22
-          source: out/*
-          target: /home/u3187320/www/
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          remote-user: u3187320
+          server-ip: server295.hosting.reg.ru
+          remote-path: /home/u3187320/www/gabiclub.ru/
+          local-path: out  # или `.next`, `dist` — укажи, какая папка создаётся после билда
+          args: "-rltgoDzvO --delete"
+
