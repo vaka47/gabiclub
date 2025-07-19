@@ -29,9 +29,9 @@ jobs:
       - name: 📂 Upload to REG.RU via SSH
         uses: easingthemes/ssh-deploy@main
         with:
-          remote_host: ${{ secrets.HOST }}
-          remote_user: u3187320
-          remote_key: ${{ secrets.REG_RU_DEPLOY_KEY }}
-          source: frontend/out
-          target: /home/u3187320/www/gabiclub.ru/
-          args: "-rltgoDzvO --delete"
+          SSH_PRIVATE_KEY: ${{ secrets.REG_RU_DEPLOY_KEY }}
+          REMOTE_HOST: ${{ secrets.HOST }}
+          REMOTE_USER: u3187320
+          SOURCE: frontend/out
+          TARGET: /home/u3187320/www/gabiclub.ru/
+          ARGS: "-rltgoDzvO --delete"
