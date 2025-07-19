@@ -32,6 +32,6 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.REG_RU_DEPLOY_KEY }}
           REMOTE_USER: u3187320
           REMOTE_HOST: ${{ secrets.HOST }}
-          TARGET: /home/u3187320/www/gabiclub.ru/
-          SOURCE: frontend/out
+          local-path: frontend/out
+          remote-path: /home/u3187320/www/gabiclub.ru/
           ARGS: "-rltgoDzvO --delete"
