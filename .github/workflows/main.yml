@@ -1,28 +1,25 @@
-name: 🚀 Deploy Frontend
+name: Deploy Frontend to REG.RU
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
-    name: 🔁 Deploy to Server
+    name: 🔄 Deploy via SSH
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v3
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
 
-      - name: 🚀 SSH Deploy
+      - name: 🚀 Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.HOST }}                     # 🔑 IP или домен сервера
-          username: u3187320                            # 👤 Имя пользователя (жёстко задан)
-          key: ${{ secrets.REG_RU_DEPLOY_KEY }}         # 🔐 Приватный ключ для доступа
+          host: ${{ secrets.HOST }}
+          username: u3187320
+          key: ${{ secrets.REG_RU_DEPLOY_KEY }}
           port: 22
-          timeout: 30s
-          command_timeout: 10m
           script: |
             echo "📡 Подключение по SSH..."
             echo "✅ Успешное подключение!"
@@ -34,15 +31,22 @@ jobs:
 
             echo "📦 Добавление Node 20 в PATH..."
             export PATH="$HOME/.nvm/versions/node/v20.14.0/bin:$PATH"
-            node -v
+
+            echo "🧪 Проверка Node и NPM..."
+            node -v || nvm use 20
             npm -v
+
+            echo "🔐 Исправление прав доступа..."
+            chmod -R u+rwX,g+rwX,o+rX node_modules || true
 
             echo "📦 Установка зависимостей..."
             npm install
+
+            echo "📥 Установка PM2..."
+            npm install -g pm2
 
             echo "🛠 Сборка проекта..."
             npm run build
 
             echo "♻️ Перезапуск PM2..."
             pm2 reload frontend || pm2 start npm --name "frontend" -- run start
-
