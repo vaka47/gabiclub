@@ -40,6 +40,9 @@ jobs:
             echo "📁 Переход в frontend"
             cd frontend
 
+            echo "🧹 Починка прав доступа к node_modules"
+            chmod -R u+rx node_modules/.bin || true
+
             echo "📦 Установка зависимостей"
             npm install
 
@@ -51,5 +54,3 @@ jobs:
 
             echo "✅ Деплой завершён"
           EOF
-
-
