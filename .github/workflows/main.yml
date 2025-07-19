@@ -3,7 +3,7 @@ name: 🚀 Deploy to REG.RU (gabiclub.ru)
 on:
   push:
     branches:
-      - main  # если твоя главная ветка называется master — замени здесь
+      - main
 
 jobs:
   deploy:
@@ -29,10 +29,9 @@ jobs:
       - name: 📂 Upload to REG.RU via SSH
         uses: easingthemes/ssh-deploy@main
         with:
-          ssh-private-key: ${{ secrets.REG_RU_DEPLOY_KEY }}
-          remote-user: u3187320
-          remote-host: ${{ secrets.HOST }}
-          remote-path: ${{ secrets.DEPLOY_PATH }}
-          local-path: out
-          working-directory: ./frontend
-          args: "-rltgoDzvO --delete"
+          SSH_PRIVATE_KEY: ${{ secrets.REG_RU_DEPLOY_KEY }}
+          REMOTE_USER: u3187320
+          REMOTE_HOST: ${{ secrets.HOST }}
+          TARGET: /home/u3187320/www/gabiclub.ru/
+          SOURCE: frontend/out
+          ARGS: "-rltgoDzvO --delete"
