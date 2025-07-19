@@ -1,55 +1,34 @@
-name: 🚀 Deploy to REG.RU (gabiclub.ru)
+name: 🚀 Deploy to REG.RU
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout repo
+      - name: 📥 Checkout repo
         uses: actions/checkout@v3
 
-      - name: 🛠️ Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: 📦 Install dependencies
-        run: npm install
-        working-directory: ./frontend
-
-      - name: 🔨 Build project
-        run: npm run build
-        working-directory: ./frontend
-
-      - name: 🔍 Prepare SSH Key and log
+      - name: 🛠️ Setup SSH Key
         run: |
-          echo "📦 Старт отладки ключа"
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          echo "${{ secrets.REG_RU_DEPLOY_KEY }}" > ~/.ssh/id_deploy
           chmod 600 ~/.ssh/id_deploy
 
-          echo "🔐 Проверка пути ключа:"
-          ls -la ~/.ssh
+      - name: 🕵️ Show SSH key fingerprint
+        run: |
+          echo "🔐 SSH key fingerprint:"
+          ssh-keygen -lf ~/.ssh/id_deploy || echo "❌ Ключ не прочитан"
 
-          echo "🔐 Fingerprint ключа:"
-          ssh-keygen -lf ~/.ssh/id_deploy || echo "❌ Не удалось прочитать fingerprint"
+      - name: 🔐 Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan server295.hosting.reg.ru >> ~/.ssh/known_hosts
 
-          echo "✅ Ключ сохранён, переходим к деплою"
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.REG_RU_DEPLOY_KEY }}
+      - name: 🚀 Deploy to REG.RU via SSH
+        run: |
+          ssh -i ~/.ssh/id_deploy u3187320@server295.hosting.reg.ru 'ls -la'
 
-      - name: 📂 Upload to REG.RU via SSH
-        uses: easingthemes/ssh-deploy@main
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.REG_RU_DEPLOY_KEY }}
-          REMOTE_HOST: ${{ secrets.HOST }}
-          REMOTE_USER: u3187320
-          SOURCE: frontend/out
-          TARGET: /home/u3187320/www/gabiclub.ru/
-          ARGS: "-rltgoDzvO --delete"
 
