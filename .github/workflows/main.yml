@@ -1,4 +1,4 @@
-name: 🚀 Deploy to REG.RU
+name: 🚀 Deploy Frontend
 
 on:
   push:
@@ -9,50 +9,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🔽 Checkout code
+      - name: 🧾 Checkout репозиторий
         uses: actions/checkout@v3
 
-      - name: 🛡️ Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.REG_RU_DEPLOY_KEY }}" > ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/id_deploy
-          ssh-keygen -lf ~/.ssh/id_deploy || echo "❌ Ключ не прочитан"
-
-      - name: 📡 Deploy to REG.RU
-        run: |
-          echo "📡 Подключение по SSH..."
-          ssh -T -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no u3187320@server295.hosting.reg.ru << 'EOF'
-            set -e
+      - name: 🔐 Подключение к серверу по SSH и деплой
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            echo "📡 Подключение по SSH..."
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
             echo "✅ Успешное подключение!"
+            cd ~/gabiclub/frontend
 
-            echo "📦 Загрузка nvm"
-            export NVM_DIR="\$HOME/.nvm"
-            . "\$NVM_DIR/nvm.sh"
-            nvm use 18
-
-            echo "📁 Переход в директорию ~/gabiclub"
-            cd ~/gabiclub
-
-            echo "📦 Git pull..."
+            echo "🔄 Git Pull..."
             git pull origin main
 
-            echo "📁 Переход в frontend"
-            cd frontend
-
-            echo "🧹 Починка прав доступа к node_modules"
-            chmod -R u+rx node_modules/.bin || true
-
-            echo "📦 Установка зависимостей"
+            echo "📦 Выбор Node версии и установка зависимостей..."
+            nvm use 20
             npm install
 
-            echo "🛠️ Сборка проекта"
+            echo "🛠 Сборка проекта..."
             npm run build
 
-            echo "🔁 Перезапуск pm2"
-            pm2 restart frontend || echo "⚠️ pm2 не найден или процесс не существует"
+            echo "♻️ Перезапуск PM2..."
+            pm2 reload frontend || pm2 start npm --name "frontend" -- run start
 
-            echo "✅ Деплой завершён"
-          EOF
 
