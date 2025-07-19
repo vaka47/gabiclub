@@ -14,23 +14,25 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v3
 
-      - name: 🚀 Deploy via SSH
+      - name: 🚀 SSH Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.HOST }}                     # 🔑 IP или домен сервера
+          username: u3187320                            # 👤 Имя пользователя (жёстко задан)
+          key: ${{ secrets.REG_RU_DEPLOY_KEY }}         # 🔐 Приватный ключ для доступа
           port: 22
+          timeout: 30s
+          command_timeout: 10m
           script: |
             echo "📡 Подключение по SSH..."
-
             echo "✅ Успешное подключение!"
+
             cd ~/gabiclub/frontend
 
             echo "🔄 Git Pull..."
             git pull origin main
 
-            echo "📦 Установка Node 20 (без nvm)..."
+            echo "📦 Добавление Node 20 в PATH..."
             export PATH="$HOME/.nvm/versions/node/v20.14.0/bin:$PATH"
             node -v
             npm -v
@@ -43,3 +45,4 @@ jobs:
 
             echo "♻️ Перезапуск PM2..."
             pm2 reload frontend || pm2 start npm --name "frontend" -- run start
+
