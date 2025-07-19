@@ -26,6 +26,16 @@ jobs:
         run: npm run build
         working-directory: ./frontend
 
+      - name: 🕵️ Debug SSH Key (log which key will be used)
+        run: |
+          echo "$SSH_PRIVATE_KEY" > ./deploy_key
+          chmod 600 ./deploy_key
+          echo "🔐 SSH key fingerprint:"
+          ssh-keygen -lf ./deploy_key || echo "❌ Не удалось прочитать ключ"
+
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.REG_RU_DEPLOY_KEY }}
+
       - name: 📂 Upload to REG.RU via SSH
         uses: easingthemes/ssh-deploy@main
         with:
@@ -35,4 +45,4 @@ jobs:
           SOURCE: frontend/out
           TARGET: /home/u3187320/www/gabiclub.ru/
           ARGS: "-rltgoDzvO --delete"
-          
+
