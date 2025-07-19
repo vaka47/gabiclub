@@ -26,12 +26,17 @@ jobs:
         run: npm run build
         working-directory: ./frontend
 
-      - name: 🕵️ Debug SSH Key (log which key will be used)
+      - name: 🕵️ Print SSH key info (для отладки)
         run: |
-          echo "$SSH_PRIVATE_KEY" > ./deploy_key
-          chmod 600 ./deploy_key
-          echo "🔐 SSH key fingerprint:"
-          ssh-keygen -lf ./deploy_key || echo "❌ Не удалось прочитать ключ"
+          echo "📦 Старт отладки ключа"
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+
+          echo "🔐 Проверка fingerprint ключа:"
+          ssh-keygen -lf ~/.ssh/id_deploy || echo "❌ Не удалось получить fingerprint"
+
+          echo "🔌 Тест подключения к серверу (dry run)"
+          ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no -o BatchMode=yes u3187320@${{ secrets.HOST }} 'echo ✅ SSH подключение успешно' || echo "❌ Ошибка подключения"
 
         env:
           SSH_PRIVATE_KEY: ${{ secrets.REG_RU_DEPLOY_KEY }}
@@ -45,4 +50,3 @@ jobs:
           SOURCE: frontend/out
           TARGET: /home/u3187320/www/gabiclub.ru/
           ARGS: "-rltgoDzvO --delete"
-
