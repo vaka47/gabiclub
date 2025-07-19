@@ -1,15 +1,17 @@
-name: 🚀 Deploy to REG.RU Server
+
+name: 🚀 Deploy to REG.RU (gabiclub.ru)
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout repository
+      - name: 🧾 Checkout repo
         uses: actions/checkout@v3
 
       - name: 🔐 Setup SSH key
@@ -17,16 +19,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.REG_RU_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H server295.hosting.reg.ru >> ~/.ssh/known_hosts
+        shell: bash
 
-      - name: 🔍 Show SSH key fingerprint
-        run: |
-          echo "🔑 SSH Key Fingerprint:"
-          ssh-keygen -lf ~/.ssh/id_ed25519 || echo "❌ Ключ не найден или не читается"
-
-      - name: 📬 Add REG.RU to known_hosts
-        run: ssh-keyscan server295.hosting.reg.ru >> ~/.ssh/known_hosts
-
-      - name: 🚀 Deploy to REG.RU server
+      - name: 📡 Connect via SSH and deploy
         run: |
           echo "📡 Подключение по SSH..."
           ssh -i ~/.ssh/id_ed25519 u3187320@server295.hosting.reg.ru << 'EOF'
@@ -38,4 +34,3 @@ jobs:
             npm run build || exit 1
             pm2 restart frontend || echo "⚠️ pm2 не найден или процесс не существует"
           EOF
-
