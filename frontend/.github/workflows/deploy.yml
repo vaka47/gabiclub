@@ -3,7 +3,7 @@ name: 🚀 Deploy to REG.RU (gabiclub.ru)
 on:
   push:
     branches:
-      - main  # или 'master' — укажи свою главную ветку
+      - main
 
 jobs:
   deploy:
@@ -22,15 +22,14 @@ jobs:
         run: npm install
 
       - name: 🔨 Build project
-        run: npm run build
+        run: npm run build && npm run export
 
       - name: 📂 Upload to REG.RU via SSH
         uses: easingthemes/ssh-deploy@main
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          remote-user: u3187320
-          server-ip: server295.hosting.reg.ru
-          remote-path: /home/u3187320/www/gabiclub.ru/
-          local-path: out  # или `.next`, `dist` — укажи, какая папка создаётся после билда
-          args: "-rltgoDzvO --delete"
-
+          REMOTE_HOST: server295.hosting.reg.ru
+          REMOTE_USER: u3187320
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          TARGET: /home/u3187320/www/gabiclub.ru/
+          SOURCE: out
+          ARGS: "-rltgoDzvO --delete"
