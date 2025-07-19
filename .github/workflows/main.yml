@@ -1,31 +1,30 @@
-
-name: 🚀 Deploy to REG.RU (gabiclub.ru)
+name: 🚀 Deploy to REG.RU
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout repo
+      - name: 🔽 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🔐 Setup SSH key
+      - name: 🛡️ Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.REG_RU_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H server295.hosting.reg.ru >> ~/.ssh/known_hosts
-        shell: bash
+          echo "${{ secrets.REG_RU_DEPLOY_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
 
-      - name: 📡 Connect via SSH and deploy
+          echo "🔍 Проверка fingerprint:"
+          ssh-keygen -lf ~/.ssh/id_deploy || echo "❌ Ключ не прочитан"
+
+      - name: 📡 Deploy to REG.RU
         run: |
           echo "📡 Подключение по SSH..."
-          ssh -i ~/.ssh/id_ed25519 u3187320@server295.hosting.reg.ru << 'EOF'
+          ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no u3187320@server295.hosting.reg.ru << 'EOF'
             echo "✅ Успешное подключение!"
             cd ~/gabiclub || exit 1
             git pull origin main || exit 1
