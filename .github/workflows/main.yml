@@ -2,26 +2,27 @@ name: 🚀 Deploy Frontend
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
+    name: 🔁 Deploy to Server
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout репозиторий
+      - name: 📥 Checkout repository
         uses: actions/checkout@v3
 
-      - name: 🔐 Подключение к серверу по SSH и деплой
-        uses: appleboy/ssh-action@v1.0.0
+      - name: 🚀 Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
           script: |
             echo "📡 Подключение по SSH..."
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
             echo "✅ Успешное подключение!"
             cd ~/gabiclub/frontend
@@ -29,8 +30,12 @@ jobs:
             echo "🔄 Git Pull..."
             git pull origin main
 
-            echo "📦 Выбор Node версии и установка зависимостей..."
-            nvm use 20
+            echo "📦 Установка Node 20 (без nvm)..."
+            export PATH="$HOME/.nvm/versions/node/v20.14.0/bin:$PATH"
+            node -v
+            npm -v
+
+            echo "📦 Установка зависимостей..."
             npm install
 
             echo "🛠 Сборка проекта..."
@@ -38,5 +43,3 @@ jobs:
 
             echo "♻️ Перезапуск PM2..."
             pm2 reload frontend || pm2 start npm --name "frontend" -- run start
-
-
