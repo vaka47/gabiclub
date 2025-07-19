@@ -1,4 +1,4 @@
-name: 🚀 Deploy to REG.RU
+name: 🚀 Deploy to REG.RU server
 
 on:
   push:
@@ -9,26 +9,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout repo
+      - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🛠️ Setup SSH Key
+      - name: 🛠️ Setup SSH key
         run: |
+          mkdir -p ~/.ssh
           echo "${{ secrets.REG_RU_DEPLOY_KEY }}" > ~/.ssh/id_deploy
           chmod 600 ~/.ssh/id_deploy
 
       - name: 🕵️ Show SSH key fingerprint
         run: |
           echo "🔐 SSH key fingerprint:"
-          ssh-keygen -lf ~/.ssh/id_deploy || echo "❌ Ключ не прочитан"
+          ssh-keygen -lf ~/.ssh/id_deploy || echo "❌ Не удалось прочитать ключ"
 
-      - name: 🔐 Add server to known_hosts
+      - name: 🔐 Add REG.RU server to known_hosts
         run: |
-          mkdir -p ~/.ssh
           ssh-keyscan server295.hosting.reg.ru >> ~/.ssh/known_hosts
 
-      - name: 🚀 Deploy to REG.RU via SSH
+      - name: 🚀 Deploy via SSH
         run: |
-          ssh -i ~/.ssh/id_deploy u3187320@server295.hosting.reg.ru 'ls -la'
-
-
+          ssh -i ~/.ssh/id_deploy u3187320@server295.hosting.reg.ru 'ls -la ~/gabiclub'
