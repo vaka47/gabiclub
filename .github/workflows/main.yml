@@ -20,9 +20,11 @@ jobs:
 
       - name: 📦 Install dependencies
         run: npm install
+        working-directory: ./frontend
 
       - name: 🔨 Build project
         run: npm run build
+        working-directory: ./frontend
 
       - name: 📂 Upload to REG.RU via SSH
         uses: easingthemes/ssh-deploy@main
@@ -32,4 +34,5 @@ jobs:
           remote-host: ${{ secrets.HOST }}
           remote-path: ${{ secrets.DEPLOY_PATH }}
           local-path: out
+          working-directory: ./frontend
           args: "-rltgoDzvO --delete"
