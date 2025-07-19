@@ -34,3 +34,4 @@ jobs:
 
             pm2 restart frontend || echo "⚠️ pm2 не найден или процесс не существует"
           EOF
+
