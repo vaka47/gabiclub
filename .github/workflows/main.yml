@@ -1,4 +1,4 @@
-name: 🚀 Deploy to REG.RU server
+name: 🚀 Deploy to REG.RU Server
 
 on:
   push:
@@ -9,24 +9,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout code
+      - name: 📥 Checkout repository
         uses: actions/checkout@v3
 
-      - name: 🛠️ Setup SSH key
+      - name: 🔐 Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.REG_RU_DEPLOY_KEY }}" > ~/.ssh/id_deploy
-          chmod 600 ~/.ssh/id_deploy
+          echo "${{ secrets.REG_RU_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
 
-      - name: 🕵️ Show SSH key fingerprint
+      - name: 🔍 Show SSH key fingerprint
         run: |
-          echo "🔐 SSH key fingerprint:"
-          ssh-keygen -lf ~/.ssh/id_deploy || echo "❌ Не удалось прочитать ключ"
+          echo "🔑 SSH Key Fingerprint:"
+          ssh-keygen -lf ~/.ssh/id_ed25519 || echo "❌ Ключ не найден или не читается"
 
-      - name: 🔐 Add REG.RU server to known_hosts
-        run: |
-          ssh-keyscan server295.hosting.reg.ru >> ~/.ssh/known_hosts
+      - name: 📬 Add REG.RU to known_hosts
+        run: ssh-keyscan server295.hosting.reg.ru >> ~/.ssh/known_hosts
 
-      - name: 🚀 Deploy via SSH
+      - name: 🚀 Deploy to REG.RU server
         run: |
-          ssh -i ~/.ssh/id_deploy u3187320@server295.hosting.reg.ru 'ls -la ~/gabiclub'
+          echo "📡 Подключение по SSH..."
+          ssh -i ~/.ssh/id_ed25519 u3187320@server295.hosting.reg.ru << 'EOF'
+            echo "✅ Успешное подключение!"
+            cd ~/gabiclub || exit 1
+            git pull origin main || exit 1
+            echo "📦 Обновлено. Запуск сборки..."
+            npm install || exit 1
+            npm run build || exit 1
+            pm2 restart frontend || echo "⚠️ pm2 не найден или процесс не существует"
+          EOF
+
