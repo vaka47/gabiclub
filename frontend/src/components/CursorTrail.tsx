@@ -22,7 +22,7 @@ function distance(a: TrailPoint, b: TrailPoint): number {
 export default function CursorTrail() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const pointsRef = useRef<TrailPoint[]>([]);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
