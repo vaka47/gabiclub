@@ -1,33 +1,116 @@
-from django.shortcuts import render
+from __future__ import annotations
 
-# Create your views here.
+from datetime import date
 
-from rest_framework.decorators import api_view
+from django.utils.dateparse import parse_date
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import TrainingSession
-from .serializers import TrainingSessionSerializer
+from rest_framework.views import APIView
 
-@api_view(['GET'])
-def schedule_view(request):
-    start = request.GET.get('start')
-    end = request.GET.get('end')
-    sessions = TrainingSession.objects.filter(date__range=[start, end])
+from .models import (
+    Coach,
+    LevelTag,
+    Location,
+    TrainingDirection,
+    TrainingPlan,
+    TrainingSession,
+)
+from .serializers import (
+    CoachSerializer,
+    LevelTagSerializer,
+    LocationSerializer,
+    TrainingDirectionSerializer,
+    TrainingPlanSerializer,
+    TrainingSessionSerializer,
+)
 
-    if t := request.GET.get('type'):
-        sessions = sessions.filter(type=t)
 
-    if d := request.GET.get('direction_id'):
-        sessions = sessions.filter(direction_id=d)
+class TrainingSessionViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = TrainingSessionSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = {
+        "type": ["exact"],
+        "direction__id": ["exact"],
+        "coach__id": ["exact"],
+        "location__id": ["exact"],
+        "levels__tag": ["exact"],
+    }
+    ordering = ("date", "start_time")
 
-    if c := request.GET.get('coach_id'):
-        sessions = sessions.filter(coach_id=c)
+    def get_queryset(self):
+        queryset = (
+            TrainingSession.objects.select_related("direction", "coach", "location")
+            .prefetch_related("levels", "attachments")
+            .order_by("date", "start_time")
+        )
 
-    if l := request.GET.get('location_id'):
-        sessions = sessions.filter(location_id=l)
+        params = self.request.query_params
+        start_param = params.get("start")
+        end_param = params.get("end")
 
-    if level := request.GET.get('level'):
-        sessions = sessions.filter(levels__tag=level)
+        if start_param:
+            start_date = parse_date(start_param)
+            if start_date:
+                queryset = queryset.filter(date__gte=start_date)
+        if end_param:
+            end_date = parse_date(end_param)
+            if end_date:
+                queryset = queryset.filter(date__lte=end_date)
 
-    data = TrainingSessionSerializer(sessions, many=True).data
-    return Response(data)
+        if not start_param and not end_param:
+            queryset = queryset.filter(date__gte=date.today())
 
+        return queryset.distinct()
+
+    @action(detail=False, methods=["get"], url_path="filters")
+    def filters(self, request, *args, **kwargs):
+        directions = TrainingDirection.objects.all()
+        coaches = Coach.objects.all()
+        locations = Location.objects.all()
+        levels = LevelTag.objects.all()
+
+        return Response(
+            {
+                "directions": TrainingDirectionSerializer(directions, many=True).data,
+                "coaches": CoachSerializer(coaches, many=True).data,
+                "locations": LocationSerializer(locations, many=True).data,
+                "levels": LevelTagSerializer(levels, many=True).data,
+            }
+        )
+
+
+class TrainingPlanViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = TrainingPlanSerializer
+    queryset = TrainingPlan.objects.prefetch_related("benefits").order_by(
+        "category", "order", "price"
+    )
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = {"category": ["exact"], "is_featured": ["exact"]}
+
+
+class CoachViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = CoachSerializer
+    queryset = Coach.objects.prefetch_related("directions").order_by("full_name")
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = {"is_featured": ["exact"], "directions__id": ["exact"]}
+
+
+class TrainingMetaView(APIView):
+    def get(self, request, *args, **kwargs):
+        directions = TrainingDirectionSerializer(
+            TrainingDirection.objects.all(), many=True
+        ).data
+        locations = LocationSerializer(Location.objects.all(), many=True).data
+        levels = LevelTagSerializer(LevelTag.objects.all(), many=True).data
+        coaches = CoachSerializer(Coach.objects.all(), many=True).data
+
+        return Response(
+            {
+                "directions": directions,
+                "locations": locations,
+                "levels": levels,
+                "coaches": coaches,
+            }
+        )

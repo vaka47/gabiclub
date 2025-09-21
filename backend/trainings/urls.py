@@ -1,6 +1,14 @@
-from django.urls import path
-from .views import schedule_view  # или ScheduleAPIView.as_view()
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+
+from .views import CoachViewSet, TrainingMetaView, TrainingPlanViewSet, TrainingSessionViewSet
+
+router = DefaultRouter()
+router.register(r'schedule', TrainingSessionViewSet, basename='schedule')
+router.register(r'coaches', CoachViewSet, basename='coaches')
+router.register(r'plans', TrainingPlanViewSet, basename='plans')
 
 urlpatterns = [
-    path("schedule/", schedule_view, name="schedule_view"),
+    path('', include(router.urls)),
+    path('meta/', TrainingMetaView.as_view(), name='training-meta'),
 ]

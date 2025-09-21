@@ -20,6 +20,7 @@ a:hover {
 .section-title {
   @apply text-3xl md:text-4xl font-semibold text-gabi-dark tracking-tight;
 }
+
 .section-subtitle {
   @apply text-base md:text-lg text-gray-500 max-w-2xl;
 }
@@ -46,6 +47,7 @@ a:hover {
   background: linear-gradient(135deg, rgba(0,108,255,0.8), rgba(255,45,45,0.8));
   padding: 1px;
 }
+
 .gradient-border > .gradient-inner {
   border-radius: inherit;
   background: white;

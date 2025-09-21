@@ -1,40 +1,92 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import (
+    Coach,
+    LevelTag,
+    Location,
+    SessionAttachment,
+    Training,
+    TrainingDirection,
+    TrainingPlan,
+    TrainingPlanBenefit,
+    TrainingSession,
+)
 
-
-from django.contrib import admin
-from .models import Training
 
 @admin.register(Training)
 class TrainingAdmin(admin.ModelAdmin):
-    list_display = ('title', 'date', 'time', 'coach', 'location', 'type')
-    list_filter = ('date', 'coach', 'type')
-    search_fields = ('title', 'coach', 'location')
+    list_display = ("title", "date", "time", "coach", "location", "type")
+    list_filter = ("date", "coach", "type")
+    search_fields = ("title", "coach", "location")
 
-from django.contrib import admin
-from .models import TrainingSession, Location, TrainingDirection, LevelTag
+
+class TrainingPlanBenefitInline(admin.TabularInline):
+    model = TrainingPlanBenefit
+    extra = 1
+
+
+@admin.register(TrainingPlan)
+class TrainingPlanAdmin(admin.ModelAdmin):
+    list_display = ("title", "category", "price", "period", "is_featured", "order")
+    list_filter = ("category", "is_featured")
+    ordering = ("category", "order")
+    inlines = [TrainingPlanBenefitInline]
+
+
+@admin.register(TrainingDirection)
+class TrainingDirectionAdmin(admin.ModelAdmin):
+    list_display = ("title", "icon")
+    search_fields = ("title",)
+
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ("title", "address")
+    search_fields = ("title", "address")
+
+
+@admin.register(LevelTag)
+class LevelTagAdmin(admin.ModelAdmin):
+    list_display = ("tag", "__str__")
+
+
+class SessionAttachmentInline(admin.TabularInline):
+    model = SessionAttachment
+    extra = 0
+
 
 @admin.register(TrainingSession)
 class TrainingSessionAdmin(admin.ModelAdmin):
-    list_display = ('date', 'start_time', 'end_time', 'direction', 'coach', 'location')
-    list_filter = ('type', 'direction', 'coach', 'location', 'levels')
-    search_fields = ('direction__title', 'coach__full_name', 'location__title')
-    filter_horizontal = ('levels',)
+    list_display = (
+        "date",
+        "start_time",
+        "end_time",
+        "direction",
+        "coach",
+        "location",
+        "type",
+        "spots_available",
+    )
+    list_filter = ("type", "direction", "coach", "location", "levels")
+    search_fields = (
+        "title",
+        "direction__title",
+        "coach__full_name",
+        "location__title",
+    )
+    filter_horizontal = ("levels",)
+    inlines = [SessionAttachmentInline]
 
-admin.site.register(Location)
-admin.site.register(TrainingDirection)
-admin.site.register(LevelTag)
-
-
-from .models import Coach
 
 @admin.register(Coach)
 class CoachAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'instagram', 'get_directions')
-    search_fields = ('full_name', 'instagram')
-    filter_horizontal = ('directions',)
+    list_display = ("full_name", "role", "instagram", "telegram", "is_featured")
+    search_fields = ("full_name", "bio", "instagram")
+    filter_horizontal = ("directions",)
+    list_filter = ("is_featured", "directions")
 
-    def get_directions(self, obj):
-        return ", ".join([d.title for d in obj.directions.all()])
-    get_directions.short_description = "Направления"
+
+@admin.register(SessionAttachment)
+class SessionAttachmentAdmin(admin.ModelAdmin):
+    list_display = ("session", "title", "file")
+    search_fields = ("session__title", "title")
