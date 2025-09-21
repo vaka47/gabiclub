@@ -1,21 +1,60 @@
-@import "tailwindcss/preflight";
-@tailwind utilities;
+@tailwind base;
+@tailwind components;
 @tailwind utilities;
 
-html,
+:root {
+  color-scheme: light;
+}
+
 body {
-    padding: 0;
-    margin: 0;
-    font-family: Inter, sans-serif;
-    background-color: #fff;
-    color: #111827;
+  @apply bg-white text-gabi-gray font-body antialiased;
 }
 
 a {
-    color: #ec4899; /* Tailwind pink-500 */
-    text-decoration: none;
+  @apply text-gabi-blue transition-colors duration-200;
 }
 
 a:hover {
-    text-decoration: underline;
+  @apply text-gabi-red;
+}
+
+.section-title {
+  @apply text-3xl md:text-4xl font-semibold text-gabi-dark tracking-tight;
+}
+
+.section-subtitle {
+  @apply text-base md:text-lg text-gray-500 max-w-2xl;
+}
+
+.badge {
+  @apply inline-flex items-center gap-2 rounded-full bg-gabi-blue/10 px-3 py-1 text-sm font-medium text-gabi-blue;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-full bg-gabi-blue px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-glow transition hover:bg-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gabi-blue/60 focus-visible:ring-offset-2;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-full border border-gabi-blue/30 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-gabi-blue transition hover:border-gabi-blue hover:bg-gabi-blue/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gabi-blue/40 focus-visible:ring-offset-2;
+}
+
+.card-surface {
+  @apply rounded-3xl bg-white/90 p-6 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35)] backdrop-blur;
+}
+
+.gradient-border {
+  position: relative;
+  border-radius: 1.75rem;
+  background: linear-gradient(135deg, rgba(0,108,255,0.8), rgba(255,45,45,0.8));
+  padding: 1px;
+}
+
+.gradient-border > .gradient-inner {
+  border-radius: inherit;
+  background: white;
+  height: 100%;
+}
+
+.muted-surface {
+  @apply rounded-3xl bg-slate-50/80 p-6 shadow-inner;
 }

@@ -1,0 +1,101 @@
+"use client";
+
+import { clsx } from "clsx";
+import { useMemo, useState } from "react";
+
+import type { TrainingPlan } from "@/lib/types";
+import { useLeadModal } from "./providers/LeadModalProvider";
+
+type PlanTabsProps = {
+  plans: TrainingPlan[];
+};
+
+type CategoryOption = {
+  value: TrainingPlan["category"];
+  label: string;
+};
+
+export default function PlanTabs({ plans }: PlanTabsProps) {
+  const { openLeadModal } = useLeadModal();
+
+  const categories = useMemo<CategoryOption[]>(() => {
+    const map = new Map<TrainingPlan["category"], string>();
+    plans.forEach((plan) => {
+      if (!map.has(plan.category)) {
+        map.set(plan.category, plan.category_display);
+      }
+    });
+    return Array.from(map.entries()).map(([value, label]) => ({ value, label }));
+  }, [plans]);
+
+  const [activeCategory, setActiveCategory] = useState<TrainingPlan["category"]>(
+    categories[0]?.value ?? "personal",
+  );
+
+  const filteredPlans = plans.filter((plan) => plan.category === activeCategory);
+
+  return (
+    <section className="mt-14 space-y-8">
+      <div className="flex flex-wrap gap-3">
+        {categories.map((category) => (
+          <button
+            key={category.value}
+            className={clsx(
+              "rounded-full px-5 py-2 text-sm font-semibold transition",
+              activeCategory === category.value
+                ? "bg-gabi-blue text-white shadow-glow"
+                : "bg-white text-slate-600 shadow-sm hover:bg-slate-100",
+            )}
+            onClick={() => setActiveCategory(category.value)}
+            type="button"
+          >
+            {category.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {filteredPlans.map((plan) => (
+          <div key={plan.id} className="card-surface flex h-full flex-col justify-between">
+            <div className="space-y-4">
+              {plan.is_featured && (
+                <span className="badge bg-gabi-red/15 text-gabi-red">Хит</span>
+              )}
+              <div>
+                <h3 className="text-2xl font-semibold text-gabi-dark">{plan.title}</h3>
+                <p className="text-sm text-slate-500">{plan.description}</p>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-semibold text-gabi-blue">
+                  {plan.price.toLocaleString("ru-RU")}
+                </span>
+                <span className="text-sm text-slate-500">{plan.period}</span>
+              </div>
+              <ul className="space-y-2 text-sm text-slate-600">
+                {plan.benefits.map((benefit) => (
+                  <li key={benefit.id} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
+                    {benefit.text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <button
+              className="btn-primary mt-6 w-full"
+              onClick={() =>
+                openLeadModal({
+                  source: "plan",
+                  preferred_direction: plan.title,
+                  message: `Хочу тариф "${plan.title}"`,
+                })
+              }
+              type="button"
+            >
+              Выбрать тариф
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
