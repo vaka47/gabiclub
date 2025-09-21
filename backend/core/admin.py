@@ -1,9 +1,48 @@
 from django.contrib import admin
 
-# Register your models here.
-from django.contrib import admin
-from .models import ContactLink
+from .models import ClubProfile, ContactInfo, HeroSlide, LeadRequest, SocialLink
 
-@admin.register(ContactLink)
-class ContactLinkAdmin(admin.ModelAdmin):
-    list_display = ('instagram', 'telegram', 'website', 'phone')
+
+class SocialLinkInline(admin.TabularInline):
+    model = SocialLink
+    extra = 0
+
+
+@admin.register(ContactInfo)
+class ContactInfoAdmin(admin.ModelAdmin):
+    list_display = (
+        "title",
+        "phone_primary",
+        "email",
+        "telegram",
+        "instagram",
+        "updated_at",
+    )
+    search_fields = ("title", "phone_primary", "email")
+    inlines = [SocialLinkInline]
+
+
+class HeroSlideInline(admin.TabularInline):
+    model = HeroSlide
+    extra = 0
+
+
+@admin.register(ClubProfile)
+class ClubProfileAdmin(admin.ModelAdmin):
+    list_display = ("name", "tagline", "founded_year", "updated_at")
+    inlines = [HeroSlideInline]
+
+
+@admin.register(LeadRequest)
+class LeadRequestAdmin(admin.ModelAdmin):
+    list_display = ("full_name", "phone", "preferred_direction", "created_at")
+    search_fields = ("full_name", "phone", "email", "preferred_direction")
+    list_filter = ("source", "created_at")
+    readonly_fields = ("created_at",)
+
+
+@admin.register(SocialLink)
+class SocialLinkAdmin(admin.ModelAdmin):
+    list_display = ("title", "url", "contact", "order")
+    list_filter = ("contact",)
+    ordering = ("contact", "order")
