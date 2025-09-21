@@ -13,7 +13,6 @@ body {
 a {
   @apply text-gabi-blue transition-colors duration-200;
 }
-
 a:hover {
   @apply text-gabi-red;
 }

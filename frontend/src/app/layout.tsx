@@ -20,6 +20,11 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [contact, club] = await Promise.all([getContactInfo(), getClubProfile()]);
 
+
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const [contact, club] = await Promise.all([getContactInfo(), getClubProfile()]);
+
   return (
     <html lang="ru">
       <body className={`${inter.variable} ${bebas.variable} min-h-screen bg-slate-50 text-gabi-gray`}>
@@ -34,4 +39,5 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </body>
     </html>
   );
+}
 }
