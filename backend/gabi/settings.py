@@ -16,7 +16,13 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY") or "dev-secret"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.getenv("DJANGO_DEBUG", "1")))
 
-ALLOWED_HOSTS = ["gabiclub.ru", "admin.gabiclub.ru", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "gabiclub.ru",
+    "admin.gabiclub.ru",
+    "api.gabiclub.ru",
+    "localhost",
+    "127.0.0.1",
+]
 
 
 # Application definition
@@ -128,6 +134,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CORS_ALLOWED_ORIGINS = [
     'https://gabiclub.ru',
     'https://admin.gabiclub.ru',
+    # local dev
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ]
@@ -136,6 +143,8 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     'https://gabiclub.ru',
     'https://admin.gabiclub.ru',
+    'https://api.gabiclub.ru',
+    # local dev
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ]

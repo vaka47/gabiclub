@@ -43,7 +43,15 @@ async function fetchFromApi<T>(endpoint: string, init?: RequestInit): Promise<T 
       console.warn(`API ${endpoint} responded with ${response.status}`);
       return null;
     }
-    return (await response.json()) as T;
+    const json = await response.json();
+    // Normalize DRF pagination: when a list endpoint is paginated, it returns
+    // { count, next, previous, results: [...] }. We return the array to callers
+    // that expect lists; single-object endpoints are returned as-is.
+    const normalized =
+      json && typeof json === "object" && "results" in json && Array.isArray((json as any).results)
+        ? (json as any).results
+        : json;
+    return normalized as T;
   } catch (error) {
     console.warn(`API request to ${endpoint} failed`, error);
     return null;
