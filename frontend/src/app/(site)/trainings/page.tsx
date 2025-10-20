@@ -5,7 +5,7 @@ import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
-import { getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, getTrainingSessions } from "@/lib/api";
+import { getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, getTrainingSessions, resolveMediaUrl } from "@/lib/api";
 
 
 export default async function TrainingsPage() {
@@ -19,7 +19,7 @@ export default async function TrainingsPage() {
   ]);
 
   const featuredCoaches = coaches.filter((coach) => coach.is_featured);
-  const formPhoto = theme?.club_photo || process.env.NEXT_PUBLIC_CLUB_PHOTO || club.hero_slides?.[0]?.image;
+  const formPhoto = resolveMediaUrl(theme?.club_photo) || process.env.NEXT_PUBLIC_CLUB_PHOTO || club.hero_slides?.[0]?.image;
 
   return (
     <div className="space-y-20 pb-10">

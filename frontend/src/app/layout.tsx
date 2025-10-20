@@ -7,7 +7,7 @@ import CursorTrail from "@/components/CursorTrail";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import LeadModalProvider from "@/components/providers/LeadModalProvider";
-import { getClubProfile, getContactInfo, getTheme } from "@/lib/api";
+import { getClubProfile, getContactInfo, getTheme, resolveMediaUrl } from "@/lib/api";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [contact, club, theme] = await Promise.all([getContactInfo(), getClubProfile(), getTheme()]);
-  const snowBg = theme?.snow_bg || process.env.NEXT_PUBLIC_SNOW_BG;
+  const snowBg = resolveMediaUrl(theme?.snow_bg) || process.env.NEXT_PUBLIC_SNOW_BG;
   const themeVars: React.CSSProperties = {
     ["--brand-primary" as any]: theme?.primary_color || "#006CFF",
     ["--brand-secondary" as any]: theme?.secondary_color || "#FF7A00",
@@ -33,9 +33,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="ru">
       <body
         className={`${inter.variable} ${bebas.variable} min-h-screen text-gabi-gray`}
-        style={{ backgroundColor: "var(--brand-bg)" }}
+        style={themeVars}
       >
-        <div style={themeVars}>
+        <div style={{ backgroundColor: "var(--brand-bg)" }}>
         {/* Site-wide subtle snow background */}
         {snowBg && (
           <div className="fixed inset-0 -z-10">
