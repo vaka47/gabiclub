@@ -15,11 +15,11 @@ import {
   TrainingSession,
 } from "./types";
 
-// Prefer explicit env; otherwise try same-origin "/api" (works in prod behind one domain).
-// If the request fails (e.g., on localhost without a proxy), we gracefully fall back to mocks.
-const ENV_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-const API_BASE = (ENV_BASE && ENV_BASE.length > 0 ? ENV_BASE : "/api") as string;
-const hasApi = true;
+// Use absolute API base URL only if provided.
+// During static build on Vercel, relative URLs like "/api" are invalid for Node fetch.
+// If not provided, we skip network calls and fall back to local mocks.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+const hasApi = Boolean(API_BASE);
 
 type TrainingMeta = {
   directions: TrainingDirection[];
