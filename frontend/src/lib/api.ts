@@ -57,9 +57,24 @@ async function fetchFromApi<T>(endpoint: string, init?: RequestInit): Promise<T 
       },
       next: { revalidate: 60 },
     });
+    // Gracefully handle non-OK and empty responses (e.g., 204 No Content)
+    if (response.status === 204) {
+      return null;
+    }
     if (!response.ok) {
       console.warn(`API ${endpoint} responded with ${response.status}`);
       return null;
+    }
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const text = await response.text();
+      if (!text) return null;
+      try {
+        return JSON.parse(text) as T;
+      } catch {
+        console.warn(`API ${endpoint} returned non-JSON content-type: ${contentType}`);
+        return null;
+      }
     }
     const json = await response.json();
     // Normalize DRF pagination: when a list endpoint is paginated, it returns
