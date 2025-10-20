@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import type { HeroSlide } from "@/lib/types";
+import { resolveMediaUrl } from "@/lib/api";
 import { useLeadModal } from "./providers/LeadModalProvider";
 
 type HeroSectionProps = {
@@ -82,7 +83,7 @@ export default function HeroSection({ slides, clubName, tagline, description }: 
             >
               {activeSlide?.image ? (
                 <Image
-                  src={activeSlide.image}
+                  src={resolveMediaUrl(activeSlide.image) ?? activeSlide.image}
                   alt={activeSlide.title ?? "Gabi Club"}
                   fill
                   className="object-cover"

@@ -3,13 +3,16 @@
 import Image from "next/image";
 
 import type { Coach } from "@/lib/types";
+import { resolveMediaUrl } from "@/lib/api";
+import LeadCtaButton from "./LeadCtaButton";
 import { useLeadModal } from "./providers/LeadModalProvider";
 
 function CoachAvatar({ coach }: { coach: Coach }) {
-  if (coach.photo) {
+  const photoUrl = resolveMediaUrl(coach.photo ?? undefined);
+  if (photoUrl) {
     return (
       <Image
-        src={coach.photo}
+        src={photoUrl}
         alt={coach.full_name}
         width={72}
         height={72}
@@ -65,19 +68,15 @@ export default function CoachShowcase({ coaches }: CoachShowcaseProps) {
                 ))}
               </div>
             )}
-            <button
+            <LeadCtaButton
+              label="Связаться с тренером"
               className="btn-secondary mt-auto"
-              onClick={() =>
-                openLeadModal({
-                  source: "coach",
-                  preferred_direction: coach.directions[0]?.title ?? coach.full_name,
-                  message: `Хочу тренироваться с ${coach.full_name}`,
-                })
-              }
-              type="button"
-            >
-              Связаться с тренером
-            </button>
+              source="coach"
+              initial={{
+                preferred_direction: coach.directions[0]?.title ?? coach.full_name,
+                message: `Хочу тренироваться с ${coach.full_name}`,
+              }}
+            />
           </div>
         ))}
       </div>

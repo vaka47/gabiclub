@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
 import LeadCtaButton from "@/components/LeadCtaButton";
+import { resolveMediaUrl } from "@/lib/api";
 import { getCamps } from "@/lib/api";
 import type { Camp } from "@/lib/types";
 
@@ -19,7 +20,7 @@ function CampCard({ camp }: { camp: Camp }) {
     <article className="card-surface flex h-full flex-col overflow-hidden">
       <div className="relative h-52 w-full overflow-hidden rounded-2xl">
         {camp.hero_image ? (
-          <Image src={camp.hero_image} alt={camp.title} fill className="object-cover" />
+          <Image src={resolveMediaUrl(camp.hero_image) ?? camp.hero_image} alt={camp.title} fill className="object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center bg-gabi-blue/20 text-lg font-semibold text-gabi-blue">
             {camp.location}

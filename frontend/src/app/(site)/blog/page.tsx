@@ -3,7 +3,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
-import { getArticles, getTags } from "@/lib/api";
+import { getArticles, getTags, resolveMediaUrl } from "@/lib/api";
 
 function formatDate(date: string) {
   return format(new Date(date), "d MMMM yyyy", { locale: ru });
@@ -54,7 +54,7 @@ export default async function BlogPage({ searchParams }: { searchParams?: Promis
           <article key={article.slug} className="card-surface flex h-full flex-col overflow-hidden">
             <div className="relative h-52 w-full overflow-hidden rounded-3xl">
               {article.cover_image ? (
-                <Image src={article.cover_image} alt={article.title} fill className="object-cover" />
+                <Image src={resolveMediaUrl(article.cover_image) ?? article.cover_image} alt={article.title} fill className="object-cover" />
               ) : (
                 <div className="flex h-full items-center justify-center bg-gabi-blue/10 text-lg font-semibold text-gabi-blue">
                   {article.title}

@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 
 import LeadCtaButton from "@/components/LeadCtaButton";
-import { getCampBySlug, getCamps } from "@/lib/api";
+import { getCampBySlug, getCamps, resolveMediaUrl } from "@/lib/api";
 
 function formatDate(date: string) {
   return format(new Date(date), "d MMMM yyyy", { locale: ru });
@@ -28,7 +28,7 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
       <header className="space-y-6">
         <div className="relative h-[360px] overflow-hidden rounded-[32px]">
           {camp.hero_image ? (
-            <Image src={camp.hero_image} alt={camp.title} fill className="object-cover" priority />
+            <Image src={resolveMediaUrl(camp.hero_image) ?? camp.hero_image} alt={camp.title} fill className="object-cover" priority />
           ) : (
             <div className="flex h-full items-center justify-center bg-gabi-blue/10 text-2xl font-semibold text-gabi-blue">
               {camp.title}
@@ -102,7 +102,7 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
           <div className="grid gap-4 md:grid-cols-3">
             {camp.gallery.map((photo) => (
               <figure key={photo.id} className="overflow-hidden rounded-3xl">
-                <Image src={photo.image} alt={photo.caption ?? camp.title} width={640} height={420} className="h-full w-full object-cover" />
+                <Image src={resolveMediaUrl(photo.image) ?? photo.image} alt={photo.caption ?? camp.title} width={640} height={420} className="h-full w-full object-cover" />
                 {photo.caption && <figcaption className="px-2 py-2 text-xs text-slate-500">{photo.caption}</figcaption>}
               </figure>
             ))}

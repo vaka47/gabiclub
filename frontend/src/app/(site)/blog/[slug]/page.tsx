@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import LeadCtaButton from "@/components/LeadCtaButton";
-import { getArticleBySlug, getArticles } from "@/lib/api";
+import { getArticleBySlug, getArticles, resolveMediaUrl } from "@/lib/api";
 
 function formatDate(date: string) {
   return format(new Date(date), "d MMMM yyyy", { locale: ru });
@@ -34,7 +34,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
         {article.cover_image && (
           <div className="relative h-[320px] overflow-hidden rounded-[32px]">
-            <Image src={article.cover_image} alt={article.title} fill className="object-cover" />
+            <Image src={resolveMediaUrl(article.cover_image) ?? article.cover_image} alt={article.title} fill className="object-cover" />
           </div>
         )}
       </header>

@@ -21,6 +21,23 @@ import {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 const hasApi = Boolean(API_BASE);
 
+// Extract origin (scheme+host+port) from API base to resolve media URLs like 
+// "/media/..." coming from Django. Example: https://api.gabiclub.ru/api -> https://api.gabiclub.ru
+const API_ORIGIN = (() => {
+  try {
+    return API_BASE ? new URL(API_BASE).origin : "";
+  } catch {
+    return "";
+  }
+})();
+
+export function resolveMediaUrl(src?: string | null): string | undefined {
+  if (!src) return undefined;
+  if (/^https?:\/\//i.test(src)) return src;
+  if (src.startsWith("/")) return API_ORIGIN ? `${API_ORIGIN}${src}` : src;
+  return src;
+}
+
 type TrainingMeta = {
   directions: TrainingDirection[];
   locations: Location[];
