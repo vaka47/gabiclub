@@ -20,7 +20,9 @@ import {
 // During static build on Vercel, relative URLs like "/api" are invalid for Node fetch.
 // If not provided, we skip network calls and fall back to local mocks.
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
-const hasApi = Boolean(API_BASE);
+const IS_BUILD = process.env.NEXT_PHASE === "phase-production-build";
+const SKIP_API_AT_BUILD = process.env.SKIP_API_AT_BUILD === "1";
+const hasApi = Boolean(API_BASE) && !(IS_BUILD && SKIP_API_AT_BUILD);
 
 // Extract origin (scheme+host+port) from API base to resolve media URLs like 
 // "/media/..." coming from Django. Example: https://api.gabiclub.ru/api -> https://api.gabiclub.ru
