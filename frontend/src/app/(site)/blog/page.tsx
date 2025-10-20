@@ -11,9 +11,9 @@ function formatDate(date: string) {
 
 type BlogSearchParams = { tag?: string } | undefined;
 
-export default async function BlogPage({ searchParams }: { searchParams?: BlogSearchParams | Promise<BlogSearchParams> }) {
-  const resolved = typeof searchParams?.then === "function" ? await searchParams : searchParams;
-  const activeTag = resolved?.tag ?? "";
+export default async function BlogPage({ searchParams }: { searchParams?: Promise<BlogSearchParams> }) {
+  const resolved = (await searchParams) ?? {};
+  const activeTag = resolved.tag ?? "";
   const [articles, tags] = await Promise.all([getArticles(activeTag), getTags()]);
 
   return (

@@ -15,8 +15,9 @@ export async function generateStaticParams() {
   return camps.map((camp) => ({ slug: camp.slug }));
 }
 
-export default async function CampDetailPage({ params }: { params: { slug: string } }) {
-  const camp = await getCampBySlug(params.slug);
+export default async function CampDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const camp = await getCampBySlug(slug);
   if (!camp) {
     notFound();
   }
