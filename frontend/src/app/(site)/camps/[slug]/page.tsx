@@ -11,6 +11,7 @@ function formatDate(date: string) {
 }
 
 export async function generateStaticParams() {
+  if (process.env.SKIP_API_AT_BUILD === '1') return [];
   const camps = await getCamps();
   return camps.map((camp) => ({ slug: camp.slug }));
 }

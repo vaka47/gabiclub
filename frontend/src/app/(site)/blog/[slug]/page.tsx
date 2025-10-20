@@ -12,6 +12,7 @@ function formatDate(date: string) {
 }
 
 export async function generateStaticParams() {
+  if (process.env.SKIP_API_AT_BUILD === '1') return [];
   const articles = await getArticles();
   return articles.map((article) => ({ slug: article.slug }));
 }
