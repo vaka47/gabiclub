@@ -60,9 +60,9 @@ export default function CoachShowcase({ coaches }: CoachShowcaseProps) {
             </div>
             <p className="text-sm text-slate-600">{coach.bio}</p>
             {coach.directions.length > 0 && (
-              <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wide text-gabi-blue/80">
+              <div className="flex flex-wrap gap-2 text-xs">
                 {coach.directions.map((direction) => (
-                  <span key={direction.id} className="rounded-full bg-gabi-blue/10 px-3 py-1">
+                  <span key={direction.id} className="brand-chip px-3 py-1">
                     {direction.title}
                   </span>
                 ))}

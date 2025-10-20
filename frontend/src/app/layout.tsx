@@ -7,7 +7,7 @@ import CursorTrail from "@/components/CursorTrail";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import LeadModalProvider from "@/components/providers/LeadModalProvider";
-import { getClubProfile, getContactInfo } from "@/lib/api";
+import { getClubProfile, getContactInfo, getTheme } from "@/lib/api";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
@@ -19,12 +19,23 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [contact, club] = await Promise.all([getContactInfo(), getClubProfile()]);
-  const snowBg = process.env.NEXT_PUBLIC_SNOW_BG;
+  const [contact, club, theme] = await Promise.all([getContactInfo(), getClubProfile(), getTheme()]);
+  const snowBg = theme?.snow_bg || process.env.NEXT_PUBLIC_SNOW_BG;
+  const themeVars: React.CSSProperties = {
+    ["--brand-primary" as any]: theme?.primary_color || "#006CFF",
+    ["--brand-secondary" as any]: theme?.secondary_color || "#FF7A00",
+    ["--brand-grad-start" as any]: theme?.gradient_start || "#006CFF",
+    ["--brand-grad-end" as any]: theme?.gradient_end || "#FF7A00",
+    ["--brand-bg" as any]: theme?.background_color || "#ECECEC",
+  };
 
   return (
     <html lang="ru">
-      <body className={`${inter.variable} ${bebas.variable} min-h-screen bg-slate-50 text-gabi-gray`}>
+      <body
+        className={`${inter.variable} ${bebas.variable} min-h-screen text-gabi-gray`}
+        style={{ backgroundColor: "var(--brand-bg)" }}
+      >
+        <div style={themeVars}>
         {/* Site-wide subtle snow background */}
         {snowBg && (
           <div className="fixed inset-0 -z-10">
@@ -33,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               style={{ backgroundImage: `url(${snowBg})` }}
               aria-hidden
             />
-            <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px]" aria-hidden />
+            <div className="absolute inset-0 backdrop-blur-[2px]" style={{ backgroundColor: "rgba(255,255,255,0.65)" }} aria-hidden />
           </div>
         )}
         <LeadModalProvider>
@@ -44,6 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </main>
           <Footer contact={contact} club={club} />
         </LeadModalProvider>
+        </div>
       </body>
     </html>
   );

@@ -192,6 +192,17 @@ export type HeroSlide = {
   order?: number;
 };
 
+export type ThemeConfig = {
+  primary_color?: string;
+  secondary_color?: string;
+  gradient_start?: string;
+  gradient_end?: string;
+  background_color?: string;
+  club_photo?: string;
+  snow_bg?: string;
+  updated_at?: string;
+};
+
 export type LeadFormData = {
   full_name: string;
   email: string;

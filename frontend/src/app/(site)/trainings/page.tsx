@@ -5,20 +5,21 @@ import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
-import { getClubProfile, getCoaches, getTrainingMeta, getTrainingPlans, getTrainingSessions } from "@/lib/api";
+import { getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, getTrainingSessions } from "@/lib/api";
 
 
 export default async function TrainingsPage() {
-  const [plans, meta, sessions, coaches, club] = await Promise.all([
+  const [plans, meta, sessions, coaches, club, theme] = await Promise.all([
     getTrainingPlans(),
     getTrainingMeta(),
     getTrainingSessions(),
     getCoaches(),
     getClubProfile(),
+    getTheme(),
   ]);
 
   const featuredCoaches = coaches.filter((coach) => coach.is_featured);
-  const formPhoto = process.env.NEXT_PUBLIC_CLUB_PHOTO || club.hero_slides?.[0]?.image;
+  const formPhoto = theme?.club_photo || process.env.NEXT_PUBLIC_CLUB_PHOTO || club.hero_slides?.[0]?.image;
 
   return (
     <div className="space-y-20 pb-10">
@@ -42,7 +43,13 @@ export default async function TrainingsPage() {
 
       <CoachShowcase coaches={featuredCoaches} />
 
-      <section className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-gabi-blue to-gabi-orange text-white shadow-glow">
+      <section
+        className="relative overflow-hidden rounded-[32px] text-white shadow-glow"
+        style={{
+          backgroundImage:
+            "linear-gradient(to bottom right, var(--brand-grad-start, #006CFF), var(--brand-grad-end, #FF7A00))",
+        }}
+      >
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_60%)]" aria-hidden />
         <div className="relative flex flex-col gap-6 px-8 py-14 md:flex-row md:items-center md:justify-between">
           <div className="max-w-xl space-y-3">

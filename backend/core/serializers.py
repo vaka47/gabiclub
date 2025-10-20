@@ -1,6 +1,13 @@
 from rest_framework import serializers
 
-from .models import ClubProfile, ContactInfo, HeroSlide, LeadRequest, SocialLink
+from .models import (
+    ClubProfile,
+    ContactInfo,
+    HeroSlide,
+    LeadRequest,
+    SocialLink,
+    ThemeSettings,
+)
 
 
 class SocialLinkSerializer(serializers.ModelSerializer):
@@ -76,3 +83,18 @@ class LeadRequestCreateSerializer(serializers.ModelSerializer):
                 "Укажите телефон или email для обратной связи"
             )
         return attrs
+
+
+class ThemeSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ThemeSettings
+        fields = (
+            "primary_color",
+            "secondary_color",
+            "gradient_start",
+            "gradient_end",
+            "background_color",
+            "club_photo",
+            "snow_bg",
+            "updated_at",
+        )

@@ -10,6 +10,7 @@ import {
   LeadFormData,
   LevelTag,
   Location,
+  ThemeConfig,
   TrainingDirection,
   TrainingPlan,
   TrainingSession,
@@ -143,6 +144,11 @@ export async function getContactInfo(): Promise<ContactInfo> {
 export async function getClubProfile(): Promise<ClubProfile> {
   const data = await fetchFromApi<ClubProfile>(`/core/club/`);
   return data ?? mockData.clubProfile;
+}
+
+export async function getTheme(): Promise<ThemeConfig | null> {
+  const data = await fetchFromApi<ThemeConfig>(`/core/theme/`);
+  return data ?? null;
 }
 
 export async function submitLead(data: LeadFormData): Promise<string> {

@@ -101,3 +101,27 @@ class LeadRequest(models.Model):
 
     def __str__(self) -> str:
         return f"{self.full_name} ({self.created_at:%d.%m.%Y})"
+
+
+class ThemeSettings(models.Model):
+    """Настройки темы сайта, управляемые из админки.
+
+    Предполагается одиночная запись; при наличии нескольких — используем самую новую.
+    Цвета — HEX вида #RRGGBB.
+    """
+
+    primary_color = models.CharField("Основной цвет", max_length=7, default="#006CFF")
+    secondary_color = models.CharField("Акцентный цвет", max_length=7, default="#FF7A00")
+    gradient_start = models.CharField("Градиент: начало", max_length=7, default="#006CFF")
+    gradient_end = models.CharField("Градиент: конец", max_length=7, default="#FF7A00")
+    background_color = models.CharField("Цвет фона сайта", max_length=7, default="#ECECEC")
+    club_photo = models.ImageField("Фото для формы", upload_to="theme/", blank=True)
+    snow_bg = models.ImageField("Фоновое фото (снег)", upload_to="theme/", blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Настройки темы"
+        verbose_name_plural = "Настройки темы"
+
+    def __str__(self) -> str:  # pragma: no cover
+        return f"Theme @ {self.updated_at:%Y-%m-%d %H:%M:%S}"

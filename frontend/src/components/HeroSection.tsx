@@ -34,7 +34,13 @@ export default function HeroSection({ slides, clubName, tagline, description, fo
   const formBg = useMemo(() => resolveMediaUrl(formPhoto ?? process.env.NEXT_PUBLIC_CLUB_PHOTO) ?? undefined, [formPhoto]);
 
   return (
-    <section className="relative overflow-hidden rounded-[36px] bg-gradient-to-br from-gabi-blue to-gabi-orange text-white shadow-glow">
+    <section
+      className="relative overflow-hidden rounded-[36px] text-white shadow-glow"
+      style={{
+        backgroundImage:
+          "linear-gradient(to bottom right, var(--brand-grad-start, #006CFF), var(--brand-grad-end, #FF7A00))",
+      }}
+    >
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_55%)]" aria-hidden />
       <div className="relative grid gap-10 px-6 py-16 md:grid-cols-[1.1fr_0.9fr] md:px-12 lg:px-16 lg:py-20">
         <div className="flex flex-col gap-6">

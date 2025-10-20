@@ -207,16 +207,16 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                           {session.coach?.full_name ?? "Тренер уточняется"} · {session.location.title}
                         </div>
                         {session.levels.length > 0 && (
-                          <div className="flex flex-wrap gap-1 text-[11px] uppercase tracking-wide text-slate-500">
+                          <div className="flex flex-wrap gap-1 text-[11px]">
                             {session.levels.map((level) => (
-                              <span key={level.id} className="rounded-full bg-gabi-blue/10 px-2 py-1 text-gabi-blue">
+                              <span key={level.id} className="brand-chip px-2 py-1">
                                 {level.name}
                               </span>
                             ))}
                           </div>
                         )}
                       </div>
-                      <span className="rounded-full bg-gabi-blue/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gabi-blue">
+                      <span className="brand-chip px-2 py-1 text-[10px]">
                         {typeLabels[session.type] ?? session.type}
                       </span>
                     </div>

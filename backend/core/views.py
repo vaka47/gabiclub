@@ -2,11 +2,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import ClubProfile, ContactInfo
+from .models import ClubProfile, ContactInfo, ThemeSettings
 from .serializers import (
     ClubProfileSerializer,
     ContactInfoSerializer,
     LeadRequestCreateSerializer,
+    ThemeSettingsSerializer,
 )
 
 
@@ -35,3 +36,11 @@ class LeadRequestView(APIView):
             {"message": "Спасибо! Мы свяжемся с вами в ближайшее время."},
             status=status.HTTP_201_CREATED,
         )
+
+
+class ThemeSettingsView(APIView):
+    def get(self, request, *args, **kwargs):
+        theme = ThemeSettings.objects.order_by("-updated_at", "-id").first()
+        if not theme:
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        return Response(ThemeSettingsSerializer(theme).data)

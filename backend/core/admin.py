@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ClubProfile, ContactInfo, HeroSlide, LeadRequest, SocialLink
+from .models import ClubProfile, ContactInfo, HeroSlide, LeadRequest, SocialLink, ThemeSettings
 
 
 class SocialLinkInline(admin.TabularInline):
@@ -46,3 +46,16 @@ class SocialLinkAdmin(admin.ModelAdmin):
     list_display = ("title", "url", "contact", "order")
     list_filter = ("contact",)
     ordering = ("contact", "order")
+
+
+@admin.register(ThemeSettings)
+class ThemeSettingsAdmin(admin.ModelAdmin):
+    list_display = (
+        "primary_color",
+        "secondary_color",
+        "gradient_start",
+        "gradient_end",
+        "background_color",
+        "updated_at",
+    )
+    readonly_fields = ("updated_at",)

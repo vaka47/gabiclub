@@ -4,6 +4,11 @@
 
 :root {
   color-scheme: light;
+  /* Runtime theme variables (defaults) */
+  --brand-primary: #006CFF;
+  --brand-secondary: #FF7A00;
+  --brand-grad-start: #006CFF;
+  --brand-grad-end: #FF7A00;
 }
 
 body {
@@ -11,10 +16,11 @@ body {
 }
 
 a {
-  @apply text-gabi-blue transition-colors duration-200;
+  @apply transition-colors duration-200;
+  color: var(--brand-primary);
 }
 a:hover {
-  @apply text-gabi-orange;
+  color: var(--brand-secondary);
 }
 
 .section-title {
@@ -27,14 +33,23 @@ a:hover {
 
 .badge {
   @apply inline-flex items-center gap-2 rounded-full bg-gabi-blue/10 px-3 py-1 text-sm font-medium text-gabi-blue;
+  color: var(--brand-primary);
+  background-color: color-mix(in srgb, var(--brand-primary) 12%, transparent);
 }
 
 .btn-primary {
   @apply inline-flex items-center justify-center rounded-full bg-gabi-blue px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-glow transition hover:bg-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gabi-blue/60 focus-visible:ring-offset-2;
+  background-color: var(--brand-primary);
 }
 
 .btn-secondary {
   @apply inline-flex items-center justify-center rounded-full border border-gabi-blue/30 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-gabi-blue transition hover:border-gabi-blue hover:bg-gabi-blue/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gabi-blue/40 focus-visible:ring-offset-2;
+  color: var(--brand-primary);
+  border-color: color-mix(in srgb, var(--brand-primary) 30%, transparent);
+}
+.btn-secondary:hover {
+  border-color: var(--brand-primary);
+  background-color: color-mix(in srgb, var(--brand-primary) 10%, transparent);
 }
 
 .card-surface {
@@ -44,8 +59,12 @@ a:hover {
 .gradient-border {
   position: relative;
   border-radius: 1.75rem;
-  /* Blue → Orange brand gradient */
-  background: linear-gradient(135deg, rgba(0,108,255,0.85), rgba(255,122,0,0.85));
+  /* Blue → Orange brand gradient via CSS variables */
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand-grad-start) 85%, transparent),
+    color-mix(in srgb, var(--brand-grad-end) 85%, transparent)
+  );
   padding: 1px;
 }
 
@@ -68,6 +87,16 @@ a:hover {
   position: absolute;
   inset: 0;
   background: radial-gradient(100% 100% at 0% 0%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%),
-              linear-gradient(135deg, rgba(0,108,255,0.65), rgba(255,122,0,0.65));
+              linear-gradient(135deg,
+                color-mix(in srgb, var(--brand-grad-start) 65%, transparent),
+                color-mix(in srgb, var(--brand-grad-end) 65%, transparent)
+              );
   pointer-events: none;
+}
+
+/* Brand chips (pills) colored by theme vars */
+.brand-chip {
+  @apply inline-flex items-center rounded-full font-semibold uppercase tracking-widest;
+  color: var(--brand-primary);
+  background-color: color-mix(in srgb, var(--brand-primary) 12%, transparent);
 }
