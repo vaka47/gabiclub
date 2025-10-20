@@ -1,9 +1,12 @@
+'use client'
+
 import CoachShowcase from "@/components/CoachShowcase";
 import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
 import { getClubProfile, getCoaches, getTrainingMeta, getTrainingPlans, getTrainingSessions } from "@/lib/api";
+
 
 export default async function TrainingsPage() {
   const [plans, meta, sessions, coaches, club] = await Promise.all([
