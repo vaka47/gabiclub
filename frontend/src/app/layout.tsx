@@ -14,13 +14,9 @@ const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-
 
 export const metadata: Metadata = {
   title: "Gabi Club — тренировки, кэмпы и блог",
-  description: "Современный спортивный клуб с календарём тренировок, авторскими кэмпами и блогом о лыжах и трейле.",
+  description:
+    "Современный спортивный клуб с календарём тренировок, авторскими кэмпами и блогом о лыжах и трейле.",
 };
-
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [contact, club] = await Promise.all([getContactInfo(), getClubProfile()]);
-
-
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [contact, club] = await Promise.all([getContactInfo(), getClubProfile()]);
@@ -39,5 +35,4 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </body>
     </html>
   );
-}
 }
