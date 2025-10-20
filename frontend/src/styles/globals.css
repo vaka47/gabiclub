@@ -14,7 +14,7 @@ a {
   @apply text-gabi-blue transition-colors duration-200;
 }
 a:hover {
-  @apply text-gabi-red;
+  @apply text-gabi-orange;
 }
 
 .section-title {
@@ -44,7 +44,8 @@ a:hover {
 .gradient-border {
   position: relative;
   border-radius: 1.75rem;
-  background: linear-gradient(135deg, rgba(0,108,255,0.8), rgba(255,45,45,0.8));
+  /* Blue → Orange brand gradient */
+  background: linear-gradient(135deg, rgba(0,108,255,0.85), rgba(255,122,0,0.85));
   padding: 1px;
 }
 
@@ -56,4 +57,17 @@ a:hover {
 
 .muted-surface {
   @apply rounded-3xl bg-slate-50/80 p-6 shadow-inner;
+}
+
+/* Utility: gradient overlay card suitable for image-underlay */
+.gradient-card {
+  @apply relative overflow-hidden rounded-[28px] shadow-glow;
+}
+.gradient-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(100% 100% at 0% 0%, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 60%),
+              linear-gradient(135deg, rgba(0,108,255,0.65), rgba(255,122,0,0.65));
+  pointer-events: none;
 }

@@ -18,6 +18,7 @@ export default async function TrainingsPage() {
   ]);
 
   const featuredCoaches = coaches.filter((coach) => coach.is_featured);
+  const formPhoto = process.env.NEXT_PUBLIC_CLUB_PHOTO || club.hero_slides?.[0]?.image;
 
   return (
     <div className="space-y-20 pb-10">
@@ -26,6 +27,7 @@ export default async function TrainingsPage() {
         clubName={club.name}
         tagline={club.tagline}
         description={club.hero_description}
+        formPhoto={formPhoto}
       />
 
       <PlanTabs plans={plans} />
@@ -40,7 +42,7 @@ export default async function TrainingsPage() {
 
       <CoachShowcase coaches={featuredCoaches} />
 
-      <section className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-gabi-blue to-gabi-red text-white shadow-glow">
+      <section className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-gabi-blue to-gabi-orange text-white shadow-glow">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25),_transparent_60%)]" aria-hidden />
         <div className="relative flex flex-col gap-6 px-8 py-14 md:flex-row md:items-center md:justify-between">
           <div className="max-w-xl space-y-3">

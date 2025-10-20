@@ -20,10 +20,22 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [contact, club] = await Promise.all([getContactInfo(), getClubProfile()]);
+  const snowBg = process.env.NEXT_PUBLIC_SNOW_BG;
 
   return (
     <html lang="ru">
       <body className={`${inter.variable} ${bebas.variable} min-h-screen bg-slate-50 text-gabi-gray`}>
+        {/* Site-wide subtle snow background */}
+        {snowBg && (
+          <div className="fixed inset-0 -z-10">
+            <div
+              className="absolute inset-0 bg-cover bg-top"
+              style={{ backgroundImage: `url(${snowBg})` }}
+              aria-hidden
+            />
+            <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px]" aria-hidden />
+          </div>
+        )}
         <LeadModalProvider>
           <CursorTrail />
           <Header contactPhone={contact.phone_primary} socialLinks={contact.social_links} />

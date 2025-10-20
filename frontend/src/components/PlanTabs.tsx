@@ -59,7 +59,7 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
           <div key={plan.id} className="card-surface flex h-full flex-col justify-between">
             <div className="space-y-4">
               {plan.is_featured && (
-                <span className="badge bg-gabi-red/15 text-gabi-red">Хит</span>
+                <span className="badge bg-gabi-orange/15 text-gabi-orange">Хит</span>
               )}
               <div>
                 <h3 className="text-2xl font-semibold text-gabi-dark">{plan.title}</h3>

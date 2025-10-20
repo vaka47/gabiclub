@@ -3,24 +3,24 @@
 import { clsx } from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { HeroSlide } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
-import { useLeadModal } from "./providers/LeadModalProvider";
+import LeadFormInline from "./LeadFormInline";
 
 type HeroSectionProps = {
   slides: HeroSlide[];
   clubName: string;
   tagline?: string;
   description?: string;
+  formPhoto?: string;
 };
 
 const AUTO_SWITCH = 6000;
 
-export default function HeroSection({ slides, clubName, tagline, description }: HeroSectionProps) {
+export default function HeroSection({ slides, clubName, tagline, description, formPhoto }: HeroSectionProps) {
   const [index, setIndex] = useState(0);
-  const { openLeadModal } = useLeadModal();
 
   useEffect(() => {
     if (slides.length < 2) return;
@@ -31,35 +31,26 @@ export default function HeroSection({ slides, clubName, tagline, description }: 
   }, [slides.length]);
 
   const activeSlide = slides[index];
+  const formBg = useMemo(() => resolveMediaUrl(formPhoto ?? process.env.NEXT_PUBLIC_CLUB_PHOTO) ?? undefined, [formPhoto]);
 
   return (
-    <section className="relative overflow-hidden rounded-[36px] bg-gradient-to-br from-gabi-blue via-sky-500 to-indigo-500 text-white shadow-glow">
+    <section className="relative overflow-hidden rounded-[36px] bg-gradient-to-br from-gabi-blue to-gabi-orange text-white shadow-glow">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_55%)]" aria-hidden />
       <div className="relative grid gap-10 px-6 py-16 md:grid-cols-[1.1fr_0.9fr] md:px-12 lg:px-16 lg:py-20">
         <div className="flex flex-col gap-6">
-          <span className="badge w-fit bg-white/20 text-white">{clubName}</span>
-          <h1 className="font-display text-4xl uppercase tracking-[0.18em] md:text-6xl">{tagline ?? "Спорт. Приключения. Команда."}</h1>
-          <p className="max-w-xl text-base text-white/80 md:text-lg">
-            {description ??
-              "Календарь тренировок, авторские кэмпы и блог для тех, кто живёт движением. Присоединяйся к Gabi Club."}
-          </p>
-          <div className="flex flex-wrap items-center gap-4">
-            <button
-              className="btn-primary"
-              onClick={() => openLeadModal({ source: "hero" })}
-              type="button"
-            >
-              Записаться на тренировку
-            </button>
-            <button
-              className="btn-secondary"
-              onClick={() => openLeadModal({ source: "hero-call" })}
-              type="button"
-            >
-              Позвоните мне
-            </button>
+          <div className="space-y-3">
+            <span className="badge w-fit bg-white/20 text-white">{clubName}</span>
+            <h1 className="font-display text-4xl uppercase tracking-[0.18em] md:text-6xl">{tagline ?? "Спорт. Приключения. Команда."}</h1>
+            <p className="max-w-xl text-base text-white/80 md:text-lg">
+              {description ??
+                "Календарь тренировок, авторские кэмпы и блог для тех, кто живёт движением. Присоединяйся к Gabi Club."}
+            </p>
           </div>
-          <div className="flex items-center gap-3 pt-6 text-sm text-white/70">
+
+          {/* Inline lead form with photo overlay */}
+          <LeadFormInline photo={formBg} initial={{ source: "hero-inline" }} />
+
+          <div className="flex items-center gap-3 text-sm text-white/70">
             <div className="flex items-center gap-1">
               <span className="h-3 w-3 rounded-full bg-emerald-300" aria-hidden />
               Расписание обновляется ежедневно

@@ -11,6 +11,8 @@ const config: Config = {
     extend: {
       colors: {
         "gabi-blue": "#006CFF",
+        // Secondary brand accent switched to orange for blue→orange gradients
+        "gabi-orange": "#FF7A00",
         "gabi-red": "#FF2D2D",
         "gabi-dark": "#0F172A",
         "gabi-gray": "#334155",
