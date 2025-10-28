@@ -71,7 +71,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
               >
                 <Image src={bgSlides[i]} alt="Hero background" fill className="object-cover" priority />
               </motion.div>
-            ) : null,
+            ) : null
           )}
         </AnimatePresence>
       </div>
@@ -192,7 +192,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
                         {p.subtitle && <div className="text-white/80">{p.subtitle}</div>}
                       </div>
                     </motion.a>
-                  ) : null,
+                  ) : null
                 )}
               </AnimatePresence>
             </div>
