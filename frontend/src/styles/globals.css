@@ -124,6 +124,22 @@ a:hover {
     radial-gradient(120% 90% at 50% 35%, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.70) 45%, rgba(255,255,255,0.55) 70%, rgba(255,255,255,0.40) 100%);
 }
 
+/* CSS-only crossfade helpers for hero background */
+.fade-in {
+  animation: hero-fade-in 900ms ease forwards;
+}
+.fade-out {
+  animation: hero-fade-out 900ms ease forwards;
+}
+@keyframes hero-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes hero-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 /* Brand chips (pills) colored by theme vars */
 .brand-chip {
   @apply inline-flex items-center rounded-full font-semibold uppercase tracking-widest;

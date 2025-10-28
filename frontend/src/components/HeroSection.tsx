@@ -11,6 +11,7 @@ type PromoItem = { id: string | number; title: string; subtitle?: string; image?
 type HeroSectionProps = { slides: HeroSlide[]; clubName: string; tagline?: string; description?: string; promos?: PromoItem[] };
 
 const AUTO_SWITCH = 6000;
+const FADE_MS = 900;
 
 function splitHeading(rawText: string): [string, string, string] {
   const raw = rawText.toUpperCase();
@@ -40,9 +41,15 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
   }, [slides, envSlides]);
 
   const [bgIndex, setBgIndex] = useState(0);
+  const [prevBg, setPrevBg] = useState<string | null>(null);
   useEffect(() => {
     if (bgSlides.length < 2) return;
-    const timer = setInterval(() => setBgIndex((p) => (p + 1) % bgSlides.length), AUTO_SWITCH);
+    const timer = setInterval(() => {
+      setBgIndex((p) => {
+        setPrevBg(bgSlides[p] ?? null);
+        return (p + 1) % bgSlides.length;
+      });
+    }, AUTO_SWITCH);
     return () => clearInterval(timer);
   }, [bgSlides.length]);
 
@@ -50,10 +57,21 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ ПРИКЛЮЧЕНИЯ");
   const currentPromo = promos.length > 0 ? promos[bgIndex % promos.length] : undefined;
 
+  useEffect(() => {
+    if (!prevBg) return;
+    const t = setTimeout(() => setPrevBg(null), FADE_MS);
+    return () => clearTimeout(t);
+  }, [prevBg]);
+
   return (
     <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow">
       <div className="absolute inset-0 z-0" aria-hidden>
-        {currentBg && <Image src={currentBg} alt="Hero background" fill className="object-cover transition-opacity duration-700" priority />}
+        {prevBg && (
+          <Image src={prevBg} alt="" fill priority className="object-cover fade-out pointer-events-none" />
+        )}
+        {currentBg && (
+          <Image src={currentBg} alt="Hero background" fill priority className="object-cover fade-in pointer-events-none" />
+        )}
       </div>
       <div className="absolute inset-0 hero-haze" aria-hidden />
 
@@ -97,7 +115,10 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
                 {bgSlides.map((src, idx) => (
                   <button
                     key={src + String(idx)}
-                    onClick={() => setBgIndex(idx)}
+                    onClick={() => {
+                      setPrevBg(currentBg);
+                      setBgIndex(idx);
+                    }}
                     className={clsx("h-2.5 w-6 rounded-full transition", idx === bgIndex ? "bg-white" : "bg-white/40 hover:bg-white/70")}
                     aria-label={`Слайд ${idx + 1}`}
                     type="button"
