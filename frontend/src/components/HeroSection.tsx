@@ -1,7 +1,6 @@
 "use client";
 
 import { clsx } from "clsx";
-import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
@@ -54,24 +53,15 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
     return () => clearInterval(timer);
   }, [bgSlides.length]);
 
+  const currentBg = bgSlides[bgIndex] ?? null;
+
   return (
     <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow">
-      {/* Full-bleed background slideshow for the whole hero container */}
+      {/* Full-bleed background image */}
       <div className="absolute inset-0 z-0" aria-hidden>
-        <AnimatePresence mode="popLayout">
-          {bgSlides.length > 0 && (
-            <motion.div
-              key={`hero-bg-${bgIndex}`}
-              className="absolute inset-0"
-              initial={{ opacity: 0, scale: 1.02 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.0, ease: "easeOut" }}
-            >
-              <Image src={bgSlides[bgIndex]} alt="Hero background" fill className="object-cover" priority />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {currentBg && (
+          <Image src={currentBg} alt="Hero background" fill className="object-cover transition-opacity duration-700" priority />
+        )}
       </div>
       {/* Haze overlay above photos, below content */}
       <div className="absolute inset-0 hero-haze" aria-hidden />
@@ -166,34 +156,20 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
         </div>
         {/* Right column: vertical promo slider */}
         <div className="hidden md:block">
-          {promos.length > 0 && (
-            <div className="relative h-[420px] overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow">
-              <AnimatePresence mode="popLayout">
-                {(() => {
-                  const p = promos[bgIndex % promos.length];
-                  return (
-                    <motion.a
-                      key={String(p.id)}
-                      href={p.href}
-                      className="absolute inset-0"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                    >
-                      {p.image && <Image src={p.image} alt={p.title} fill className="object-cover" />}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-5">
-                        <div className="text-xs uppercase tracking-[0.2em] text-white/80">Анонс</div>
-                        <div className="text-lg font-semibold text-white">{p.title}</div>
-                        {p.subtitle && <div className="text-white/80">{p.subtitle}</div>}
-                      </div>
-                    </motion.a>
-                  );
-                })()}
-              </AnimatePresence>
-            </div>
-          )}
+          {promos.length > 0 && (() => {
+            const p = promos[bgIndex % promos.length];
+            return (
+              <a href={p.href} className="relative block h-[420px] overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow">
+                {p.image && <Image src={p.image} alt={p.title} fill className="object-cover" />}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-5">
+                  <div className="text-xs uppercase tracking-[0.2em] text-white/80">Анонс</div>
+                  <div className="text-lg font-semibold text-white">{p.title}</div>
+                  {p.subtitle && <div className="text-white/80">{p.subtitle}</div>}
+                </div>
+              </a>
+            );
+          })()}
         </div>
       </div>
     </section>
