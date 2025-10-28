@@ -63,14 +63,25 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
     return () => clearTimeout(t);
   }, [prevBg]);
 
+  // Preload all backgrounds once on mount to make crossfade smooth
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    bgSlides.forEach((src) => {
+      const img = new window.Image();
+      img.src = src;
+      (img as any).decoding = "async";
+      (img as any).fetchPriority = "high";
+    });
+  }, [bgSlides]);
+
   return (
     <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow">
       <div className="absolute inset-0 z-0" aria-hidden>
         {prevBg && (
-          <Image src={prevBg} alt="" fill priority className="object-cover fade-out pointer-events-none" />
+          <img src={prevBg} alt="" className="absolute inset-0 h-full w-full object-cover fade-out pointer-events-none" loading="eager" />
         )}
         {currentBg && (
-          <Image src={currentBg} alt="Hero background" fill priority className="object-cover fade-in pointer-events-none" />
+          <img src={currentBg} alt="Hero background" className="absolute inset-0 h-full w-full object-cover fade-in pointer-events-none" loading="eager" />
         )}
       </div>
       <div className="absolute inset-0 hero-haze" aria-hidden />

@@ -127,9 +127,11 @@ a:hover {
 /* CSS-only crossfade helpers for hero background */
 .fade-in {
   animation: hero-fade-in 900ms ease forwards;
+  will-change: opacity;
 }
 .fade-out {
   animation: hero-fade-out 900ms ease forwards;
+  will-change: opacity;
 }
 @keyframes hero-fade-in {
   from { opacity: 0; }
