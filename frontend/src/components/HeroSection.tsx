@@ -74,6 +74,8 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
     });
   }, [bgSlides]);
 
+  const wordmark = (process.env.NEXT_PUBLIC_GABI_WORDMARK as string) || "/gabi-wordmark.svg";
+
   return (
     <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow">
       <div className="absolute inset-0 z-0" aria-hidden>
@@ -86,11 +88,15 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
       </div>
       <div className="absolute inset-0 hero-haze" aria-hidden />
 
-      <div className="relative z-20 px-6 py-12 md:px-12 lg:px-16 lg:py-16">
-        <div className="grid items-start gap-10 md:grid-cols-[1.2fr_0.8fr]">
+      <div className="relative z-20 px-6 py-10 md:px-12 lg:px-16 md:py-12 lg:py-14">
+        <div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
           <div className="max-w-3xl">
-            <div className="space-y-3">
-              <span className="badge w-fit">{clubName}</span>
+            <div className="space-y-4">
+              {/* Wordmark on the first line */}
+              {wordmark && (
+                // Use native img to avoid layout shift; source from public/ or env URL
+                <img src={wordmark} alt={clubName} className="h-10 w-auto md:h-12" />
+              )}
               <h1 className="font-display text-4xl uppercase tracking-[0.18em] leading-[1.05] md:text-6xl text-gabi-blue">
                 {l1}
                 {l2 && (<><br />{l2}</>)}
@@ -101,13 +107,10 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
               </p>
             </div>
 
-            <div className="mt-8 w-full max-w-sm gradient-card">
-              <div className="relative z-10 p-6 md:p-7">
-                <div className="flex flex-col gap-3">
-                  <h3 className="text-xl font-semibold text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.2)]">Готовы начать?</h3>
-                  <LeadCtaButton label="Записаться" className="btn-primary w-fit" source="hero-cta" />
-                </div>
-              </div>
+            {/* Compact inline CTA row */}
+            <div className="mt-6 inline-flex items-center gap-4 rounded-2xl border border-white/60 bg-white/70 px-5 py-4 backdrop-blur">
+              <div className="text-base font-semibold text-gabi-dark">Готовы начать?</div>
+              <LeadCtaButton label="Записаться" className="btn-primary" source="hero-cta" />
             </div>
 
             <div className="mt-6 flex items-center gap-3 text-sm text-white/90">
