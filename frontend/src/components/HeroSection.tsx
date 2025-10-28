@@ -86,34 +86,39 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
             <span className="badge w-fit">{clubName}</span>
             <h1 className="font-display text-4xl uppercase tracking-[0.18em] leading-[1.05] md:text-6xl text-gabi-blue">
               {(() => {
-                const text = (tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ ПРИКЛЮЧЕНИЯ").toUpperCase();
-                const m = text.match(/^(.*?,\s*)(КТО\b\s*)(.*)$/i);
-                if (m) {
-                  // try to split the rest so last word goes to third line
-                  const rest = m[3];
-                  const m2 = rest.match(/^(.*?\b)(ПРИКЛЮЧЕНИЯ.*)$/i);
-                  if (m2) {
-                    return (
-                      <>
-                        {m[1]}
-                        <br />
-                        {m[2]}
-                        {m2[1]}
-                        <br />
-                        {m2[2]}
-                      </>
-                    );
+                const raw = (tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ ПРИКЛЮЧЕНИЯ").toUpperCase();
+                let l1 = raw;
+                let l2 = "";
+                let l3 = "";
+                const kto = raw.match(/^(.*?),\s*(КТО\b.*)$/i);
+                if (kto) {
+                  l1 = kto[1];
+                  const rest = kto[2];
+                  const end = rest.match(/^(.*?)(ПРИКЛЮЧЕНИЯ.*)$/i);
+                  if (end) {
+                    l2 = end[1].trim();
+                    l3 = end[2].trim();
+                  } else {
+                    l2 = rest.trim();
                   }
-                  return (
-                    <>
-                      {m[1]}
-                      <br />
-                      {m[2]}
-                      {m[3]}
-                    </>
-                  );
                 }
-                return text;
+                return (
+                  <>
+                    {l1}
+                    {l2 && (
+                      <>
+                        <br />
+                        {l2}
+                      </>
+                    )}
+                    {l3 && (
+                      <>
+                        <br />
+                        {l3}
+                      </>
+                    )}
+                  </>
+                );
               })()}
             </h1>
             <p className="max-w-2xl text-base text-slate-700 md:text-lg">
