@@ -6,18 +6,20 @@ import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
-import { getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, getTrainingSessions } from "@/lib/api";
+import { getArticles, getCamps, getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, getTrainingSessions, resolveMediaUrl } from "@/lib/api";
 // (animations handled inside client components)
 
 
 export default async function TrainingsPage() {
-  const [plans, meta, sessions, coaches, club, theme] = await Promise.all([
+  const [plans, meta, sessions, coaches, club, theme, camps, articles] = await Promise.all([
     getTrainingPlans(),
     getTrainingMeta(),
     getTrainingSessions(),
     getCoaches(),
     getClubProfile(),
     getTheme(),
+    getCamps(new URLSearchParams("is_featured=1")),
+    getArticles(),
   ]);
 
   const featuredCoaches = coaches.filter((coach) => coach.is_featured);
@@ -30,6 +32,22 @@ export default async function TrainingsPage() {
         clubName={club.name}
         tagline={club.tagline}
         description={club.hero_description}
+        promos={[
+          ...(camps ?? []).slice(0, 3).map((c) => ({
+            id: `camp-${c.id}`,
+            title: c.title,
+            subtitle: `${new Date(c.start_date).toLocaleDateString("ru-RU", { day: "2-digit", month: "short" })} – ${new Date(c.end_date).toLocaleDateString("ru-RU", { day: "2-digit", month: "short" })}`,
+            image: resolveMediaUrl(c.hero_image) ?? undefined,
+            href: `/camps/${c.slug}`,
+          })),
+          ...(articles ?? []).slice(0, 3).map((a) => ({
+            id: `article-${a.id}`,
+            title: a.title,
+            subtitle: a.excerpt,
+            image: resolveMediaUrl(a.cover_image) ?? undefined,
+            href: `/blog/${a.slug}`,
+          })),
+        ]}
       />
 
       <PlanTabs plans={plans} />
