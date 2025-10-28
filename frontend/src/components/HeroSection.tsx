@@ -47,84 +47,82 @@ export default function HeroSection({ slides, clubName, tagline, description }: 
   }, [bgSlides.length]);
 
   return (
-    <section
-      className="relative overflow-hidden rounded-[36px] text-white shadow-glow"
-      style={{
-        backgroundImage:
-          "linear-gradient(to bottom right, var(--brand-grad-start, #1A5ACB), var(--brand-grad-end, #FF6A00))",
-      }}
-    >
-      {/* Background slideshow under gradient overlay */}
-      <div className="absolute inset-0 -z-10" aria-hidden>
-        <AnimatePresence mode="popLayout">
-          {bgSlides.slice(0, Math.max(1, bgSlides.length)).map((_, i) =>
-            i === bgIndex ? (
-              <motion.div
-                key={`bg-${i}-${bgSlides[i]}`}
-                className="absolute inset-0"
-                initial={{ opacity: 0, scale: 1.03 }}
-                animate={{ opacity: 0.5, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.9, ease: "easeOut" }}
-              >
-                <Image src={bgSlides[i]} alt="Hero background" fill className="object-cover" priority />
-              </motion.div>
-            ) : null,
-          )}
-        </AnimatePresence>
-        {/* Existing gradient texture */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_55%)]" />
-      </div>
-
+    <section className="relative overflow-hidden rounded-[36px] bg-white text-gabi-dark shadow-glow">
       <div className="relative px-6 py-16 md:px-12 lg:px-16 lg:py-20">
         <div className="max-w-3xl">
           <div className="space-y-3">
-            <span className="badge w-fit bg-white/20 text-white">{clubName}</span>
-            <h1 className="font-display text-4xl uppercase tracking-[0.18em] md:text-6xl">
+            <span className="badge w-fit">{clubName}</span>
+            <h1 className="font-display text-4xl uppercase tracking-[0.18em] md:text-6xl text-gabi-blue">
               {tagline ?? "ЛЫЖНЫЙ КЛУБ GABI"}
             </h1>
-            <p className="max-w-2xl text-base text-white/85 md:text-lg">
+            <p className="max-w-2xl text-base text-slate-700 md:text-lg">
               {description ??
                 "Тренируйся системно. Развивайся с GABI — лыжи, роллеры, бег с вниманием к деталям и технике."}
             </p>
           </div>
 
-          {/* CTA instead of inline form */}
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <LeadCtaButton label="Записаться" className="btn-primary" source="hero-cta" />
-            <a href="#schedule" className="btn-secondary">
-              Смотреть расписание
-            </a>
+          {/* CTA Card with edge gradients and background slideshow */}
+          <div className="mt-8 gradient-card">
+            <div className="absolute inset-0 -z-10" aria-hidden>
+              <AnimatePresence mode="popLayout">
+                {bgSlides.slice(0, Math.max(1, bgSlides.length)).map((_, i) =>
+                  i === bgIndex ? (
+                    <motion.div
+                      key={`card-bg-${i}-${bgSlides[i]}`}
+                      className="absolute inset-0"
+                      initial={{ opacity: 0, scale: 1.02 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.9, ease: "easeOut" }}
+                    >
+                      <Image src={bgSlides[i]} alt="Hero background" fill className="object-cover" priority />
+                    </motion.div>
+                  ) : null,
+                )}
+              </AnimatePresence>
+              {/* Edge-only vignette */}
+              <div className="absolute inset-0 edge-vignette" />
+            </div>
+
+            <div className="relative p-6 md:p-8">
+              <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-semibold text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.2)]">Готовы начать?</h3>
+                  <p className="text-sm text-white/90">Оставьте заявку — администратор свяжется в рабочее время.</p>
+                </div>
+                <LeadCtaButton label="Записаться" className="btn-primary" source="hero-cta" />
+              </div>
+            </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-3 text-sm text-white/80">
+          <div className="mt-6 flex items-center gap-3 text-sm text-slate-500">
             <div className="flex items-center gap-1">
-              <span className="h-3 w-3 rounded-full bg-emerald-300" aria-hidden />
+              <span className="h-3 w-3 rounded-full bg-emerald-400" aria-hidden />
               Расписание обновляется ежедневно
             </div>
             <div className="hidden items-center gap-1 md:flex">
-              <span className="h-3 w-3 rounded-full bg-white/70" aria-hidden />
+              <span className="h-3 w-3 rounded-full bg-slate-400" aria-hidden />
               200+ участников клуба
             </div>
           </div>
-        </div>
 
-        {bgSlides.length > 1 && (
-          <div className="absolute bottom-6 left-6 flex gap-2">
-            {bgSlides.map((src, idx) => (
-              <button
-                key={src + idx}
-                onClick={() => setBgIndex(idx)}
-                className={clsx(
-                  "h-2.5 w-6 rounded-full transition",
-                  idx === bgIndex ? "bg-white" : "bg-white/40 hover:bg-white/70",
-                )}
-                aria-label={`Слайд ${idx + 1}`}
-                type="button"
-              />
-            ))}
-          </div>
-        )}
+          {bgSlides.length > 1 && (
+            <div className="mt-4 flex gap-2">
+              {bgSlides.map((src, idx) => (
+                <button
+                  key={src + idx}
+                  onClick={() => setBgIndex(idx)}
+                  className={clsx(
+                    "h-2.5 w-6 rounded-full transition",
+                    idx === bgIndex ? "bg-slate-800" : "bg-slate-400/60 hover:bg-slate-600",
+                  )}
+                  aria-label={`Слайд ${idx + 1}`}
+                  type="button"
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

@@ -43,6 +43,10 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.75, ease: "easeOut" }}
     >
+      <div className="flex flex-col gap-2">
+        <h2 className="section-title section-accent">Тренировочные планы</h2>
+        <p className="section-subtitle">Подберите комфортный формат: индивидуально или в группе.</p>
+      </div>
       <div className="flex flex-wrap gap-3">
         {categories.map((category) => (
           <button
