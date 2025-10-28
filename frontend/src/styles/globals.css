@@ -100,16 +100,18 @@ a:hover {
   content: "";
   position: absolute;
   inset: 0;
-  /* Soft neutral wash + very subtle brand tint */
-  background: linear-gradient(0deg, rgba(255,255,255,0.92), rgba(255,255,255,0.92));
+  /* Edge-only soft brightening; center остаётся почти прозрачным */
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.25) 40%, rgba(255,255,255,0.00) 55%),
+    radial-gradient(120% 100% at 100% 100%, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.25) 40%, rgba(255,255,255,0.00) 55%);
   pointer-events: none;
 }
 
 /* Edge-only vignette using brand colors; kept subtle for premium look */
 .edge-vignette {
   pointer-events: none;
-  background: radial-gradient(60% 120% at 0% 0%, color-mix(in srgb, var(--brand-grad-start) 18%, transparent) 0%, transparent 60%),
-              radial-gradient(60% 120% at 100% 100%, color-mix(in srgb, var(--brand-grad-end) 18%, transparent) 0%, transparent 60%);
+  background: radial-gradient(60% 120% at 0% 0%, color-mix(in srgb, var(--brand-grad-start) 12%, transparent) 0%, transparent 60%),
+              radial-gradient(60% 120% at 100% 100%, color-mix(in srgb, var(--brand-grad-end) 12%, transparent) 0%, transparent 60%);
 }
 
 /* Brand chips (pills) colored by theme vars */
