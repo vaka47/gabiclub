@@ -116,6 +116,14 @@ a:hover {
               radial-gradient(60% 120% at 100% 100%, color-mix(in srgb, var(--brand-grad-end) 8%, transparent) 0%, transparent 60%);
 }
 
+/* Haze overlay for the whole hero container: soft white film keeping images visible */
+.hero-haze {
+  pointer-events: none;
+  z-index: 10;
+  background:
+    radial-gradient(120% 90% at 50% 35%, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.70) 45%, rgba(255,255,255,0.55) 70%, rgba(255,255,255,0.40) 100%);
+}
+
 /* Brand chips (pills) colored by theme vars */
 .brand-chip {
   @apply inline-flex items-center rounded-full font-semibold uppercase tracking-widest;

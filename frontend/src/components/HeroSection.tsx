@@ -47,8 +47,30 @@ export default function HeroSection({ slides, clubName, tagline, description }: 
   }, [bgSlides.length]);
 
   return (
-    <section className="relative overflow-hidden rounded-[36px] bg-white text-gabi-dark shadow-glow">
-      <div className="relative px-6 py-16 md:px-12 lg:px-16 lg:py-20">
+    <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow">
+      {/* Full-bleed background slideshow for the whole hero container */}
+      <div className="absolute inset-0 z-0" aria-hidden>
+        <AnimatePresence mode="popLayout">
+          {bgSlides.slice(0, Math.max(1, bgSlides.length)).map((_, i) =>
+            i === bgIndex ? (
+              <motion.div
+                key={`hero-bg-${i}-${bgSlides[i]}`}
+                className="absolute inset-0"
+                initial={{ opacity: 0, scale: 1.02 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.0, ease: "easeOut" }}
+              >
+                <Image src={bgSlides[i]} alt="Hero background" fill className="object-cover" priority />
+              </motion.div>
+            ) : null,
+          )}
+        </AnimatePresence>
+      </div>
+      {/* Haze overlay above photos, below content */}
+      <div className="absolute inset-0 hero-haze" aria-hidden />
+
+      <div className="relative z-20 px-6 py-16 md:px-12 lg:px-16 lg:py-20">
         <div className="max-w-3xl">
           <div className="space-y-3">
             <span className="badge w-fit">{clubName}</span>
@@ -61,29 +83,8 @@ export default function HeroSection({ slides, clubName, tagline, description }: 
             </p>
           </div>
 
-          {/* CTA Card with edge gradients and background slideshow */}
+          {/* CTA Card without inner slideshow; keeps subtle edge gradients only */}
           <div className="mt-8 gradient-card">
-            <div className="absolute inset-0 z-0" aria-hidden>
-              <AnimatePresence mode="popLayout">
-                {bgSlides.slice(0, Math.max(1, bgSlides.length)).map((_, i) =>
-                  i === bgIndex ? (
-                    <motion.div
-                      key={`card-bg-${i}-${bgSlides[i]}`}
-                      className="absolute inset-0"
-                      initial={{ opacity: 0, scale: 1.02 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.9, ease: "easeOut" }}
-                    >
-                      <Image src={bgSlides[i]} alt="Hero background" fill className="object-cover" priority />
-                    </motion.div>
-                  ) : null,
-                )}
-              </AnimatePresence>
-              {/* Edge-only vignette */}
-              <div className="absolute inset-0 edge-vignette" />
-            </div>
-
             <div className="relative z-10 p-6 md:p-8">
               <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
                 <div>
