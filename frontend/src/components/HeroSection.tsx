@@ -59,19 +59,17 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
       {/* Full-bleed background slideshow for the whole hero container */}
       <div className="absolute inset-0 z-0" aria-hidden>
         <AnimatePresence mode="popLayout">
-          {bgSlides.slice(0, Math.max(1, bgSlides.length)).map((_, i) =>
-            i === bgIndex ? (
-              <motion.div
-                key={`hero-bg-${i}-${bgSlides[i]}`}
-                className="absolute inset-0"
-                initial={{ opacity: 0, scale: 1.02 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.0, ease: "easeOut" }}
-              >
-                <Image src={bgSlides[i]} alt="Hero background" fill className="object-cover" priority />
-              </motion.div>
-            ) : null
+          {bgSlides.length > 0 && (
+            <motion.div
+              key={`hero-bg-${bgIndex}`}
+              className="absolute inset-0"
+              initial={{ opacity: 0, scale: 1.02 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.0, ease: "easeOut" }}
+            >
+              <Image src={bgSlides[bgIndex]} alt="Hero background" fill className="object-cover" priority />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
@@ -171,8 +169,9 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
           {promos.length > 0 && (
             <div className="relative h-[420px] overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow">
               <AnimatePresence mode="popLayout">
-                {promos.map((p, i) =>
-                  i === (bgIndex % promos.length) ? (
+                {(() => {
+                  const p = promos[bgIndex % promos.length];
+                  return (
                     <motion.a
                       key={String(p.id)}
                       href={p.href}
@@ -182,9 +181,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.6, ease: "easeOut" }}
                     >
-                      {p.image && (
-                        <Image src={p.image} alt={p.title} fill className="object-cover" />
-                      )}
+                      {p.image && <Image src={p.image} alt={p.title} fill className="object-cover" />}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-5">
                         <div className="text-xs uppercase tracking-[0.2em] text-white/80">Анонс</div>
@@ -192,8 +189,8 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
                         {p.subtitle && <div className="text-white/80">{p.subtitle}</div>}
                       </div>
                     </motion.a>
-                  ) : null
-                )}
+                  );
+                })()}
               </AnimatePresence>
             </div>
           )}
