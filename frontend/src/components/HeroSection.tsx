@@ -63,7 +63,7 @@ export default function HeroSection({ slides, clubName, tagline, description }: 
 
           {/* CTA Card with edge gradients and background slideshow */}
           <div className="mt-8 gradient-card">
-            <div className="absolute inset-0 -z-10" aria-hidden>
+            <div className="absolute inset-0 z-0" aria-hidden>
               <AnimatePresence mode="popLayout">
                 {bgSlides.slice(0, Math.max(1, bgSlides.length)).map((_, i) =>
                   i === bgIndex ? (
@@ -84,7 +84,7 @@ export default function HeroSection({ slides, clubName, tagline, description }: 
               <div className="absolute inset-0 edge-vignette" />
             </div>
 
-            <div className="relative p-6 md:p-8">
+            <div className="relative z-10 p-6 md:p-8">
               <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
                 <div>
                   <h3 className="text-2xl font-semibold text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.2)]">Готовы начать?</h3>
