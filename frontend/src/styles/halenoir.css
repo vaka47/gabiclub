@@ -1,0 +1,19 @@
+/* Optional self-hosted Halenoir font
+   Place files at: public/fonts/halenoir/Halenoir-Black.woff2 (and .woff)
+   Build will not fail if files are absent; browser will fall back. */
+@font-face {
+  font-family: 'Halenoir';
+  src:
+    url('/fonts/halenoir/halenoir/Halenoir-Black.otf') format('opentype'),
+    url('/fonts/halenoir/Halenoir-Black.woff2') format('woff2'),
+    url('/fonts/halenoir/Halenoir-Black.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Utility for the wordmark */
+.font-wordmark {
+  font-family: 'Halenoir', var(--font-bebas), sans-serif;
+  letter-spacing: 0.02em;
+}

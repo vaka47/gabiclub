@@ -1,4 +1,5 @@
 import "../styles/globals.css";
+import "../styles/halenoir.css";
 
 import type { Metadata } from "next";
 import { Russo_One, Inter } from "next/font/google";

@@ -68,7 +68,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
     });
   }, [bgSlides]);
 
-  const wordmark = (process.env.NEXT_PUBLIC_GABI_WORDMARK as string) || "/gabi-wordmark.svg";
+  // Wordmark now rendered as text using Halenoir (self-hosted); PNG/SVG is no longer needed
 
   return (
     <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow">
@@ -86,12 +86,11 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
         <div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
           <div className="max-w-3xl">
             <div className="space-y-4">
-              {/* Wordmark on the first line */}
-              {wordmark && (
-                // Use native img to avoid layout shift; source from public/ or env URL
-                <img src={wordmark} alt={clubName} className="h-12 w-auto md:h-16 lg:h-20" />
-              )}
-              <h1 className="font-display text-3xl uppercase tracking-[0.18em] leading-[1.05] md:text-5xl text-[#ff751f]">
+              {/* Wordmark as text (Halenoir) */}
+              <div className="font-wordmark text-gabi-blue text-[42px] leading-none md:text-[56px] lg:text-[72px]">
+                GABI
+              </div>
+              <h1 className="font-wordmark text-3xl uppercase tracking-[0.18em] leading-[1.05] md:text-5xl text-[#ff751f]">
                 {l1}
                 {l2 && (<><br />{l2}</>)}
                 {l3 && (<><br />{l3}</>)}
