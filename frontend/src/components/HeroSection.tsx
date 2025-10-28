@@ -15,22 +15,16 @@ const FADE_MS = 900;
 
 function splitHeading(rawText: string): [string, string, string] {
   const raw = rawText.toUpperCase();
-  let l1 = raw;
-  let l2 = "";
-  let l3 = "";
-  const kto = raw.match(/^(.*?),\s*(КТО\b.*)$/i);
-  if (kto) {
-    l1 = kto[1];
-    const rest = kto[2];
-    const end = rest.match(/^(.*?)(ПРИКЛЮЧЕНИЯ.*)$/i);
-    if (end) {
-      l2 = end[1].trim();
-      l3 = end[2].trim();
-    } else {
-      l2 = rest.trim();
-    }
-  }
-  return [l1, l2, l3];
+  // Aim: line1 = before "КТО" (keeps comma), line2 = "КТО ..." until "ПРИКЛЮЧЕНИЯ", line3 = from "ПРИКЛЮЧЕНИЯ"
+  const ktoIdx = raw.indexOf("КТО");
+  if (ktoIdx === -1) return [raw, "", ""];
+  const before = raw.slice(0, ktoIdx).trim();
+  const rest = raw.slice(ktoIdx).trim();
+  const prIdx = rest.indexOf("ПРИКЛЮЧЕНИЯ");
+  if (prIdx === -1) return [before, rest, ""];
+  const line2 = rest.slice(0, prIdx).trim();
+  const line3 = rest.slice(prIdx).trim();
+  return [before, line2, line3];
 }
 
 export default function HeroSection({ slides, clubName, tagline, description, promos = [] }: HeroSectionProps) {

@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 
 import type { Metadata } from "next";
-import { Oswald, Inter } from "next/font/google";
+import { Russo_One, Inter } from "next/font/google";
 
 import CursorTrail from "@/components/CursorTrail";
 import Footer from "@/components/Footer";
@@ -10,8 +10,8 @@ import LeadModalProvider from "@/components/providers/LeadModalProvider";
 import { getClubProfile, getContactInfo, getTheme, resolveMediaUrl } from "@/lib/api";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
-// Use Oswald for strong, condensed headings with Cyrillic support
-const bebas = Oswald({ weight: ["400", "600", "700"], subsets: ["latin", "cyrillic"], variable: "--font-bebas" });
+// Use Russo One for display headings (supports Cyrillic, strong geometric look)
+const bebas = Russo_One({ weight: "400", subsets: ["latin", "cyrillic"], variable: "--font-bebas" });
 
 export const metadata: Metadata = {
   title: "Gabi Club — тренировки, кэмпы и блог",
