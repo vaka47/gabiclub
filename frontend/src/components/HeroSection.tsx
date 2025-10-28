@@ -95,9 +95,9 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
               {/* Wordmark on the first line */}
               {wordmark && (
                 // Use native img to avoid layout shift; source from public/ or env URL
-                <img src={wordmark} alt={clubName} className="h-10 w-auto md:h-12" />
+                <img src={wordmark} alt={clubName} className="h-12 w-auto md:h-16 lg:h-20" />
               )}
-              <h1 className="font-display text-4xl uppercase tracking-[0.18em] leading-[1.05] md:text-6xl text-gabi-blue">
+              <h1 className="font-display text-3xl uppercase tracking-[0.18em] leading-[1.05] md:text-5xl text-[#ff751f]">
                 {l1}
                 {l2 && (<><br />{l2}</>)}
                 {l3 && (<><br />{l3}</>)}
@@ -108,8 +108,8 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
             </div>
 
             {/* Compact inline CTA row */}
-            <div className="mt-6 inline-flex items-center gap-4 rounded-2xl border border-white/60 bg-white/70 px-5 py-4 backdrop-blur">
-              <div className="text-base font-semibold text-gabi-dark">Готовы начать?</div>
+            <div className="mt-6 inline-flex items-center gap-4 rounded-2xl border border-white/15 bg-black/55 px-5 py-4 backdrop-blur-sm">
+              <div className="text-base font-semibold text-white">Готовы начать?</div>
               <LeadCtaButton label="Записаться" className="btn-primary" source="hero-cta" />
             </div>
 
