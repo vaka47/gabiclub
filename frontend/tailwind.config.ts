@@ -10,15 +10,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "gabi-blue": "#006CFF",
-        // Secondary brand accent switched to orange for blue→orange gradients
-        "gabi-orange": "#FF7A00",
+        "gabi-blue": "#1A5ACB", // brand blue (from first image)
+        "gabi-orange": "#FF6A00", // vivid orange (from first image)
         "gabi-red": "#FF2D2D",
         "gabi-dark": "#0F172A",
         "gabi-gray": "#334155",
       },
       boxShadow: {
-        glow: "0 20px 60px rgba(0, 108, 255, 0.25)",
+        glow: "0 20px 60px rgba(26, 90, 203, 0.26)",
       },
       fontFamily: {
         display: ["var(--font-bebas)", "sans-serif"],

@@ -6,7 +6,8 @@ import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
-import { getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, getTrainingSessions, resolveMediaUrl } from "@/lib/api";
+import { getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, getTrainingSessions } from "@/lib/api";
+// (animations handled inside client components)
 
 
 export default async function TrainingsPage() {
@@ -20,7 +21,7 @@ export default async function TrainingsPage() {
   ]);
 
   const featuredCoaches = coaches.filter((coach) => coach.is_featured);
-  const formPhoto = resolveMediaUrl(theme?.club_photo) || process.env.NEXT_PUBLIC_CLUB_PHOTO || club.hero_slides?.[0]?.image;
+  // form photo no longer used inline; hero background slideshow is controlled via env/club slides
 
   return (
     <div className="space-y-20 pb-10">
@@ -29,7 +30,6 @@ export default async function TrainingsPage() {
         clubName={club.name}
         tagline={club.tagline}
         description={club.hero_description}
-        formPhoto={formPhoto}
       />
 
       <PlanTabs plans={plans} />

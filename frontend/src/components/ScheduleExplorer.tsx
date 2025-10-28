@@ -3,6 +3,7 @@
 import { addDays, format, isAfter, isBefore, parseISO, startOfWeek } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
 import type {
   Coach,
@@ -84,11 +85,18 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
   const resetFilters = () => setFilters(defaultFilters);
 
   return (
-    <section className="mt-16 space-y-6">
+    <motion.section
+      id="schedule"
+      className="mt-16 space-y-6"
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.75, ease: "easeOut" }}
+    >
       <div className="flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/80 p-6 shadow-glow backdrop-blur">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="section-title">Календарь тренировок</h2>
+            <h2 className="section-title section-accent">Календарь тренировок</h2>
             <p className="section-subtitle">Выбирайте направление, уровень и локацию — и записывайтесь онлайн.</p>
           </div>
           <div className="flex items-center gap-2">
@@ -175,12 +183,23 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
         )}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-7">
+        <motion.div
+          className="grid gap-6 md:grid-cols-7"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
+        >
         {weekDays.map((day) => {
           const dateKey = format(day, "yyyy-MM-dd");
           const daySessions = (dayMap.get(dateKey) ?? []).sort((a, b) => (a.start_time > b.start_time ? 1 : -1));
           return (
-            <div key={dateKey} className="space-y-3">
+            <motion.div
+              key={dateKey}
+              className="space-y-3"
+              variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+            >
               <div className="rounded-2xl bg-white/80 p-3 text-center shadow-sm">
                 <div className="text-xs uppercase tracking-widest text-slate-400">
                   {format(day, "EEE", { locale: ru })}
@@ -194,7 +213,14 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                   </div>
                 )}
                 {daySessions.map((session) => (
-                  <div key={session.id} className="group rounded-2xl border border-white/60 bg-white/90 p-4 shadow transition hover:-translate-y-1 hover:shadow-lg">
+                  <motion.div
+                    key={session.id}
+                    className="group rounded-2xl border border-white/60 bg-white/90 p-4 shadow transition hover:-translate-y-1 hover:shadow-lg"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.45, ease: "easeOut" }}
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-2">
                         <div className="text-sm font-semibold text-gabi-blue">
@@ -238,13 +264,13 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                         Записаться
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }

@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { HeroSlide } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
-import LeadFormInline from "./LeadFormInline";
+import LeadCtaButton from "./LeadCtaButton";
 
 type HeroSectionProps = {
   slides: HeroSlide[];
@@ -19,44 +19,85 @@ type HeroSectionProps = {
 
 const AUTO_SWITCH = 6000;
 
-export default function HeroSection({ slides, clubName, tagline, description, formPhoto }: HeroSectionProps) {
-  const [index, setIndex] = useState(0);
+export default function HeroSection({ slides, clubName, tagline, description }: HeroSectionProps) {
+  // Background slideshow: takes two images from env, falls back to club slides
+  const envSlides = useMemo(
+    () =>
+      [process.env.NEXT_PUBLIC_HERO_BG_1, process.env.NEXT_PUBLIC_HERO_BG_2]
+        .filter(Boolean)
+        .map((s) => resolveMediaUrl(String(s))) as string[],
+    [],
+  );
+
+  const bgSlides = useMemo(() => {
+    const fromClub = slides
+      .map((s) => resolveMediaUrl(s.image) ?? s.image)
+      .filter(Boolean) as string[];
+    return envSlides.length > 0 ? envSlides : fromClub;
+  }, [slides, envSlides]);
+
+  const [bgIndex, setBgIndex] = useState(0);
 
   useEffect(() => {
-    if (slides.length < 2) return;
+    if (bgSlides.length < 2) return;
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % slides.length);
+      setBgIndex((p) => (p + 1) % bgSlides.length);
     }, AUTO_SWITCH);
     return () => clearInterval(timer);
-  }, [slides.length]);
-
-  const activeSlide = slides[index];
-  const formBg = useMemo(() => resolveMediaUrl(formPhoto ?? process.env.NEXT_PUBLIC_CLUB_PHOTO) ?? undefined, [formPhoto]);
+  }, [bgSlides.length]);
 
   return (
     <section
       className="relative overflow-hidden rounded-[36px] text-white shadow-glow"
       style={{
         backgroundImage:
-          "linear-gradient(to bottom right, var(--brand-grad-start, #006CFF), var(--brand-grad-end, #FF7A00))",
+          "linear-gradient(to bottom right, var(--brand-grad-start, #1A5ACB), var(--brand-grad-end, #FF6A00))",
       }}
     >
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_55%)]" aria-hidden />
-      <div className="relative grid gap-10 px-6 py-16 md:grid-cols-[1.1fr_0.9fr] md:px-12 lg:px-16 lg:py-20">
-        <div className="flex flex-col gap-6">
+      {/* Background slideshow under gradient overlay */}
+      <div className="absolute inset-0 -z-10" aria-hidden>
+        <AnimatePresence mode="popLayout">
+          {bgSlides.slice(0, Math.max(1, bgSlides.length)).map((_, i) =>
+            i === bgIndex ? (
+              <motion.div
+                key={`bg-${i}-${bgSlides[i]}`}
+                className="absolute inset-0"
+                initial={{ opacity: 0, scale: 1.03 }}
+                animate={{ opacity: 0.5, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.9, ease: "easeOut" }}
+              >
+                <Image src={bgSlides[i]} alt="Hero background" fill className="object-cover" priority />
+              </motion.div>
+            ) : null,
+          )}
+        </AnimatePresence>
+        {/* Existing gradient texture */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_55%)]" />
+      </div>
+
+      <div className="relative px-6 py-16 md:px-12 lg:px-16 lg:py-20">
+        <div className="max-w-3xl">
           <div className="space-y-3">
             <span className="badge w-fit bg-white/20 text-white">{clubName}</span>
-            <h1 className="font-display text-4xl uppercase tracking-[0.18em] md:text-6xl">{tagline ?? "Спорт. Приключения. Команда."}</h1>
-            <p className="max-w-xl text-base text-white/80 md:text-lg">
+            <h1 className="font-display text-4xl uppercase tracking-[0.18em] md:text-6xl">
+              {tagline ?? "ЛЫЖНЫЙ КЛУБ GABI"}
+            </h1>
+            <p className="max-w-2xl text-base text-white/85 md:text-lg">
               {description ??
-                "Календарь тренировок, авторские кэмпы и блог для тех, кто живёт движением. Присоединяйся к Gabi Club."}
+                "Тренируйся системно. Развивайся с GABI — лыжи, роллеры, бег с вниманием к деталям и технике."}
             </p>
           </div>
 
-          {/* Inline lead form with photo overlay */}
-          <LeadFormInline photo={formBg} initial={{ source: "hero-inline" }} />
+          {/* CTA instead of inline form */}
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <LeadCtaButton label="Записаться" className="btn-primary" source="hero-cta" />
+            <a href="#schedule" className="btn-secondary">
+              Смотреть расписание
+            </a>
+          </div>
 
-          <div className="flex items-center gap-3 text-sm text-white/70">
+          <div className="mt-6 flex items-center gap-3 text-sm text-white/80">
             <div className="flex items-center gap-1">
               <span className="h-3 w-3 rounded-full bg-emerald-300" aria-hidden />
               Расписание обновляется ежедневно
@@ -68,52 +109,22 @@ export default function HeroSection({ slides, clubName, tagline, description, fo
           </div>
         </div>
 
-        <div className="relative min-h-[280px] overflow-hidden rounded-3xl bg-white/10 shadow-inner">
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              key={activeSlide?.id ?? index}
-              className="absolute inset-0"
-              initial={{ opacity: 0, scale: 1.04 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              {activeSlide?.image ? (
-                <Image
-                  src={resolveMediaUrl(activeSlide.image) ?? activeSlide.image}
-                  alt={activeSlide.title ?? "Gabi Club"}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-white/10 text-2xl font-semibold text-white/70">
-                  {clubName}
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" aria-hidden />
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-sm">
-                <div className="font-semibold uppercase tracking-[0.2em] text-white/80">#{index + 1}</div>
-                {activeSlide?.title && <div className="text-lg font-semibold text-white">{activeSlide.title}</div>}
-                {activeSlide?.subtitle && <div className="text-white/80">{activeSlide.subtitle}</div>}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
+        {bgSlides.length > 1 && (
           <div className="absolute bottom-6 left-6 flex gap-2">
-            {slides.map((slide, idx) => (
+            {bgSlides.map((src, idx) => (
               <button
-                key={slide.id ?? idx}
-                onClick={() => setIndex(idx)}
+                key={src + idx}
+                onClick={() => setBgIndex(idx)}
                 className={clsx(
                   "h-2.5 w-6 rounded-full transition",
-                  idx === index ? "bg-white" : "bg-white/40 hover:bg-white/70",
+                  idx === bgIndex ? "bg-white" : "bg-white/40 hover:bg-white/70",
                 )}
                 aria-label={`Слайд ${idx + 1}`}
+                type="button"
               />
             ))}
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

@@ -5,10 +5,10 @@
 :root {
   color-scheme: light;
   /* Runtime theme variables (defaults) */
-  --brand-primary: #006CFF;
-  --brand-secondary: #FF7A00;
-  --brand-grad-start: #006CFF;
-  --brand-grad-end: #FF7A00;
+  --brand-primary: #1A5ACB; /* Blue from first reference */
+  --brand-secondary: #FF6A00; /* Orange from first reference */
+  --brand-grad-start: #1A5ACB;
+  --brand-grad-end: #FF6A00;
 }
 
 body {
@@ -24,7 +24,21 @@ a:hover {
 }
 
 .section-title {
-  @apply text-3xl md:text-4xl font-semibold text-gabi-dark tracking-tight;
+  @apply font-display uppercase text-3xl md:text-4xl font-semibold tracking-[0.16em] text-gabi-dark;
+}
+
+/* Thin accent bar under section titles */
+.section-accent {
+  position: relative;
+}
+.section-accent::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 4px;
+  margin-top: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--brand-grad-start), var(--brand-grad-end));
 }
 
 .section-subtitle {

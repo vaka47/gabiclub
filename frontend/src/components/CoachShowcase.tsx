@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 import type { Coach } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
@@ -43,14 +44,31 @@ export default function CoachShowcase({ coaches }: CoachShowcaseProps) {
   if (coaches.length === 0) return null;
 
   return (
-    <section className="mt-20 space-y-8">
+    <motion.section
+      className="mt-20 space-y-8"
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.75, ease: "easeOut" }}
+    >
       <div className="flex flex-col gap-2">
-        <h2 className="section-title">Команда тренеров</h2>
+        <h2 className="section-title section-accent">Команда тренеров</h2>
         <p className="section-subtitle">Лыжники, трейлраннеры, методисты — мы подбираем тренера под вашу цель.</p>
       </div>
-      <div className="grid gap-6 md:grid-cols-3">
+      <motion.div
+        className="grid gap-6 md:grid-cols-3"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+      >
         {coaches.map((coach) => (
-          <div key={coach.id} className="card-surface flex h-full flex-col gap-4">
+          <motion.div
+            key={coach.id}
+            className="card-surface flex h-full flex-col gap-4"
+            variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+          >
             <div className="flex items-center gap-4">
               <CoachAvatar coach={coach} />
               <div>
@@ -77,9 +95,9 @@ export default function CoachShowcase({ coaches }: CoachShowcaseProps) {
                 message: `Хочу тренироваться с ${coach.full_name}`,
               }}
             />
-          </div>
+          </motion.div>
         ))}
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }

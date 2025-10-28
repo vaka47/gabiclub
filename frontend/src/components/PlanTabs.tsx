@@ -1,6 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
+import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 
 import type { TrainingPlan } from "@/lib/types";
@@ -35,7 +36,13 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
   const filteredPlans = plans.filter((plan) => plan.category === activeCategory);
 
   return (
-    <section className="mt-14 space-y-8">
+    <motion.section
+      className="mt-14 space-y-8"
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.75, ease: "easeOut" }}
+    >
       <div className="flex flex-wrap gap-3">
         {categories.map((category) => (
           <button
@@ -54,9 +61,20 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <motion.div
+        className="grid gap-6 md:grid-cols-2"
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+      >
         {filteredPlans.map((plan) => (
-          <div key={plan.id} className="card-surface flex h-full flex-col justify-between">
+          <motion.div
+            key={plan.id}
+            className="card-surface flex h-full flex-col justify-between"
+            variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+          >
             <div className="space-y-4">
               {plan.is_featured && (
                 <span className="badge bg-gabi-orange/15 text-gabi-orange">Хит</span>
@@ -93,9 +111,9 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
             >
               Выбрать тариф
             </button>
-          </div>
+          </motion.div>
         ))}
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }

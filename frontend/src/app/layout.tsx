@@ -1,7 +1,7 @@
 import "../styles/globals.css";
 
 import type { Metadata } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import { Oswald, Inter } from "next/font/google";
 
 import CursorTrail from "@/components/CursorTrail";
 import Footer from "@/components/Footer";
@@ -10,7 +10,8 @@ import LeadModalProvider from "@/components/providers/LeadModalProvider";
 import { getClubProfile, getContactInfo, getTheme, resolveMediaUrl } from "@/lib/api";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
-const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
+// Use Oswald for strong, condensed headings with Cyrillic support
+const bebas = Oswald({ weight: ["400", "600", "700"], subsets: ["latin", "cyrillic"], variable: "--font-bebas" });
 
 export const metadata: Metadata = {
   title: "Gabi Club — тренировки, кэмпы и блог",
@@ -22,11 +23,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [contact, club, theme] = await Promise.all([getContactInfo(), getClubProfile(), getTheme()]);
   const snowBg = resolveMediaUrl(theme?.snow_bg) || process.env.NEXT_PUBLIC_SNOW_BG;
   const themeVars: React.CSSProperties = {
-    ["--brand-primary" as any]: theme?.primary_color || "#006CFF",
-    ["--brand-secondary" as any]: theme?.secondary_color || "#FF7A00",
-    ["--brand-grad-start" as any]: theme?.gradient_start || "#006CFF",
-    ["--brand-grad-end" as any]: theme?.gradient_end || "#FF7A00",
-    ["--brand-bg" as any]: theme?.background_color || "#ECECEC",
+    ["--brand-primary" as any]: theme?.primary_color || "#1A5ACB",
+    ["--brand-secondary" as any]: theme?.secondary_color || "#FF6A00",
+    ["--brand-grad-start" as any]: theme?.gradient_start || "#1A5ACB",
+    ["--brand-grad-end" as any]: theme?.gradient_end || "#FF6A00",
+    ["--brand-bg" as any]: theme?.background_color || "#E9E9E9",
   };
 
   return (
