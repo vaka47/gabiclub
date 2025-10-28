@@ -37,7 +37,14 @@ const API_ORIGIN = (() => {
 export function resolveMediaUrl(src?: string | null): string | undefined {
   if (!src) return undefined;
   if (/^https?:\/\//i.test(src)) return src;
-  if (src.startsWith("/")) return API_ORIGIN ? `${API_ORIGIN}${src}` : src;
+  if (src.startsWith("/")) {
+    // Only prefix absolute API-origin for media paths coming from Django.
+    // Site-root assets like "/hero-1.jpg" must stay on the Next.js host.
+    if (src.startsWith("/media/") || src.startsWith("/static/")) {
+      return API_ORIGIN ? `${API_ORIGIN}${src}` : src;
+    }
+    return src;
+  }
   return src;
 }
 
