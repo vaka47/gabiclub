@@ -7,6 +7,8 @@ import type { Coach } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
 import { useLeadModal } from "./providers/LeadModalProvider";
+import { useState } from "react";
+import CoachModal from "./CoachModal";
 
 function CoachAvatar({ coach }: { coach: Coach }) {
   const photoUrl = resolveMediaUrl(coach.photo ?? undefined);
@@ -42,6 +44,7 @@ type CoachShowcaseProps = {
 
 export default function CoachShowcase({ coaches, showHeading = true, className = "" }: CoachShowcaseProps) {
   const { openLeadModal } = useLeadModal();
+  const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
 
   if (coaches.length === 0) return null;
 
@@ -73,12 +76,13 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
             variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.55, ease: "easeOut" }}
           >
-            <div className="flex items-center gap-4">
+            <button type="button" className="flex items-center gap-4 text-left" onClick={() => setSelectedCoach(coach)}>
               <CoachAvatar coach={coach} />
               <div>
-                <h3 className="text-lg font-semibold text-gabi-dark">{coach.full_name}</h3>
+                <h3 className="text-lg font-semibold text-gabi-dark underline-offset-4 hover:underline">{coach.full_name}</h3>
                 {coach.role && <p className="text-sm text-slate-500">{coach.role}</p>}
               </div>
+            </button>
             </div>
             <p className="text-sm text-slate-600">{coach.bio}</p>
             {coach.directions.length > 0 && (
@@ -102,6 +106,7 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
           </motion.div>
         ))}
       </motion.div>
+      <CoachModal open={!!selectedCoach} coach={selectedCoach} onClose={() => setSelectedCoach(null)} />
     </motion.section>
   );
 }
