@@ -72,7 +72,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [contact, club, theme] = await Promise.all([getContactInfo(), getClubProfile(), getTheme()]);
   const snowBg = resolveMediaUrl(theme?.snow_bg) || process.env.NEXT_PUBLIC_SNOW_BG;
   const brandBg = theme?.background_color || DEFAULT_BG_COLOR;
-  const overlayBg = colorWithAlpha(brandBg, 0.85);
+  const overlayBg = colorWithAlpha(brandBg, 0.6);
   const shellBg = snowBg ? "transparent" : brandBg;
   const themeVars: React.CSSProperties = {
     ["--brand-primary" as any]: theme?.primary_color || "#1A5ACB",
