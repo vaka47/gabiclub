@@ -4,6 +4,7 @@ import html
 import json
 import logging
 import urllib.request
+import urllib.parse
 
 logger = logging.getLogger(__name__)
 
@@ -25,12 +26,24 @@ def send_telegram_message(token: str, chat_id: str, text: str, parse_mode: str =
         # To avoid formatting surprises
         "disable_web_page_preview": True,
     }
-    data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
+    # Primary path: JSON with UTF-8 (allow non-ASCII directly)
+    data_json = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    req_json = urllib.request.Request(
+        url, data=data_json, headers={"Content-Type": "application/json; charset=utf-8"}, method="POST"
+    )
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec - calling known Telegram API
-            # Best-effort: read to ensure request completed
+        with urllib.request.urlopen(req_json, timeout=timeout) as resp:  # nosec - calling known Telegram API
             resp.read()
+            return
     except Exception as exc:  # pragma: no cover - network
-        logger.warning("Telegram notification failed: %s", exc)
-
+        # Fallback: traditional form-encoded with explicit UTF-8 quoting
+        try:
+            form = urllib.parse.urlencode(payload, encoding="utf-8").encode("utf-8")
+            req_form = urllib.request.Request(
+                url, data=form, headers={"Content-Type": "application/x-www-form-urlencoded; charset=utf-8"}, method="POST"
+            )
+            with urllib.request.urlopen(req_form, timeout=timeout) as resp:  # nosec
+                resp.read()
+                return
+        except Exception as exc2:  # pragma: no cover - network
+            logger.warning("Telegram notification failed: %s", exc2)
