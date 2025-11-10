@@ -133,6 +133,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CORS_ALLOWED_ORIGINS = [
     'https://gabiclub.ru',
+    'https://www.gabiclub.ru',
     'https://admin.gabiclub.ru',
     # local dev
     'http://localhost:3000',
@@ -142,6 +143,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     'https://gabiclub.ru',
+    'https://www.gabiclub.ru',
     'https://admin.gabiclub.ru',
     'https://api.gabiclub.ru',
     # local dev
