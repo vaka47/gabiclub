@@ -95,6 +95,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
                 {l2 && (<><br />{l2}</>)}
                 {l3 && (<><br />{l3}</>)}
               </h1>
+              
               <p className="max-w-2xl text-base text-slate-700 md:text-lg">
                 {description ?? "Тренируйся системно. Развивайся с GABI — лыжи, роллеры, бег с вниманием к деталям и технике."}
               </p>
