@@ -33,5 +33,16 @@ jobs:
             cd /srv/gabiclub/backend
             git fetch --all --prune
             git reset --hard origin/main
+            # Configure Telegram env for gunicorn via systemd drop-in (optional)
+            TG_TOKEN='${{ secrets.TELEGRAM_BOT_TOKEN }}'
+            TG_CHATS='${{ secrets.TELEGRAM_CHAT_IDS }}'
+            if [ -n "${TG_TOKEN}" ] && [ -n "${TG_CHATS}" ]; then
+              mkdir -p /etc/systemd/system/gunicorn-gabiclub.service.d
+              cat >/etc/systemd/system/gunicorn-gabiclub.service.d/override.conf <<EOF
+[Service]
+Environment=TELEGRAM_BOT_TOKEN=${TG_TOKEN}
+Environment=TELEGRAM_CHAT_IDS=${TG_CHATS}
+EOF
+              systemctl daemon-reload
+            fi
             bash scripts/deploy-backend.sh
-

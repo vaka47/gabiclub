@@ -1,3 +1,6 @@
+import os
+import threading
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,6 +12,7 @@ from .serializers import (
     LeadRequestCreateSerializer,
     ThemeSettingsSerializer,
 )
+from .utils import send_telegram_message, tg_escape
 
 
 class ContactInfoView(APIView):
@@ -31,7 +35,39 @@ class LeadRequestView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = LeadRequestCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        instance = serializer.save()
+
+        # Optional Telegram notification (non-blocking)
+        token = os.getenv("TELEGRAM_BOT_TOKEN")
+        chat_ids_raw = os.getenv("TELEGRAM_CHAT_IDS") or os.getenv("TELEGRAM_CHAT_ID") or ""
+        # Allow comma/space separated list of chat IDs
+        recipients = [cid.strip() for cid in chat_ids_raw.replace("\n", ",").split(",") if cid.strip()]
+        if token and recipients:
+            def _notify() -> None:
+                parts = [
+                    "<b>Новая заявка</b>",
+                    f"Имя: {tg_escape(instance.full_name)}",
+                ]
+                if instance.phone:
+                    parts.append(f"Телефон: {tg_escape(instance.phone)}")
+                if instance.email:
+                    parts.append(f"Email: {tg_escape(instance.email)}")
+                if instance.preferred_direction:
+                    parts.append(f"Направление: {tg_escape(instance.preferred_direction)}")
+                if instance.message:
+                    parts.append(f"Комментарий: {tg_escape(instance.message)}")
+                if instance.source:
+                    parts.append(f"Источник: {tg_escape(instance.source)}")
+                parts.append(instance.created_at.strftime("Дата: %d.%m.%Y %H:%M"))
+                text = "\n".join(parts)
+                for chat_id in recipients:
+                    try:
+                        send_telegram_message(token, chat_id, text)
+                    except Exception:
+                        # Utils already logs; continue with other recipients
+                        pass
+
+            threading.Thread(target=_notify, daemon=True).start()
         return Response(
             {"message": "Спасибо! Мы свяжемся с вами в ближайшее время."},
             status=status.HTTP_201_CREATED,
