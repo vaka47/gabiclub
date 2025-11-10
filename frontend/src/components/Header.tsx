@@ -8,6 +8,7 @@ import { FiMenu, FiPhoneCall, FiX } from "react-icons/fi";
 
 import type { SocialLink } from "@/lib/types";
 import { useLeadModal } from "./providers/LeadModalProvider";
+import Image from "next/image";
 
 type HeaderProps = {
   contactPhone?: string;
@@ -30,6 +31,7 @@ export default function Header({ contactPhone, socialLinks }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const { openLeadModal } = useLeadModal();
+  const logoSrc = process.env.NEXT_PUBLIC_LOGO?.trim() || undefined;
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
@@ -84,8 +86,12 @@ export default function Header({ contactPhone, socialLinks }: HeaderProps) {
 
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:py-5">
         <Link href="/" className="flex items-center gap-3 text-xl font-semibold text-gabi-dark">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gabi-blue text-white shadow-glow">
-            G
+          <div className="relative h-10 w-10 overflow-hidden rounded-full bg-gabi-blue text-white shadow-glow">
+            {logoSrc ? (
+              <Image src={logoSrc} alt="Gabi logo" fill className="object-contain p-1" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">G</div>
+            )}
           </div>
           <div className="flex flex-col leading-none">
             <span className="text-base font-semibold uppercase tracking-[0.3em] text-gabi-blue">GABI</span>
