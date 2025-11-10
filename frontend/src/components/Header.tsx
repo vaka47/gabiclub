@@ -8,7 +8,6 @@ import { FiMenu, FiPhoneCall, FiX } from "react-icons/fi";
 
 import type { SocialLink } from "@/lib/types";
 import { useLeadModal } from "./providers/LeadModalProvider";
-import Image from "next/image";
 
 type HeaderProps = {
   contactPhone?: string;
@@ -86,13 +85,11 @@ export default function Header({ contactPhone, socialLinks }: HeaderProps) {
 
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:py-5">
         <Link href="/" className="flex items-center gap-3 text-xl font-semibold text-gabi-dark">
-          <div className="relative h-10 w-10 overflow-hidden rounded-full bg-gabi-blue text-white shadow-glow">
-            {logoSrc ? (
-              <Image src={logoSrc} alt="Gabi logo" fill className="object-contain p-1" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">G</div>
-            )}
-          </div>
+          {logoSrc ? (
+            <img src={logoSrc} alt="Gabi logo" className="h-10 w-auto" />
+          ) : (
+            <div className="h-10 w-auto flex items-center text-gabi-blue">G</div>
+          )}
           <div className="flex flex-col leading-none">
             <span className="text-base font-semibold uppercase tracking-[0.3em] text-gabi-blue">GABI</span>
             <span className="text-xs font-medium text-slate-500">SPORT CLUB</span>
