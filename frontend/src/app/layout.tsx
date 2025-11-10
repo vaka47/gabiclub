@@ -100,7 +100,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div style={{ backgroundColor: shellBg }}>
           <LeadModalProvider>
             <CursorTrail />
-            <Header contactPhone={contact.phone_primary} socialLinks={contact.social_links} />
+            <Header socialLinks={contact.social_links} />
             <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-40 pb-20 md:px-6 lg:px-8">
               {children}
             </main>

@@ -4,13 +4,12 @@ import { clsx } from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { FiMenu, FiPhoneCall, FiX } from "react-icons/fi";
+import { FiMenu, FiX } from "react-icons/fi";
 
 import type { SocialLink } from "@/lib/types";
 import { useLeadModal } from "./providers/LeadModalProvider";
 
 type HeaderProps = {
-  contactPhone?: string;
   socialLinks?: SocialLink[];
 };
 
@@ -26,7 +25,7 @@ const links: NavLink[] = [
   { href: "/about", label: "О клубе" },
 ];
 
-export default function Header({ contactPhone, socialLinks }: HeaderProps) {
+export default function Header({ socialLinks }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const { openLeadModal } = useLeadModal();
@@ -61,28 +60,7 @@ export default function Header({ contactPhone, socialLinks }: HeaderProps) {
   );
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-slate-200/70">
-      <div className="text-xs text-slate-600 bg-slate-50/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-0">
-          <div className="flex items-center gap-3">
-            <span className="hidden md:inline-flex items-center gap-2 text-sm text-slate-500">
-              <FiPhoneCall className="text-gabi-blue" />
-              {contactPhone ?? "+7 (999) 200-30-30"}
-            </span>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gabi-blue border border-slate-200">
-              GABI CLUB
-            </span>
-          </div>
-          <div className="hidden items-center gap-4 text-sm text-slate-500 md:flex">
-            {socialLinks?.map((link) => (
-              <a key={link.id ?? link.title} href={link.url} target="_blank" rel="noreferrer" className="hover:text-gabi-blue">
-                {link.title}
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-lg">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:py-5">
         <Link href="/" className="flex items-center gap-3 text-xl font-semibold text-gabi-dark">
           {logoSrc ? (
@@ -90,14 +68,32 @@ export default function Header({ contactPhone, socialLinks }: HeaderProps) {
           ) : (
             <div className="h-10 w-auto flex items-center text-gabi-blue">G</div>
           )}
-          <div className="flex flex-col leading-none">
+          <div className="flex flex-col leading-none lg:hidden">
             <span className="text-base font-semibold uppercase tracking-[0.3em] text-gabi-blue">GABI</span>
             <span className="text-xs font-medium text-slate-500">SPORT CLUB</span>
           </div>
+          <span className="hidden lg:block text-sm font-semibold uppercase tracking-[0.3em] text-gabi-blue">
+            ГАБИ — СПОРТ КЛУБ
+          </span>
         </Link>
 
-        <div className="hidden items-center gap-10 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {renderLinks("desktop")}
+          {socialLinks?.length ? (
+            <div className="flex items-center gap-4 text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.id ?? link.title}
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition hover:text-gabi-blue"
+                >
+                  {link.title}
+                </a>
+              ))}
+            </div>
+          ) : null}
           <button
             className="btn-primary"
             onClick={() => openLeadModal({ source: "header" })}
@@ -131,6 +127,21 @@ export default function Header({ contactPhone, socialLinks }: HeaderProps) {
             >
               Записаться на тренировку
             </button>
+            {socialLinks?.length ? (
+              <div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-500">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.id ?? link.title}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition hover:text-gabi-blue"
+                  >
+                    {link.title}
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
       )}
