@@ -35,7 +35,10 @@ def send_telegram_message(token: str, chat_id: str, text: str, parse_mode: str =
 
     Silent failure on network errors; logs warning.
     """
-    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    token_path = urllib.parse.quote(token or "", safe=":")
+    if token_path != token:
+        logger.warning("Telegram bot token contains non-ASCII characters; encoding for request path.")
+    url = f"https://api.telegram.org/bot{token_path}/sendMessage"
     payload = {
         "chat_id": chat_id,
         "text": text,
