@@ -176,10 +176,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
           <div className="max-w-3xl">
             <div className="space-y-4">
               {/* Wordmark as text (Halenoir) */}
-              <div
-                className="font-wordmark text-[42px] leading-none md:text-[56px] lg:text-[72px]"
-                style={{ color: "rgb(43, 99, 131)" }}
-              >
+              <div className="font-wordmark text-gabi-blue text-[42px] leading-none md:text-[56px] lg:text-[72px]">
                 GABI
               </div>
               <h1
@@ -190,7 +187,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
                 {l2 && (<><br />{l2}</>)}
                 {l3 && (<><br />{l3}</>)}
               </h1>
-              
+
               <p className="max-w-2xl text-base text-slate-700 md:text-lg">
                 {description ?? "Тренируйся системно. Развивайся с GABI — лыжи, роллеры, бег с вниманием к деталям и технике."}
               </p>
