@@ -36,25 +36,29 @@ function CoachAvatar({ coach }: { coach: Coach }) {
 
 type CoachShowcaseProps = {
   coaches: Coach[];
+  showHeading?: boolean;
+  className?: string;
 };
 
-export default function CoachShowcase({ coaches }: CoachShowcaseProps) {
+export default function CoachShowcase({ coaches, showHeading = true, className = "" }: CoachShowcaseProps) {
   const { openLeadModal } = useLeadModal();
 
   if (coaches.length === 0) return null;
 
   return (
     <motion.section
-      className="mt-20 space-y-8"
+      className={"mt-20 space-y-8 "+className}
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.75, ease: "easeOut" }}
     >
-      <div className="flex flex-col gap-2">
-        <h2 className="section-title section-accent">Команда тренеров</h2>
-        <p className="section-subtitle">Лыжники, трейлраннеры, методисты — мы подбираем тренера под вашу цель.</p>
-      </div>
+      {showHeading && (
+        <div className="flex flex-col gap-2">
+          <h2 className="section-title section-accent">Команда тренеров</h2>
+          <p className="section-subtitle">Лыжники, трейлраннеры, методисты — мы подбираем тренера под вашу цель.</p>
+        </div>
+      )}
       <motion.div
         className="grid gap-6 md:grid-cols-3"
         initial="hidden"

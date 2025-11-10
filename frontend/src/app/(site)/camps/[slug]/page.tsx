@@ -122,6 +122,18 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
           )}
         </div>
         <aside className="space-y-6">
+          <div className="card-surface space-y-3">
+            <h3 className="text-lg font-semibold text-gabi-dark">Присоединяйтесь</h3>
+            <p className="text-sm text-slate-500">
+              Оставьте контакты — организаторы свяжутся с подробностями, подбором проживания и билетов.
+            </p>
+            <LeadCtaButton label="Записаться" className="btn-primary w-full" source={`camp-${camp.slug}`} />
+            {camp.registration_link && (
+              <a href={camp.registration_link} target="_blank" rel="noreferrer" className="btn-secondary w-full text-center">
+                Перейти к регистрации
+              </a>
+            )}
+          </div>
           {camp.highlights.length > 0 && (
             <div className="card-surface space-y-3">
               <h3 className="text-lg font-semibold text-gabi-dark">Что вас ждёт</h3>
@@ -135,32 +147,20 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
               </ul>
             </div>
           )}
-          <div className="card-surface space-y-3">
-            <h3 className="text-lg font-semibold text-gabi-dark">Присоединяйтесь</h3>
-            <p className="text-sm text-slate-500">
-              Оставьте контакты — организаторы свяжутся с подробностями, подбором проживания и билетов.
-            </p>
-            <LeadCtaButton label="Записаться" className="btn-primary w-full" source={`camp-${camp.slug}`} />
-            {camp.registration_link && (
-              <a href={camp.registration_link} target="_blank" rel="noreferrer" className="btn-secondary w-full text-center">
-                Перейти к регистрации
-              </a>
-            )}
-          </div>
         </aside>
       </section>
+
+      {camp.trainers && camp.trainers.length > 0 && (
+        <section className="space-y-6">
+          <h2 className="section-title section-accent">Тренеры кэмпа</h2>
+          <CoachShowcase coaches={camp.trainers} showHeading={false} className="mt-6" />
+        </section>
+      )}
 
       {camp.gallery.length > 0 && (
         <section className="space-y-6">
           <h2 className="text-2xl font-semibold text-gabi-dark">Галерея</h2>
           <CampGallery slug={camp.slug} title={camp.title} photos={camp.gallery} />
-        </section>
-      )}
-
-      {camp.trainers && camp.trainers.length > 0 && (
-        <section className="space-y-6">
-          <h2 className="text-2xl font-semibold text-gabi-dark">Наши тренеры</h2>
-          <CoachShowcase coaches={camp.trainers} />
         </section>
       )}
     </div>
