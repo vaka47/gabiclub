@@ -27,8 +27,6 @@ export const metadata: Metadata = {
 };
 
 const DEFAULT_BG_COLOR = "#E9E9E9";
-const SKY_GRADIENT =
-  "linear-gradient(180deg, rgba(236,199,194,1) 0%, rgba(253,237,231,0.95) 20%, rgba(255,255,255,1) 65%, rgba(255,255,255,1) 100%)";
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [contact, club, theme] = await Promise.all([getContactInfo(), getClubProfile(), getTheme()]);
   const brandBg = theme?.background_color || DEFAULT_BG_COLOR;
@@ -39,15 +37,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     ["--brand-grad-end" as any]: theme?.gradient_end || "#FF6A00",
     ["--brand-bg" as any]: brandBg,
   };
-  const gradientLayer: React.CSSProperties = {
-    backgroundImage: SKY_GRADIENT,
-    backgroundAttachment: "fixed",
-  };
-
   return (
     <html lang="ru">
       <body className={`${inter.variable} ${bebas.variable} min-h-screen text-gabi-gray`} style={themeVars}>
-        <div className="fixed inset-0 -z-10" aria-hidden style={gradientLayer} />
+        <div className="fixed inset-0 -z-10 sky-gradient-layer" aria-hidden />
         <div className="relative min-h-screen">
           <LeadModalProvider>
             <CursorTrail />

@@ -144,6 +144,17 @@ a:hover {
     radial-gradient(100% 120% at 90% 85%, color-mix(in srgb, var(--hero-edge-color, rgba(248,228,226,0.85)) 30%, transparent) 0%, transparent 80%);
 }
 
+.sky-gradient-layer {
+  background-image: linear-gradient(180deg, rgba(236,199,194,1) 0%, rgba(253,237,231,0.95) 20%, rgba(255,255,255,1) 65%, rgba(255,255,255,1) 100%);
+  background-attachment: fixed;
+}
+
+@media (max-width: 768px) {
+  .sky-gradient-layer {
+    background-image: linear-gradient(180deg, rgba(236,199,194,1) 0%, rgba(249,228,220,0.95) 25%, rgba(255,255,255,1) 55%);
+  }
+}
+
 /* CSS-only crossfade helpers for hero background */
 .fade-in {
   animation: hero-fade-in 900ms ease forwards;
