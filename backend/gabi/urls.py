@@ -15,9 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.views.decorators.cache import never_cache
+from django.views.static import serve as django_static_serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,7 +28,15 @@ urlpatterns = [
     path('api/core/', include('core.urls')),
 ]
 
-# Serve uploaded media on any environment so photos from the admin remain accessible.
-# (Ideally media is served by the web server, but enabling this route keeps images working.)
-if settings.MEDIA_URL:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve uploaded media even when DEBUG=0 so images added via the admin stay reachable.
+# (For higher traffic consider letting the web server / CDN handle /media/.)
+if settings.MEDIA_URL and settings.MEDIA_URL.startswith("/") and settings.MEDIA_ROOT:
+    media_path = settings.MEDIA_URL.strip("/")
+    if media_path:
+        urlpatterns += [
+            path(
+                f"{media_path}/<path:path>",
+                never_cache(django_static_serve),
+                {"document_root": settings.MEDIA_ROOT},
+            )
+        ]
