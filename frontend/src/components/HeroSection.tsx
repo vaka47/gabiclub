@@ -74,10 +74,20 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
     <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow">
       <div className="absolute inset-0 z-0" aria-hidden>
         {prevBg && (
-          <img src={prevBg} alt="" className="absolute inset-0 h-full w-full object-cover fade-out pointer-events-none" loading="eager" />
+          <img
+            src={prevBg}
+            alt=""
+            className="hero-bg-image absolute inset-0 h-full w-full object-cover pointer-events-none fade-out"
+            loading="eager"
+          />
         )}
         {currentBg && (
-          <img src={currentBg} alt="Hero background" className="absolute inset-0 h-full w-full object-cover fade-in pointer-events-none" loading="eager" />
+          <img
+            src={currentBg}
+            alt="Hero background"
+            className="hero-bg-image absolute inset-0 h-full w-full object-cover pointer-events-none fade-in"
+            loading="eager"
+          />
         )}
       </div>
       <div className="absolute inset-0 hero-haze" aria-hidden />

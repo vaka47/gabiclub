@@ -124,6 +124,14 @@ a:hover {
     radial-gradient(120% 90% at 50% 35%, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.70) 45%, rgba(255,255,255,0.55) 70%, rgba(255,255,255,0.40) 100%);
 }
 
+/* Soft mask to blend hero slideshow edges into the page gradient */
+.hero-bg-image {
+  -webkit-mask-image: radial-gradient(140% 180% at 50% 28%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
+  mask-image: radial-gradient(140% 180% at 50% 28%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
 /* CSS-only crossfade helpers for hero background */
 .fade-in {
   animation: hero-fade-in 900ms ease forwards;
