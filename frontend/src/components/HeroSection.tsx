@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import type { HeroSlide } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
@@ -12,6 +12,9 @@ type HeroSectionProps = { slides: HeroSlide[]; clubName: string; tagline?: strin
 
 const AUTO_SWITCH = 6000;
 const FADE_MS = 900;
+const EDGE_SAMPLE_SIZE = 48;
+const EDGE_BAND = 8;
+const EDGE_ALPHA = 0.82;
 
 function splitHeading(rawText: string): [string, string, string] {
   const raw = rawText.toUpperCase();
@@ -25,6 +28,61 @@ function splitHeading(rawText: string): [string, string, string] {
   const line2 = rest.slice(0, prIdx).trim();
   const line3 = rest.slice(prIdx).trim();
   return [before, line2, line3];
+}
+
+function sampleEdgeColor(src: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve(null);
+      return;
+    }
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.decoding = "async";
+    img.fetchPriority = "low";
+    img.src = src;
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = EDGE_SAMPLE_SIZE;
+        canvas.height = EDGE_SAMPLE_SIZE;
+        const context = canvas.getContext("2d");
+        if (!context) {
+          resolve(null);
+          return;
+        }
+        context.drawImage(img, 0, 0, EDGE_SAMPLE_SIZE, EDGE_SAMPLE_SIZE);
+        const { data } = context.getImageData(0, 0, EDGE_SAMPLE_SIZE, EDGE_SAMPLE_SIZE);
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let count = 0;
+        for (let y = 0; y < EDGE_SAMPLE_SIZE; y += 1) {
+          for (let x = 0; x < EDGE_SAMPLE_SIZE; x += 1) {
+            const isEdge =
+              y < EDGE_BAND || x < EDGE_BAND || x >= EDGE_SAMPLE_SIZE - EDGE_BAND || y >= EDGE_SAMPLE_SIZE - EDGE_BAND;
+            if (!isEdge) continue;
+            const idx = (y * EDGE_SAMPLE_SIZE + x) * 4;
+            r += data[idx];
+            g += data[idx + 1];
+            b += data[idx + 2];
+            count += 1;
+          }
+        }
+        if (!count) {
+          resolve(null);
+          return;
+        }
+        const avgR = Math.round(r / count);
+        const avgG = Math.round(g / count);
+        const avgB = Math.round(b / count);
+        resolve(`rgba(${avgR}, ${avgG}, ${avgB}, ${EDGE_ALPHA})`);
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+  });
 }
 
 export default function HeroSection({ slides, clubName, tagline, description, promos = [] }: HeroSectionProps) {
@@ -48,6 +106,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
   }, [bgSlides.length]);
 
   const currentBg = bgSlides[bgIndex] ?? null;
+  const [edgeColors, setEdgeColors] = useState<Record<string, string>>({});
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ ПРИКЛЮЧЕНИЯ");
   const currentPromo = promos.length > 0 ? promos[bgIndex % promos.length] : undefined;
 
@@ -68,10 +127,31 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
     });
   }, [bgSlides]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let cancelled = false;
+    bgSlides.forEach((src) => {
+      if (!src || edgeColors[src]) return;
+      sampleEdgeColor(src).then((color) => {
+        if (!cancelled && color) {
+          setEdgeColors((prev) => (prev[src] ? prev : { ...prev, [src]: color }));
+        }
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [bgSlides, edgeColors]);
+
+  const heroEdgeColor = currentBg ? edgeColors[currentBg] : undefined;
+  const edgeStyle: CSSProperties | undefined = heroEdgeColor
+    ? ({ ["--hero-edge-color" as const]: heroEdgeColor } satisfies CSSProperties)
+    : undefined;
+
   // Wordmark now rendered as text using Halenoir (self-hosted); PNG/SVG is no longer needed
 
   return (
-    <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow">
+    <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow" style={edgeStyle}>
       <div className="absolute inset-0 z-0" aria-hidden>
         {prevBg && (
           <img
@@ -90,6 +170,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
           />
         )}
       </div>
+      <div className="absolute inset-0 hero-edge-bleed" aria-hidden />
       <div className="absolute inset-0 hero-haze" aria-hidden />
 
       <div className="relative z-20 px-6 py-10 md:px-12 lg:px-16 md:py-12 lg:py-14">

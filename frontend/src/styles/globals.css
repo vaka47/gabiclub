@@ -132,6 +132,18 @@ a:hover {
   mask-repeat: no-repeat;
 }
 
+.hero-edge-bleed {
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: lighten;
+  opacity: 0.75;
+  background:
+    radial-gradient(65% 80% at 15% 15%, color-mix(in srgb, var(--hero-edge-color, rgba(248,228,226,0.85)) 55%, transparent) 0%, transparent 65%),
+    radial-gradient(70% 90% at 85% 12%, color-mix(in srgb, var(--hero-edge-color, rgba(248,228,226,0.85)) 45%, transparent) 0%, transparent 70%),
+    radial-gradient(120% 120% at 10% 80%, color-mix(in srgb, var(--hero-edge-color, rgba(248,228,226,0.85)) 35%, transparent) 0%, transparent 75%),
+    radial-gradient(100% 120% at 90% 85%, color-mix(in srgb, var(--hero-edge-color, rgba(248,228,226,0.85)) 30%, transparent) 0%, transparent 80%);
+}
+
 /* CSS-only crossfade helpers for hero background */
 .fade-in {
   animation: hero-fade-in 900ms ease forwards;
