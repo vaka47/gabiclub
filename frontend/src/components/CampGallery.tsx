@@ -53,17 +53,17 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
       </div>
 
       {openIdx != null && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90">
-          <button className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20" onClick={close} aria-label="Закрыть">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90" onClick={close} role="dialog" aria-modal="true">
+          <button className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); close(); }} aria-label="Закрыть">
             ✕
           </button>
-          <button className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" onClick={prev} aria-label="Предыдущее">
+          <button className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); prev(); }} aria-label="Предыдущее">
             ‹
           </button>
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" onClick={next} aria-label="Следующее">
+          <button className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); next(); }} aria-label="Следующее">
             ›
           </button>
-          <div className="relative h-[80vh] w-[90vw] max-w-5xl">
+          <div className="relative h-[80vh] w-[90vw] max-w-5xl" onClick={(e) => e.stopPropagation()}>
             <Image src={items[openIdx].src} alt={items[openIdx].caption || title} fill className="object-contain" />
           </div>
           {items[openIdx].caption && (
@@ -74,4 +74,3 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
     </div>
   );
 }
-
