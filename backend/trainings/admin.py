@@ -20,6 +20,7 @@ class TrainingAdmin(admin.ModelAdmin):
     search_fields = ("title", "coach", "location")
 
 
+
 class TrainingPlanBenefitInline(admin.TabularInline):
     model = TrainingPlanBenefit
     extra = 1
