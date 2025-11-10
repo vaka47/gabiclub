@@ -15,7 +15,6 @@ type FormState = LeadFormData & { status: "idle" | "loading" | "success" | "erro
 
 const initialFormState: FormState = {
   full_name: "",
-  email: "",
   phone: "",
   preferred_direction: "",
   message: "",
@@ -40,7 +39,6 @@ export default function LeadFormInline({ photo, initial }: LeadFormInlineProps) 
     try {
       const payload: LeadFormData = {
         full_name: formState.full_name,
-        email: formState.email,
         phone: formState.phone,
         preferred_direction: formState.preferred_direction,
         message: formState.message,
@@ -103,16 +101,6 @@ export default function LeadFormInline({ photo, initial }: LeadFormInlineProps) 
             />
           </label>
           <label className="flex flex-col gap-2 text-sm font-medium text-white/90 md:col-span-2">
-            Email
-            <input
-              value={formState.email}
-              onChange={handleChange("email")}
-              type="email"
-              className="rounded-xl border border-white/50 bg-white/90 px-4 py-3 text-base text-gabi-dark shadow-sm placeholder:text-slate-400 focus:border-gabi-blue focus:outline-none focus:ring-2 focus:ring-gabi-blue/40"
-              placeholder="example@gabi.club"
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-sm font-medium text-white/90 md:col-span-2">
             Направление / цель
             <input
               value={formState.preferred_direction}
@@ -156,4 +144,3 @@ export default function LeadFormInline({ photo, initial }: LeadFormInlineProps) 
     </div>
   );
 }
-

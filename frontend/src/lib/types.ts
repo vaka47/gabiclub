@@ -210,13 +210,12 @@ export type ThemeConfig = {
 
 export type LeadFormData = {
   full_name: string;
-  email: string;
   phone: string;
   preferred_direction: string;
   message: string;
   source?: string;
 };
 
-export type LeadFormInitial = Partial<Pick<LeadFormData, "preferred_direction" | "message" | "source" | "full_name" | "email" | "phone">> & {
+export type LeadFormInitial = Partial<Pick<LeadFormData, "preferred_direction" | "message" | "source" | "full_name" | "phone">> & {
   contextTitle?: string;
 };
