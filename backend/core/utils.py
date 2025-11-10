@@ -76,4 +76,4 @@ def send_telegram_message(token: str, chat_id: str, text: str, parse_mode: str =
             resp.read()
             return
     except Exception as exc_final:  # pragma: no cover - network
-        logger.warning("Telegram notification failed: %s", exc_final)
+        logger.warning("Telegram notification failed: %s", exc_final, exc_info=True)
