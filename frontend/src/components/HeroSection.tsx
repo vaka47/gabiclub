@@ -144,9 +144,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
   }, [bgSlides, edgeColors]);
 
   const heroEdgeColor = currentBg ? edgeColors[currentBg] : undefined;
-  const edgeStyle: CSSProperties | undefined = heroEdgeColor
-    ? ({ ["--hero-edge-color" as const]: heroEdgeColor } satisfies CSSProperties)
-    : undefined;
+  const edgeStyle = heroEdgeColor ? ({ "--hero-edge-color": heroEdgeColor } as CSSProperties) : undefined;
 
   // Wordmark now rendered as text using Halenoir (self-hosted); PNG/SVG is no longer needed
 
