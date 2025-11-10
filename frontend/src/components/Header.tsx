@@ -63,7 +63,7 @@ export default function Header({ contactPhone, socialLinks }: HeaderProps) {
   return (
     <header className="fixed inset-x-0 top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-slate-200/70">
       <div className="text-xs text-slate-600 bg-slate-50/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-0">
           <div className="flex items-center gap-3">
             <span className="hidden md:inline-flex items-center gap-2 text-sm text-slate-500">
               <FiPhoneCall className="text-gabi-blue" />
