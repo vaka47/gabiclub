@@ -68,7 +68,17 @@ type TrainingMeta = {
 };
 
 async function fetchFromApi<T>(endpoint: string, init?: RequestInit): Promise<T | null> {
-  if (!hasApi) return null;
+  if (!hasApi) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[api] API calls skipped: NEXT_PUBLIC_API_URL not set or disabled", {
+        endpoint,
+        apiBase: API_BASE,
+        isBuild: IS_BUILD,
+        skipAtBuild: SKIP_API_AT_BUILD,
+      });
+    }
+    return null;
+  }
   try {
     const response = await fetch(`${API_BASE}${endpoint}`, {
       ...init,
@@ -115,6 +125,9 @@ async function fetchFromApi<T>(endpoint: string, init?: RequestInit): Promise<T 
 export async function getTrainingSessions(params?: URLSearchParams): Promise<TrainingSession[]> {
   const query = params ? `?${params.toString()}` : "";
   const data = await fetchFromApi<TrainingSession[]>(`/trainings/schedule/${query}`);
+  if (!data && process.env.NODE_ENV !== "production") {
+    console.warn("[api] Using mock training sessions", { reason: hasApi ? "empty-response" : "api-disabled" });
+  }
   return data ?? getMockSessions();
 }
 
