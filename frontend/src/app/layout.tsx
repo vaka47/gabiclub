@@ -29,7 +29,6 @@ export const metadata: Metadata = {
 const DEFAULT_BG_COLOR = "#E9E9E9";
 const SKY_GRADIENT =
   "linear-gradient(180deg, rgba(236,199,194,1) 0%, rgba(253,237,231,0.95) 20%, rgba(255,255,255,1) 65%, rgba(255,255,255,1) 100%)";
-
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [contact, club, theme] = await Promise.all([getContactInfo(), getClubProfile(), getTheme()]);
   const brandBg = theme?.background_color || DEFAULT_BG_COLOR;

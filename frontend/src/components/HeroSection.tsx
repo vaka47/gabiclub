@@ -178,7 +178,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
               {/* Wordmark as text (Halenoir) */}
               <div
                 className="font-wordmark text-[42px] leading-none md:text-[56px] lg:text-[72px]"
-                style={{ color: "rgb(130, 165, 188)" }}
+                style={{ color: "rgb(42, 81, 107)" }}
               >
                 GABI
               </div>
