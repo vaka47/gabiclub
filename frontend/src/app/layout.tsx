@@ -73,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const envSnowBg = process.env.NEXT_PUBLIC_SNOW_BG;
   const snowBg = resolveMediaUrl(envSnowBg) || resolveMediaUrl(theme?.snow_bg);
   const brandBg = theme?.background_color || DEFAULT_BG_COLOR;
-  const overlayBg = colorWithAlpha(brandBg, 0.6);
+  const overlayBg = colorWithAlpha(brandBg, 0.8);
   const shellBg = snowBg ? "transparent" : brandBg;
   const themeVars: React.CSSProperties = {
     ["--brand-primary" as any]: theme?.primary_color || "#1A5ACB",
