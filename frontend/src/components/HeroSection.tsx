@@ -181,7 +181,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
               </div>
               <h1
                 className="font-wordmark text-3xl uppercase tracking-[0.18em] leading-[1.05] md:text-5xl"
-                style={{ color: "rgb(194, 64, 48)" }}
+                style={{ color: "rgb(32, 31, 23)" }}
               >
                 {l1}
                 {l2 && (<><br />{l2}</>)}
