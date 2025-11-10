@@ -1,5 +1,6 @@
 import os
 import threading
+import logging
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -37,12 +38,20 @@ class LeadRequestView(APIView):
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
 
-        # Optional Telegram notification (non-blocking)
+        # Optional Telegram notification
         token = os.getenv("TELEGRAM_BOT_TOKEN")
         chat_ids_raw = os.getenv("TELEGRAM_CHAT_IDS") or os.getenv("TELEGRAM_CHAT_ID") or ""
         # Allow comma/space separated list of chat IDs
         recipients = [cid.strip() for cid in chat_ids_raw.replace("\n", ",").split(",") if cid.strip()]
         if token and recipients:
+            logger = logging.getLogger(__name__)
+            # Log which module path is used at runtime
+            try:
+                import core.utils as cu  # noqa: WPS433
+                logger.info("Lead TG utils file: %s", getattr(cu, "__file__", None))
+            except Exception:
+                pass
+
             def _notify() -> None:
                 parts = [
                     "<b>Новая заявка</b>",
@@ -63,11 +72,11 @@ class LeadRequestView(APIView):
                 for chat_id in recipients:
                     try:
                         send_telegram_message(token, chat_id, text)
-                    except Exception:
-                        # Utils already logs; continue with other recipients
-                        pass
+                    except Exception as exc:
+                        logger.warning("Telegram notification failed: %s", exc)
 
-            threading.Thread(target=_notify, daemon=True).start()
+            # Send synchronously for reliability during setup
+            _notify()
         return Response(
             {"message": "Спасибо! Мы свяжемся с вами в ближайшее время."},
             status=status.HTTP_201_CREATED,
