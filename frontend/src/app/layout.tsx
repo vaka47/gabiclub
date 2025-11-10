@@ -70,7 +70,8 @@ function colorWithAlpha(color: string | null | undefined, alpha: number): string
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [contact, club, theme] = await Promise.all([getContactInfo(), getClubProfile(), getTheme()]);
-  const snowBg = resolveMediaUrl(theme?.snow_bg) || process.env.NEXT_PUBLIC_SNOW_BG;
+  const envSnowBg = process.env.NEXT_PUBLIC_SNOW_BG;
+  const snowBg = resolveMediaUrl(envSnowBg) || resolveMediaUrl(theme?.snow_bg);
   const brandBg = theme?.background_color || DEFAULT_BG_COLOR;
   const overlayBg = colorWithAlpha(brandBg, 0.6);
   const shellBg = snowBg ? "transparent" : brandBg;
