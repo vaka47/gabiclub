@@ -22,6 +22,12 @@ class Camp(models.Model):
     )
     location = models.CharField("Место проведения", max_length=255)
     hero_image = models.ImageField("Обложка", upload_to="camps/hero/", blank=True)
+    header_image = models.ImageField(
+        "Горизонтальная шапка",
+        upload_to="camps/header/",
+        blank=True,
+        help_text="Широкое горизонтальное фото для шапки страницы и карточки кэмпа",
+    )
     registration_link = models.URLField("Ссылка на регистрацию", blank=True)
     status = models.CharField(
         "Статус",
@@ -30,6 +36,16 @@ class Camp(models.Model):
         default=CampStatus.UPCOMING,
     )
     is_featured = models.BooleanField("Показывать на главной", default=False)
+    # Дополнительные разделы
+    target_audience = models.TextField("Кому подойдёт этот кэмп?", blank=True)
+    logistics = models.TextField("Логистика", blank=True)
+    # Состав тренеров кэмпа
+    trainers = models.ManyToManyField(
+        "trainings.Coach",
+        blank=True,
+        related_name="camps",
+        verbose_name="Наши тренеры",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -89,3 +105,17 @@ class CampGalleryImage(models.Model):
 
     def __str__(self) -> str:
         return self.caption or f"Фото {self.pk}"
+
+
+class CampInclusion(models.Model):
+    camp = models.ForeignKey(Camp, related_name="inclusions", on_delete=models.CASCADE)
+    text = models.CharField("Пункт включено", max_length=200)
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Что входит — пункт"
+        verbose_name_plural = "Что входит в стоимость"
+
+    def __str__(self) -> str:
+        return self.text

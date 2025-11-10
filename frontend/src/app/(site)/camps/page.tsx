@@ -17,9 +17,10 @@ function formatCampDates(camp: Camp) {
 
 function CampCard({ camp }: { camp: Camp }) {
   const price = Number(camp.price_from);
-  const img = camp.hero_image ? (resolveMediaUrl(camp.hero_image) ?? camp.hero_image) : null;
+  const preferred = camp.header_image || camp.hero_image;
+  const img = preferred ? (resolveMediaUrl(preferred) ?? preferred) : null;
   if (process.env.NEXT_PUBLIC_DEBUG_MEDIA === '1') {
-    console.log('[media] camp card hero', { slug: camp.slug, raw: camp.hero_image, resolved: img });
+    console.log('[media] camp card hero', { slug: camp.slug, raw: preferred, resolved: img });
   }
   return (
     <article className="card-surface flex h-full flex-col overflow-hidden">

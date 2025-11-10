@@ -37,7 +37,7 @@ export default async function TrainingsPage() {
             id: `camp-${c.id}`,
             title: c.title,
             subtitle: `${new Date(c.start_date).toLocaleDateString("ru-RU", { day: "2-digit", month: "short" })} – ${new Date(c.end_date).toLocaleDateString("ru-RU", { day: "2-digit", month: "short" })}`,
-            image: resolveMediaUrl(c.hero_image) ?? undefined,
+            image: resolveMediaUrl(c.header_image || c.hero_image) ?? undefined,
             href: `/camps/${c.slug}`,
           })),
           ...(articles ?? []).slice(0, 3).map((a) => ({

@@ -111,6 +111,7 @@ export type Camp = {
   price_from: number;
   location: string;
   hero_image?: string;
+  header_image?: string;
   registration_link?: string;
   status: string;
   status_display?: string;
@@ -118,6 +119,10 @@ export type Camp = {
 };
 
 export type CampDetail = Camp & {
+  target_audience?: string;
+  logistics?: string;
+  trainers?: Coach[];
+  inclusions: { id: number; text: string; order?: number }[];
   highlights: CampHighlight[];
   program: CampDay[];
   gallery: CampGalleryImage[];

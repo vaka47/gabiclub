@@ -1,5 +1,7 @@
 import Image from "next/image";
 import DebugImage from "@/components/DebugImage";
+import CampGallery from "@/components/CampGallery";
+import CoachShowcase from "@/components/CoachShowcase";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -27,8 +29,9 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
 
   // Server-side debug: log hero and gallery media resolution (visible in server logs)
   if (process.env.NEXT_PUBLIC_DEBUG_MEDIA === '1') {
-    const heroResolved = resolveMediaUrl(camp.hero_image) ?? camp.hero_image;
-    console.log('[media] camp detail hero', { slug: camp.slug, raw: camp.hero_image, resolved: heroResolved });
+    const rawHeader = camp.header_image || camp.hero_image;
+    const heroResolved = rawHeader ? (resolveMediaUrl(rawHeader) ?? rawHeader) : undefined;
+    console.log('[media] camp detail hero', { slug: camp.slug, raw: rawHeader, resolved: heroResolved });
     if (camp.gallery?.length) {
       console.log('[media] camp detail gallery count', { slug: camp.slug, count: camp.gallery.length });
       for (const g of camp.gallery) {
@@ -41,9 +44,16 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
   return (
     <div className="space-y-12 pb-12">
       <header className="space-y-6">
-        <div className="relative h-[360px] overflow-hidden rounded-[32px]">
-          {camp.hero_image ? (
-            <DebugImage debugName={`camp-hero:${camp.slug}`} src={resolveMediaUrl(camp.hero_image) ?? camp.hero_image} alt={camp.title} fill className="object-cover" priority />
+        <div className="relative h-[420px] overflow-hidden rounded-[32px]">
+          { (camp.header_image || camp.hero_image) ? (
+            <DebugImage
+              debugName={`camp-hero:${camp.slug}`}
+              src={(resolveMediaUrl(camp.header_image || camp.hero_image) ?? (camp.header_image || camp.hero_image))}
+              alt={camp.title}
+              fill
+              className="object-cover"
+              priority
+            />
           ) : (
             <div className="flex h-full items-center justify-center bg-gabi-blue/10 text-2xl font-semibold text-gabi-blue">
               {camp.title}
@@ -64,9 +74,37 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
       </header>
 
       <section className="grid gap-10 md:grid-cols-[1.3fr_0.7fr]">
-        <div className="space-y-6 text-slate-600">
+        <div className="space-y-8 text-slate-600">
           <h2 className="section-title text-2xl">О кэмпе</h2>
           <p className="text-base leading-relaxed">{camp.description}</p>
+
+          {camp.target_audience && (
+            <div className="space-y-3">
+              <h3 className="text-xl font-semibold text-gabi-dark">Кому подойдёт этот кэмп?</h3>
+              <p className="text-sm text-slate-600 whitespace-pre-line">{camp.target_audience}</p>
+            </div>
+          )}
+
+          {camp.inclusions && camp.inclusions.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-xl font-semibold text-gabi-dark">Что входит в стоимость</h3>
+              <ul className="space-y-2 text-sm text-slate-600">
+                {camp.inclusions.map((inc) => (
+                  <li key={inc.id} className="flex items-start gap-2">
+                    <span className="mt-1 h-2 w-2 rounded-full bg-gabi-blue" aria-hidden />
+                    {inc.text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {camp.logistics && (
+            <div className="space-y-3">
+              <h3 className="text-xl font-semibold text-gabi-dark">Логистика</h3>
+              <p className="text-sm text-slate-600 whitespace-pre-line">{camp.logistics}</p>
+            </div>
+          )}
           {camp.program.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gabi-dark">Программа по дням</h3>
@@ -114,17 +152,14 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
       {camp.gallery.length > 0 && (
         <section className="space-y-6">
           <h2 className="text-2xl font-semibold text-gabi-dark">Галерея</h2>
-          <div className="grid gap-4 md:grid-cols-3">
-            {camp.gallery.map((photo) => {
-              const src = resolveMediaUrl(photo.image) ?? photo.image;
-              return (
-                <figure key={photo.id} className="overflow-hidden rounded-3xl">
-                  <DebugImage debugName={`camp-gallery:${camp.slug}:${photo.id}`} src={src} alt={photo.caption ?? camp.title} width={640} height={420} className="h-full w-full object-cover" />
-                  {photo.caption && <figcaption className="px-2 py-2 text-xs text-slate-500">{photo.caption}</figcaption>}
-                </figure>
-              );
-            })}
-          </div>
+          <CampGallery slug={camp.slug} title={camp.title} photos={camp.gallery} />
+        </section>
+      )}
+
+      {camp.trainers && camp.trainers.length > 0 && (
+        <section className="space-y-6">
+          <h2 className="text-2xl font-semibold text-gabi-dark">Наши тренеры</h2>
+          <CoachShowcase coaches={camp.trainers} />
         </section>
       )}
     </div>
