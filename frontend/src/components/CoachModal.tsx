@@ -5,6 +5,7 @@ import Image from "next/image";
 import type { Coach } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
+import { FaInstagram, FaTelegramPlane } from "react-icons/fa";
 
 type CoachModalProps = {
   open: boolean;
@@ -25,6 +26,14 @@ export default function CoachModal({ open, coach, onClose }: CoachModalProps) {
   if (!open || !coach) return null;
 
   const photo = resolveMediaUrl(coach.photo ?? undefined);
+  const toUrl = (val?: string | null, type?: "instagram" | "telegram") => {
+    if (!val) return undefined;
+    const v = val.trim();
+    if (/^https?:\/\//i.test(v)) return v;
+    if (type === "instagram") return `https://instagram.com/${v.replace(/^@/, "")}`;
+    if (type === "telegram") return `https://t.me/${v.replace(/^@/, "")}`;
+    return v;
+  };
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60" onClick={onClose} role="dialog" aria-modal="true">
@@ -38,11 +47,9 @@ export default function CoachModal({ open, coach, onClose }: CoachModalProps) {
         </button>
 
         <div className="flex flex-col md:flex-row">
-          {/* Left: vertical photo */}
-          <div className="relative w-full md:w-[42%] h-56 md:h-[520px] bg-slate-100">
-            {photo ? (
-              <Image src={photo} alt={coach.full_name} fill className="object-cover" />
-            ) : (
+          {/* Left: vertical photo (desktop only) */}
+          <div className="relative hidden bg-slate-100 md:block md:h-[520px] md:w-[42%]">
+            {photo ? <Image src={photo} alt={coach.full_name} fill className="object-cover" /> : (
               <div className="flex h-full w-full items-center justify-center text-slate-400">Нет фото</div>
             )}
           </div>
@@ -85,6 +92,31 @@ export default function CoachModal({ open, coach, onClose }: CoachModalProps) {
                 }}
               />
             </div>
+
+            {(coach.instagram || coach.telegram) && (
+              <div className="flex flex-wrap gap-4 pt-1">
+                {coach.instagram && (
+                  <a
+                    href={toUrl(coach.instagram, "instagram")}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 text-gabi-blue hover:underline"
+                  >
+                    <FaInstagram /> Instagram
+                  </a>
+                )}
+                {coach.telegram && (
+                  <a
+                    href={toUrl(coach.telegram, "telegram")}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 text-gabi-blue hover:underline"
+                  >
+                    <FaTelegramPlane /> Telegram
+                  </a>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
