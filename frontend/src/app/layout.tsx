@@ -13,11 +13,17 @@ import { getClubProfile, getContactInfo, getTheme, resolveMediaUrl } from "@/lib
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 // Use Russo One for display headings (supports Cyrillic, strong geometric look)
 const bebas = Russo_One({ weight: "400", subsets: ["latin", "cyrillic"], variable: "--font-bebas" });
+const siteIcon = process.env.NEXT_PUBLIC_LOGO || "/gabi-logo.png";
 
 export const metadata: Metadata = {
   title: "Gabi Club — тренировки, кэмпы и блог",
   description:
     "Современный спортивный клуб с календарём тренировок, авторскими кэмпами и блогом о лыжах и трейле.",
+  icons: {
+    icon: siteIcon,
+    shortcut: siteIcon,
+    apple: siteIcon,
+  },
 };
 
 const DEFAULT_BG_COLOR = "#E9E9E9";
