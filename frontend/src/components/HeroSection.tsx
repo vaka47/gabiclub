@@ -178,13 +178,13 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
               {/* Wordmark as text (Halenoir) */}
               <div
                 className="font-wordmark text-[42px] leading-none md:text-[56px] lg:text-[72px]"
-                style={{ color: "rgb(64, 108, 138)" }}
+                style={{ color: "rgb(36, 70, 95)" }}
               >
                 GABI
               </div>
               <h1
                 className="font-wordmark text-3xl uppercase tracking-[0.18em] leading-[1.05] md:text-5xl"
-                style={{ color: "rgb(36, 70, 95)" }}
+                style={{ color: "rgb(64, 108, 138)" }}
               >
                 {l1}
                 {l2 && (<><br />{l2}</>)}
