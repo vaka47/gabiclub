@@ -114,26 +114,23 @@ export default function Header({ contactPhone, socialLinks }: HeaderProps) {
         </button>
       </div>
 
-      <div
-        className={clsx(
-          "md:hidden",
-          menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
-        )}
-      >
-        <div className="mx-4 mb-4 rounded-3xl border border-white/60 bg-white/95 p-6 shadow-xl">
-          {renderLinks("mobile")}
-          <button
-            className="btn-primary mt-6 w-full"
-            onClick={() => {
-              openLeadModal({ source: "header-mobile" });
-              closeMenu();
-            }}
-            type="button"
-          >
-            Записаться на тренировку
-          </button>
+      {menuOpen && (
+        <div className="md:hidden">
+          <div className="mx-4 mb-4 rounded-3xl border border-white/60 bg-white/95 p-6 shadow-xl">
+            {renderLinks("mobile")}
+            <button
+              className="btn-primary mt-6 w-full"
+              onClick={() => {
+                openLeadModal({ source: "header-mobile" });
+                closeMenu();
+              }}
+              type="button"
+            >
+              Записаться на тренировку
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }
