@@ -69,7 +69,7 @@ export default function Header({ socialLinks }: HeaderProps) {
             <div className="h-10 w-auto flex items-center text-gabi-blue">G</div>
           )}
           <div className="flex flex-col leading-tight">
-            <span className="text-base font-semibold uppercase tracking-[0.2em] text-gabi-blue">G A B I</span>
+            <span className="text-base font-semibold uppercase tracking-[0.12em] text-gabi-blue">G A B I</span>
             <span className="text-xs font-medium text-slate-500">SPORT CLUB</span>
           </div>
         </Link>
