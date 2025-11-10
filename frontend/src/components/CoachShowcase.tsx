@@ -83,7 +83,6 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
                 {coach.role && <p className="text-sm text-slate-500">{coach.role}</p>}
               </div>
             </button>
-            </div>
             <p className="text-sm text-slate-600">{coach.bio}</p>
             {coach.directions.length > 0 && (
               <div className="flex flex-wrap gap-2 text-xs">
