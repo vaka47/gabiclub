@@ -26,12 +26,13 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
     notFound();
   }
   const price = Number(camp.price_from);
+  const headerRaw = camp.header_image || camp.hero_image || null;
+  const heroImg = headerRaw ? (resolveMediaUrl(headerRaw) ?? headerRaw) : null;
 
   // Server-side debug: log hero and gallery media resolution (visible in server logs)
   if (process.env.NEXT_PUBLIC_DEBUG_MEDIA === '1') {
-    const rawHeader = camp.header_image || camp.hero_image;
-    const heroResolved = rawHeader ? (resolveMediaUrl(rawHeader) ?? rawHeader) : undefined;
-    console.log('[media] camp detail hero', { slug: camp.slug, raw: rawHeader, resolved: heroResolved });
+    const heroResolved = heroImg ?? undefined;
+    console.log('[media] camp detail hero', { slug: camp.slug, raw: headerRaw, resolved: heroResolved });
     if (camp.gallery?.length) {
       console.log('[media] camp detail gallery count', { slug: camp.slug, count: camp.gallery.length });
       for (const g of camp.gallery) {
@@ -45,10 +46,10 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
     <div className="space-y-12 pb-12">
       <header className="space-y-6">
         <div className="relative h-[420px] overflow-hidden rounded-[32px]">
-          { (camp.header_image || camp.hero_image) ? (
+          { heroImg ? (
             <DebugImage
               debugName={`camp-hero:${camp.slug}`}
-              src={(resolveMediaUrl(camp.header_image || camp.hero_image) ?? (camp.header_image || camp.hero_image))}
+              src={heroImg}
               alt={camp.title}
               fill
               className="object-cover"
