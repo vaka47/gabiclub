@@ -13,6 +13,7 @@ type LeadFormInlineProps = {
 
 type FormState = LeadFormData & { status: "idle" | "loading" | "success" | "error"; error?: string };
 
+
 const initialFormState: FormState = {
   full_name: "",
   phone: "",
