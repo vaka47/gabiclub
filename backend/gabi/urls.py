@@ -27,5 +27,7 @@ urlpatterns = [
     path('api/core/', include('core.urls')),
 ]
 
-if settings.DEBUG:
+# Serve uploaded media on any environment so photos from the admin remain accessible.
+# (Ideally media is served by the web server, but enabling this route keeps images working.)
+if settings.MEDIA_URL:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
