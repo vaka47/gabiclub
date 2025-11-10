@@ -122,7 +122,7 @@ export type CampDetail = Camp & {
   target_audience?: string;
   logistics?: string;
   trainers?: Coach[];
-  inclusions: { id: number; text: string; order?: number }[];
+  inclusions?: { id: number; text: string; order?: number }[];
   highlights: CampHighlight[];
   program: CampDay[];
   gallery: CampGalleryImage[];
