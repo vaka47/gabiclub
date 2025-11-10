@@ -1,4 +1,5 @@
 import Image from "next/image";
+import DebugImage from "@/components/DebugImage";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -24,12 +25,25 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
   }
   const price = Number(camp.price_from);
 
+  // Server-side debug: log hero and gallery media resolution (visible in server logs)
+  if (process.env.NEXT_PUBLIC_DEBUG_MEDIA === '1') {
+    const heroResolved = resolveMediaUrl(camp.hero_image) ?? camp.hero_image;
+    console.log('[media] camp detail hero', { slug: camp.slug, raw: camp.hero_image, resolved: heroResolved });
+    if (camp.gallery?.length) {
+      console.log('[media] camp detail gallery count', { slug: camp.slug, count: camp.gallery.length });
+      for (const g of camp.gallery) {
+        const resolved = resolveMediaUrl(g.image) ?? g.image;
+        console.log('[media] camp gallery image', { id: g.id, raw: g.image, resolved });
+      }
+    }
+  }
+
   return (
     <div className="space-y-12 pb-12">
       <header className="space-y-6">
         <div className="relative h-[360px] overflow-hidden rounded-[32px]">
           {camp.hero_image ? (
-            <Image src={resolveMediaUrl(camp.hero_image) ?? camp.hero_image} alt={camp.title} fill className="object-cover" priority />
+            <DebugImage debugName={`camp-hero:${camp.slug}`} src={resolveMediaUrl(camp.hero_image) ?? camp.hero_image} alt={camp.title} fill className="object-cover" priority />
           ) : (
             <div className="flex h-full items-center justify-center bg-gabi-blue/10 text-2xl font-semibold text-gabi-blue">
               {camp.title}
@@ -101,12 +115,15 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
         <section className="space-y-6">
           <h2 className="text-2xl font-semibold text-gabi-dark">Галерея</h2>
           <div className="grid gap-4 md:grid-cols-3">
-            {camp.gallery.map((photo) => (
-              <figure key={photo.id} className="overflow-hidden rounded-3xl">
-                <Image src={resolveMediaUrl(photo.image) ?? photo.image} alt={photo.caption ?? camp.title} width={640} height={420} className="h-full w-full object-cover" />
-                {photo.caption && <figcaption className="px-2 py-2 text-xs text-slate-500">{photo.caption}</figcaption>}
-              </figure>
-            ))}
+            {camp.gallery.map((photo) => {
+              const src = resolveMediaUrl(photo.image) ?? photo.image;
+              return (
+                <figure key={photo.id} className="overflow-hidden rounded-3xl">
+                  <DebugImage debugName={`camp-gallery:${camp.slug}:${photo.id}`} src={src} alt={photo.caption ?? camp.title} width={640} height={420} className="h-full w-full object-cover" />
+                  {photo.caption && <figcaption className="px-2 py-2 text-xs text-slate-500">{photo.caption}</figcaption>}
+                </figure>
+              );
+            })}
           </div>
         </section>
       )}

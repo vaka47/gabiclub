@@ -34,14 +34,26 @@ const API_ORIGIN = (() => {
   }
 })();
 
+const DEBUG_MEDIA = process.env.NEXT_PUBLIC_DEBUG_MEDIA === "1";
+
 export function resolveMediaUrl(src?: string | null): string | undefined {
   if (!src) return undefined;
-  if (/^https?:\/\//i.test(src)) return src;
+  if (/^https?:\/\//i.test(src)) {
+    if (DEBUG_MEDIA && /\/media\//.test(src)) {
+      // Server logs (and client logs if compiled to client) to trace original absolute media URLs
+      console.log(`[media] absolute URL used as-is`, { in: src });
+    }
+    return src;
+  }
   if (src.startsWith("/")) {
     // Only prefix absolute API-origin for media paths coming from Django.
     // Site-root assets like "/hero-1.jpg" must stay on the Next.js host.
     if (src.startsWith("/media/") || src.startsWith("/static/")) {
-      return API_ORIGIN ? `${API_ORIGIN}${src}` : src;
+      const out = API_ORIGIN ? `${API_ORIGIN}${src}` : src;
+      if (DEBUG_MEDIA) {
+        console.log(`[media] resolved Django media`, { in: src, api_origin: API_ORIGIN, out });
+      }
+      return out;
     }
     return src;
   }

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import DebugImage from "@/components/DebugImage";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -16,11 +17,15 @@ function formatCampDates(camp: Camp) {
 
 function CampCard({ camp }: { camp: Camp }) {
   const price = Number(camp.price_from);
+  const src = resolveMediaUrl(camp.hero_image) ?? camp.hero_image;
+  if (process.env.NEXT_PUBLIC_DEBUG_MEDIA === '1') {
+    console.log('[media] camp card hero', { slug: camp.slug, raw: camp.hero_image, resolved: src });
+  }
   return (
     <article className="card-surface flex h-full flex-col overflow-hidden">
       <div className="relative h-52 w-full overflow-hidden rounded-2xl">
         {camp.hero_image ? (
-          <Image src={resolveMediaUrl(camp.hero_image) ?? camp.hero_image} alt={camp.title} fill className="object-cover" />
+          <DebugImage debugName={`camp-card:${camp.slug}`} src={src} alt={camp.title} fill className="object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center bg-gabi-blue/20 text-lg font-semibold text-gabi-blue">
             {camp.location}
