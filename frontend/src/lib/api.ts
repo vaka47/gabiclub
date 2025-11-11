@@ -19,7 +19,28 @@ import {
 // Use absolute API base URL only if provided.
 // During static build on Vercel, relative URLs like "/api" are invalid for Node fetch.
 // If not provided, we skip network calls and fall back to local mocks.
-const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+const rawApiBase = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
+const API_BASE = (() => {
+  if (!rawApiBase) {
+    return "";
+  }
+  const sanitized = rawApiBase.replace(/\/$/, "");
+  // If the value is an absolute origin without a path (e.g. https://api.domain.tld),
+  // normalize it to point to the Django /api root so schedule/other endpoints resolve.
+  if (/^https?:\/\//i.test(sanitized)) {
+    try {
+      const parsed = new URL(sanitized);
+      if (!parsed.pathname || parsed.pathname === "/") {
+        parsed.pathname = "/api";
+        return parsed.toString().replace(/\/$/, "");
+      }
+      return sanitized;
+    } catch {
+      return sanitized;
+    }
+  }
+  return sanitized || "/api";
+})();
 const IS_BUILD = process.env.NEXT_PHASE === "phase-production-build";
 const SKIP_API_AT_BUILD = process.env.SKIP_API_AT_BUILD === "1";
 const hasApi = Boolean(API_BASE) && !(IS_BUILD && SKIP_API_AT_BUILD);
