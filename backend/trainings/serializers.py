@@ -34,6 +34,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class CoachSerializer(serializers.ModelSerializer):
     directions = TrainingDirectionSerializer(many=True, read_only=True)
+    photo = serializers.SerializerMethodField()
 
     class Meta:
         model = Coach
@@ -53,6 +54,15 @@ class CoachSerializer(serializers.ModelSerializer):
             "is_featured",
             "directions",
         )
+
+    def get_photo(self, obj: Coach):
+        f = getattr(obj, "photo", None)
+        if not f:
+            return None
+        try:
+            return f.url
+        except Exception:
+            return None
 
 
 class TrainingPlanBenefitSerializer(serializers.ModelSerializer):
