@@ -11,6 +11,7 @@ type Activity = {
   key: ActivityKey;
   title: string;
   lines: string[];
+  shortTitle?: string; // used on mobile
 };
 
 const ACTIVITIES: Activity[] = [
@@ -44,6 +45,7 @@ const ACTIVITIES: Activity[] = [
   {
     key: "functional",
     title: "Функциональный треннинг",
+    shortTitle: "ОФП",
     lines: [
       "Силовые комплексы и ОФП",
       "Стабилизация корпуса и мобильность",
@@ -87,7 +89,14 @@ export default function ActivityTabs() {
             )}
             onClick={() => setActive((prev) => (prev === a.key ? null : a.key))}
           >
-            {a.title}
+            {a.shortTitle ? (
+              <>
+                <span className="md:hidden">{a.shortTitle}</span>
+                <span className="hidden md:inline">{a.title}</span>
+              </>
+            ) : (
+              a.title
+            )}
           </button>
         ))}
       </div>
@@ -136,4 +145,3 @@ export default function ActivityTabs() {
     </motion.section>
   );
 }
-
