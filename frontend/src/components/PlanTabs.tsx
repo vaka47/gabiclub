@@ -106,6 +106,9 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
             <div
               className="flex-1 overflow-hidden"
               onPointerDown={(e) => {
+                // Don't start swipe when interacting with buttons/links inside the card
+                const t = e.target as HTMLElement;
+                if (t.closest('button, a')) return;
                 setDragStartX(e.clientX);
                 setAnimating(false);
                 try { (e.currentTarget as any).setPointerCapture(e.pointerId); } catch {}
