@@ -12,6 +12,7 @@ type Activity = {
   title: string;
   lines: string[];
   shortTitle?: string; // used on mobile
+  locations?: string[];
 };
 
 const ACTIVITIES: Activity[] = [
@@ -23,6 +24,11 @@ const ACTIVITIES: Activity[] = [
       "Подготовка к сезонам и стартам",
       "Анализ видео и индивидуальные правки",
     ],
+    locations: [
+      'п. Токсово, ул. Лесгафта — УТЦ "Кавголово"',
+      'просп. Луначарского — "Муринский парк"',
+      'Крестовский остров',
+    ],
   },
   {
     key: "rollers",
@@ -31,6 +37,11 @@ const ACTIVITIES: Activity[] = [
       "Безопасная база летом",
       "Силовая выносливость и баланс",
       "Подбор инвентаря и трасс",
+    ],
+    locations: [
+      'п. Токсово, ул. Лесгафта, 35 — УТЦ "Кавголово"',
+      'просп. Луначарского — "Муринский парк"',
+      'ул. Парашютная — завод "Ниссан"',
     ],
   },
   {
@@ -41,6 +52,12 @@ const ACTIVITIES: Activity[] = [
       "Трейл/шоссе — под вашу цель",
       "Силовая подготовка бегуна",
     ],
+    locations: [
+      'п. Токсово, ул. Лесгафта, 35 — УТЦ "Кавголово"',
+      'просп. Луначарского — "Муринский парк"',
+      'просп. Светлановский — парк "Сосновка"',
+      'Пулковский парк',
+    ],
   },
   {
     key: "functional",
@@ -50,6 +67,12 @@ const ACTIVITIES: Activity[] = [
       "Силовые комплексы и ОФП",
       "Стабилизация корпуса и мобильность",
       "Работа с пульсом и прогрессией",
+    ],
+    locations: [
+      'п. Токсово, ул. Лесгафта, 35 — УТЦ "Кавголово"',
+      'просп. Луначарского — "Муринский парк"',
+      'просп. Светлановский — парк "Сосновка"',
+      'Пулковский парк',
     ],
   },
 ];
@@ -111,7 +134,7 @@ export default function ActivityTabs() {
             transition={{ duration: 0.35, ease: "easeOut" }}
             className="overflow-hidden rounded-3xl"
           >
-            <div className="card-surface mt-1 space-y-3">
+            <div className="card-surface mt-1 space-y-4">
               <ul className="space-y-2 text-sm text-slate-600">
                 {activeActivity.lines.map((l, idx) => (
                   <li key={idx} className="flex items-start gap-2">
@@ -120,6 +143,19 @@ export default function ActivityTabs() {
                   </li>
                 ))}
               </ul>
+              {activeActivity.locations && (
+                <div>
+                  <div className="text-sm font-semibold text-gabi-dark">Локации</div>
+                  <ul className="mt-1 space-y-1 text-sm text-slate-600">
+                    {activeActivity.locations.map((l, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gabi-blue/60" aria-hidden />
+                        {l}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <div className="flex flex-wrap gap-3 pt-2">
                 <button
                   className="btn-primary"
