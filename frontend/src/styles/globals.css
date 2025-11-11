@@ -239,9 +239,9 @@ a:hover {
 
 /* Activity tabs: responsive size on mobile so 4 fit the width */
 .activity-tabs {
-  --tab-fs: clamp(11px, 3.5vw, 14px);
-  --tab-py: clamp(6px, 2.0vw, 10px);
-  --tab-px: clamp(10px, 4.2vw, 20px);
+  --tab-fs: clamp(10px, 2.9vw, 14px);
+  --tab-py: clamp(6px, 1.8vw, 10px);
+  --tab-px: clamp(8px, 2.6vw, 20px);
   /* Match hero tagline color */
   --hero-tagline-color: rgb(58, 52, 71);
   /* Match hero primary CTA color (see HeroSection inline style) */
@@ -251,11 +251,18 @@ a:hover {
   font-size: var(--tab-fs);
   padding: var(--tab-py) var(--tab-px);
   color: var(--hero-tagline-color);
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
 }
 .activity-tabs .tab-active {
   /* Softer variant of the hero tagline color */
   background-color: color-mix(in srgb, var(--hero-tagline-color) 70%, white);
   color: #fff;
+}
+/* Ensure single row on mobile without wrapping */
+.activity-tabs .tabs-row {
+  flex-wrap: nowrap;
 }
 @media (min-width: 768px) {
   .activity-tabs {

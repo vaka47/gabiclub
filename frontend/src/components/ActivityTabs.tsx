@@ -33,6 +33,7 @@ const ACTIVITIES: Activity[] = [
   {
     key: "rollers",
     title: "Лыжероллеры",
+    shortTitle: "Роллеры",
     lines: [
       "Безопасная база летом",
       "Силовая выносливость и баланс",
@@ -99,7 +100,7 @@ export default function ActivityTabs() {
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <div className="flex flex-wrap gap-3 justify-start md:justify-center">
+      <div className="tabs-row flex flex-nowrap gap-2 justify-start md:justify-center">
         {ACTIVITIES.map((a) => (
           <button
             key={a.key}
