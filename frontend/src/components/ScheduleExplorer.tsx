@@ -83,23 +83,12 @@ const shortenLongWords = (title?: string) => {
     .join(" ");
 };
 
-// Shorten level labels to fit pills (e.g., "Продвинутый" -> "Продвин.")
+// Shorten only "Продвинутый" level to keep chips compact; leave others as-is.
 const shortenLevelLabel = (name?: string) => {
   const src = (name ?? "").trim();
   if (!src) return "";
-  // Common verbose variants coming from API
   if (/(^|\s)продвинут/i.test(src)) return "Продвин.";
-  if (/(^|\s)начальн/i.test(src)) return "Нач.";
-  if (/(^|\s)средн/i.test(src)) return "Средн.";
-  if (/любой\s+уровень/i.test(src)) return "Любой";
-  if (/уровень$/i.test(src)) return src.replace(/\s*уровень$/i, "");
-  // Generic fallback: clamp long words
-  const LIMIT = 10;
-  if (src.length <= LIMIT) return src;
-  let cutoff = LIMIT;
-  while (cutoff > 1 && !RUSSIAN_CONSONANT.test(src[cutoff - 1])) cutoff--;
-  if (cutoff < 3) cutoff = LIMIT;
-  return `${src.slice(0, cutoff)}.`;
+  return src;
 };
 
 const sortSessionsByDate = (list: TrainingSession[]) =>
@@ -415,7 +404,8 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                         )}
                       </div>
                       <button
-                        className="btn-secondary mt-auto w-full justify-center px-2.5 py-1 text-[11px] leading-tight"
+                        className="btn-secondary mt-auto w-full justify-center leading-tight"
+                        style={{ padding: "4px 10px", fontSize: 11 }}
                         onClick={() =>
                           openLeadModal({
                             source: "schedule",
