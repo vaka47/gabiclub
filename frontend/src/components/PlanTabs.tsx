@@ -80,15 +80,17 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
             transition={{ duration: 0.55, ease: "easeOut" }}
           >
             <div className="space-y-4">
-              {plan.is_featured && (
-                <span className="badge bg-gabi-orange/15 text-gabi-orange">Хит</span>
-              )}
               <div>
-                <h3 className="text-2xl font-semibold text-gabi-dark flex items-center gap-2">
-                  {plan.icon && <span className="text-2xl" aria-hidden>{plan.icon}</span>}
-                  <span>{plan.title}</span>
-                </h3>
-                <p className="text-sm text-slate-500">{plan.description}</p>
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-2xl font-semibold text-gabi-dark flex items-center gap-2">
+                    {plan.icon && <span className="text-2xl" aria-hidden>{plan.icon}</span>}
+                    <span>{plan.title}</span>
+                  </h3>
+                  {plan.is_featured && (
+                    <span className="badge bg-gabi-orange/15 text-gabi-orange flex-shrink-0">Хит</span>
+                  )}
+                </div>
+                <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-semibold text-gabi-blue">
