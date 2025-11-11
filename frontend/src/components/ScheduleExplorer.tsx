@@ -13,6 +13,7 @@ import type {
   TrainingSession,
 } from "@/lib/types";
 import { useLeadModal } from "./providers/LeadModalProvider";
+import { getTrainingSessions } from "@/lib/api";
 
 type ScheduleExplorerProps = {
   sessions: TrainingSession[];
@@ -50,11 +51,12 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const { openLeadModal } = useLeadModal();
   const [autoAdjusted, setAutoAdjusted] = useState(false);
+  const [dataSource, setDataSource] = useState<TrainingSession[]>(sessions);
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, idx) => addDays(weekStart, idx)), [weekStart]);
 
   const filteredSessions = useMemo(() => {
-    return sessions.filter((session) => {
+    return dataSource.filter((session) => {
       const sessionDate = parseISO(session.date);
       if (isBefore(sessionDate, weekStart) || isAfter(sessionDate, addDays(weekStart, 6))) {
         return false;
@@ -66,18 +68,41 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
       if (filters.level && !session.levels.some((level) => level.tag === filters.level)) return false;
       return true;
     });
-  }, [sessions, weekStart, filters]);
+  }, [dataSource, weekStart, filters]);
 
   // Auto-jump to the week of the earliest upcoming session if the current
   // week is empty, to avoid confusing "empty schedule" on first load.
   useEffect(() => {
-    if (!autoAdjusted && sessions.length > 0 && filteredSessions.length === 0) {
-      const firstDate = parseISO(sessions[0].date);
+    if (!autoAdjusted && dataSource.length > 0 && filteredSessions.length === 0) {
+      const firstDate = parseISO(dataSource[0].date);
       const newStart = startOfWeek(firstDate, { weekStartsOn: 1 });
       setWeekStart(newStart);
       setAutoAdjusted(true);
     }
-  }, [sessions, filteredSessions, autoAdjusted]);
+  }, [dataSource, filteredSessions, autoAdjusted]);
+
+  // If the current visible week has no sessions in the current dataset,
+  // fetch just this week's sessions from the API and use them as data source.
+  useEffect(() => {
+    const start = weekStart;
+    const end = addDays(weekStart, 6);
+    const inCurrentWeek = (s: TrainingSession) => {
+      const d = parseISO(s.date);
+      return !(isBefore(d, start) || isAfter(d, end));
+    };
+    const needFetch = dataSource.length === 0 || dataSource.every((s) => !inCurrentWeek(s));
+    if (!needFetch) return;
+
+    const params = new URLSearchParams({
+      start: format(start, "yyyy-MM-dd"),
+      end: format(end, "yyyy-MM-dd"),
+    });
+    getTrainingSessions(params).then((res) => {
+      if (Array.isArray(res) && res.length > 0) {
+        setDataSource(res);
+      }
+    });
+  }, [weekStart, dataSource]);
 
   const dayMap = new Map<string, TrainingSession[]>();
   filteredSessions.forEach((session) => {
@@ -87,7 +112,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
     dayMap.set(dateKey, list);
   });
 
-  const availableTypes = Array.from(new Set(sessions.map((session) => session.type)));
+  const availableTypes = Array.from(new Set(dataSource.map((session) => session.type)));
   const hasActiveFilters = Object.values(filters).some(Boolean);
 
   const handleFilterChange = (name: keyof Filters, value: string) => {
