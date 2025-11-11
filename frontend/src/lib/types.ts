@@ -138,6 +138,7 @@ export type Article = {
   excerpt?: string;
   content: string;
   cover_image?: string;
+  header_image?: string;
   gallery?: CampGalleryImage[];
   published_at: string;
   updated_at?: string;

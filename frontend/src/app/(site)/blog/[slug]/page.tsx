@@ -36,9 +36,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <span>{formatDate(article.published_at)}</span>
           {article.reading_time && <span>{article.reading_time} мин на чтение</span>}
         </div>
-        {article.cover_image && (
+        {(article.header_image || article.cover_image) && (
           <div className="relative h-[320px] overflow-hidden rounded-[32px]">
-            <Image src={resolveMediaUrl(article.cover_image) ?? article.cover_image} alt={article.title} fill className="object-cover" />
+            <Image src={(resolveMediaUrl(article.header_image || article.cover_image!) ?? (article.header_image || article.cover_image!))} alt={article.title} fill className="object-cover" />
           </div>
         )}
       </header>
