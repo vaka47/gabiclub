@@ -21,7 +21,7 @@ export default async function BlogPage({ searchParams }: { searchParams?: Promis
       <header className="space-y-4">
         <h1 className="section-title">Блог Gabi Club</h1>
         <p className="section-subtitle">
-          Советы по подготовке, экипировке и восстановлению. Читайте заметки тренеров и участников клуба.
+          Заметки клуба и советы по подготовке, экипировке и восстановлению. Читайте нащих тренеров и спортсменов.
         </p>
       </header>
 
