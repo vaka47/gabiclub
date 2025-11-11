@@ -2,7 +2,7 @@
 
 import { addDays, format, isAfter, isBefore, parseISO, startOfWeek } from "date-fns";
 import { ru } from "date-fns/locale";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
 import type {
@@ -49,6 +49,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const { openLeadModal } = useLeadModal();
+  const [autoAdjusted, setAutoAdjusted] = useState(false);
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, idx) => addDays(weekStart, idx)), [weekStart]);
 
@@ -66,6 +67,17 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
       return true;
     });
   }, [sessions, weekStart, filters]);
+
+  // Auto-jump to the week of the earliest upcoming session if the current
+  // week is empty, to avoid confusing "empty schedule" on first load.
+  useEffect(() => {
+    if (!autoAdjusted && sessions.length > 0 && filteredSessions.length === 0) {
+      const firstDate = parseISO(sessions[0].date);
+      const newStart = startOfWeek(firstDate, { weekStartsOn: 1 });
+      setWeekStart(newStart);
+      setAutoAdjusted(true);
+    }
+  }, [sessions, filteredSessions, autoAdjusted]);
 
   const dayMap = new Map<string, TrainingSession[]>();
   filteredSessions.forEach((session) => {
