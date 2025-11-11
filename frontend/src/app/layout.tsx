@@ -68,7 +68,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Header socialLinks={headerLinks} />
             {/* Mobile-only camp ticker overlay across the site */}
             <MobileCampTicker camp={(featuredCamps ?? [])[0]} />
-            <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-40 pb-20 md:px-6 lg:px-8">
+            <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-32 md:pt-40 pb-20 md:px-6 lg:px-8">
               {children}
             </main>
             <Footer contact={contact} club={club} />
