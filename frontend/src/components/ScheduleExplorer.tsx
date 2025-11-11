@@ -332,22 +332,14 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
         )}
       </div>
 
-        <motion.div
-          className="grid gap-6 md:grid-cols-7"
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
-          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
-        >
+        <div className="grid gap-6 md:grid-cols-7">
         {weekDays.map((day) => {
           const dateKey = format(day, "yyyy-MM-dd");
           const daySessions = (dayMap.get(dateKey) ?? []).sort((a, b) => (a.start_time > b.start_time ? 1 : -1));
           return (
-            <motion.div
+            <div
               key={dateKey}
               className="space-y-3"
-              variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
             >
               <div className="rounded-2xl bg-white/80 p-3 text-center shadow-sm">
                 <div className="text-xs uppercase tracking-widest text-slate-400">
@@ -404,7 +396,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                         )}
                       </div>
                       <button
-                        className="btn-secondary mt-auto w-full justify-center px-4 py-2 text-[13px] leading-tight"
+                        className="btn-secondary mt-auto w-full justify-center px-3 py-1.5 text-[12px] leading-tight"
                         onClick={() =>
                           openLeadModal({
                             source: "schedule",
@@ -422,10 +414,10 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                   );
                 })}
               </div>
-            </motion.div>
+            </div>
           );
         })}
-      </motion.div>
+      </div>
     </motion.section>
   );
 }
