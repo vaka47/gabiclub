@@ -472,7 +472,23 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
             .filter((s) => s.date === dateKey)
             .sort((a, b) => (a.start_time > b.start_time ? 1 : -1));
           return (
-            <div className="space-y-3">
+            <div
+              className="space-y-3"
+              onPointerDown={(e) => {
+                (e.currentTarget as HTMLElement).setAttribute('data-dsx', String(e.clientX));
+              }}
+              onPointerUp={(e) => {
+                const start = Number((e.currentTarget as HTMLElement).getAttribute('data-dsx') || '0');
+                if (!start) return;
+                const delta = e.clientX - start;
+                (e.currentTarget as HTMLElement).removeAttribute('data-dsx');
+                const threshold = 50;
+                if (Math.abs(delta) > threshold) {
+                  handleMobileShift(delta < 0 ? 1 : -1);
+                }
+              }}
+              style={{ touchAction: 'pan-y' }}
+            >
               <div className="flex items-center justify-between rounded-2xl bg-white/80 p-3 text-center shadow-sm">
                 <button className="btn-secondary btn-compact" type="button" onClick={() => handleMobileShift(-1)} aria-label="Назад">
                   ←

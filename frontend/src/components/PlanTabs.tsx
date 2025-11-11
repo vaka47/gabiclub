@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { TrainingPlan } from "@/lib/types";
 import { useLeadModal } from "./providers/LeadModalProvider";
@@ -49,8 +49,12 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
       })
     : plans;
 
-  // Mobile carousel index
+  // Mobile carousel index + swipe state
   const [mobileIndex, setMobileIndex] = useState(0);
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
+  const [dragX, setDragX] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const swipeRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     setMobileIndex(0);
   }, [activeCategory]);
@@ -99,10 +103,51 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
             >
               ‹
             </button>
-            <div className="flex-1">
+            <div
+              className="flex-1 overflow-hidden"
+              onPointerDown={(e) => {
+                setDragStartX(e.clientX);
+                setAnimating(false);
+                try { (e.currentTarget as any).setPointerCapture(e.pointerId); } catch {}
+              }}
+              onPointerMove={(e) => {
+                if (dragStartX == null) return;
+                setDragX(e.clientX - dragStartX);
+              }}
+              onPointerUp={(e) => {
+                if (dragStartX == null) return;
+                const delta = dragX;
+                setDragStartX(null);
+                const threshold = 50;
+                const width = swipeRef.current?.clientWidth ?? 0;
+                if (Math.abs(delta) > threshold) {
+                  // animate slide out then snap to next index smoothly
+                  setAnimating(true);
+                  const target = delta < 0 ? -width : width;
+                  setDragX(target);
+                  setTimeout(() => {
+                    if (delta < 0) setMobileIndex((i) => (i + 1) % filteredPlans.length);
+                    else setMobileIndex((i) => (i - 1 + filteredPlans.length) % filteredPlans.length);
+                    setAnimating(false);
+                    setDragX(0);
+                  }, 200);
+                } else {
+                  setAnimating(true);
+                  setDragX(0);
+                  setTimeout(() => setAnimating(false), 160);
+                }
+                try { (e.currentTarget as any).releasePointerCapture(e.pointerId); } catch {}
+              }}
+              style={{ touchAction: "pan-y" }}
+              ref={swipeRef}
+            >
               {(() => {
-                const plan = filteredPlans[mobileIndex % filteredPlans.length]!;
-                return (
+                const idx = mobileIndex % filteredPlans.length;
+                const curr = filteredPlans[idx]!;
+                const prevIdx = (idx - 1 + filteredPlans.length) % filteredPlans.length;
+                const nextIdx = (idx + 1) % filteredPlans.length;
+
+                const Card = ({ plan }: { plan: TrainingPlan }) => (
                   <div className="card-surface mt-2 flex h-full flex-col justify-between">
                     <div className="space-y-4">
                       <div>
@@ -118,9 +163,7 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                         <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
                       </div>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-semibold text-gabi-blue">
-                          {plan.price.toLocaleString("ru-RU")}
-                        </span>
+                        <span className="text-3xl font-semibold text-gabi-blue">{plan.price.toLocaleString("ru-RU")}</span>
                         <span className="text-sm text-slate-500">{plan.period}</span>
                       </div>
                       <ul className="space-y-2 text-sm text-slate-600">
@@ -133,12 +176,7 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                       </ul>
                     </div>
                     {plan.buy_link ? (
-                      <a
-                        className="btn-primary mt-6 w-full text-center"
-                        href={plan.buy_link}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
+                      <a className="btn-primary mt-6 w-full text-center" href={plan.buy_link} target="_blank" rel="noreferrer">
                         {plan.buy_label || "Приобрести"}
                       </a>
                     ) : (
@@ -156,6 +194,33 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                         Подробнее
                       </button>
                     )}
+                  </div>
+                );
+
+                return (
+                  <div className="relative" style={{ height: '100%' }}>
+                    {/* Placeholder to preserve height for absolutely positioned slides */}
+                    <div className="invisible pointer-events-none">
+                      <Card plan={curr} />
+                    </div>
+                    <div
+                      className="absolute inset-0"
+                      style={{ transform: `translateX(${dragX}px)`, transition: animating ? 'transform 160ms ease' : undefined }}
+                    >
+                      <Card plan={curr} />
+                    </div>
+                    <div
+                      className="absolute top-0 bottom-0 w-full"
+                      style={{ left: '100%', transform: `translateX(${dragX}px)`, transition: animating ? 'transform 160ms ease' : undefined }}
+                    >
+                      <Card plan={filteredPlans[nextIdx]!} />
+                    </div>
+                    <div
+                      className="absolute top-0 bottom-0 w-full"
+                      style={{ left: '-100%', transform: `translateX(${dragX}px)`, transition: animating ? 'transform 160ms ease' : undefined }}
+                    >
+                      <Card plan={filteredPlans[prevIdx]!} />
+                    </div>
                   </div>
                 );
               })()}
