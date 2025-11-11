@@ -46,6 +46,36 @@ const defaultFilters: Filters = {
   level: "",
 };
 
+const RUSSIAN_CONSONANT = /[бвгджзйклмнпрстфхцчшщ]/i;
+const LONG_WORD_LIMIT = 12;
+
+const formatSessionTime = (time?: string) => {
+  if (!time) return "";
+  const [hours = "", minutes = ""] = time.split(":");
+  if (!hours || !minutes) {
+    return hours || time;
+  }
+  return `${hours}:${minutes.slice(0, 2)}`;
+};
+
+const shortenLongWords = (title?: string) => {
+  const source = title?.trim() || "Тренировка";
+  return source
+    .split(/\s+/)
+    .map((word) => {
+      if (word.length <= LONG_WORD_LIMIT) return word;
+      let cutoff = Math.min(LONG_WORD_LIMIT, word.length);
+      while (cutoff > 1 && !RUSSIAN_CONSONANT.test(word[cutoff - 1])) {
+        cutoff--;
+      }
+      if (cutoff === 0) {
+        cutoff = LONG_WORD_LIMIT;
+      }
+      return `${word.slice(0, cutoff)}.`;
+    })
+    .join(" ");
+};
+
 export default function ScheduleExplorer({ sessions, directions, coaches, locations, levels }: ScheduleExplorerProps) {
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [filters, setFilters] = useState<Filters>(defaultFilters);
@@ -249,25 +279,37 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                     Нет занятий
                   </div>
                 )}
-                {daySessions.map((session) => (
-                  <motion.div
-                    key={session.id}
-                    className="group rounded-2xl border border-white/60 bg-white/90 p-4 shadow transition hover:-translate-y-1 hover:shadow-lg"
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.45, ease: "easeOut" }}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-2">
-                        <div className="text-sm font-semibold text-gabi-blue">
-                          {session.start_time} – {session.end_time}
+                {daySessions.map((session) => {
+                  const startTime = formatSessionTime(session.start_time);
+                  const endTime = formatSessionTime(session.end_time);
+                  const title = shortenLongWords(session.title || session.direction?.title);
+                  const leadMessageTime = startTime || session.start_time || "";
+                  return (
+                    <motion.div
+                      key={session.id}
+                      className="group flex h-full flex-col rounded-2xl border border-white/60 bg-white/90 p-4 shadow transition hover:-translate-y-1 hover:shadow-lg"
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.2 }}
+                      transition={{ duration: 0.45, ease: "easeOut" }}
+                    >
+                      <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-1">
+                          <span className="brand-chip w-fit px-2 py-1 text-[10px]">
+                            {typeLabels[session.type] ?? session.type}
+                          </span>
+                          <div className="text-sm font-semibold text-gabi-blue">
+                            {startTime}
+                            {startTime && endTime && " – "}
+                            {endTime}
+                          </div>
                         </div>
-                        <div className="text-sm font-semibold text-gabi-dark">
-                          {session.title || session.direction?.title || "Тренировка"}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {session.coach?.full_name ?? "Тренер уточняется"} · {session.location?.title ?? "Локация уточняется"}
+                        <div className="space-y-1">
+                          <div className="text-sm font-semibold text-gabi-dark">{title}</div>
+                          <div className="text-xs text-slate-500">
+                            {session.coach?.full_name ?? "Тренер уточняется"} ·{" "}
+                            {session.location?.title ?? "Локация уточняется"}
+                          </div>
                         </div>
                         {(session.levels?.length ?? 0) > 0 && (
                           <div className="flex flex-wrap gap-1 text-[11px]">
@@ -279,30 +321,24 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                           </div>
                         )}
                       </div>
-                      <span className="brand-chip px-2 py-1 text-[10px]">
-                        {typeLabels[session.type] ?? session.type}
-                      </span>
-                    </div>
-                    <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
-                      <span>
-                        Свободно мест: <strong>{session.spots_available ?? "∞"}</strong>
-                      </span>
                       <button
-                        className="btn-secondary px-4 py-2 text-xs"
+                        className="btn-secondary mt-auto w-full justify-center px-4 py-2.5 text-sm"
                         onClick={() =>
                           openLeadModal({
                             source: "schedule",
                             preferred_direction: session.direction?.title ?? "Тренировка",
-                            message: `Хочу записаться на занятие ${format(parseISO(session.date), "d MMM", { locale: ru })} в ${session.start_time}`,
+                            message: `Хочу записаться на занятие ${format(parseISO(session.date), "d MMM", {
+                              locale: ru,
+                            })} в ${leadMessageTime}`,
                           })
                         }
                         type="button"
                       >
                         Записаться
                       </button>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           );
