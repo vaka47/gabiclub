@@ -16,15 +16,18 @@ import {
   TrainingSession,
 } from "./types";
 
-// Use absolute API base URL only if provided.
-// During static build on Vercel, relative URLs like "/api" are invalid for Node fetch.
-// If not provided, we skip network calls and fall back to local mocks.
-const rawApiBase = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
+// When the env is missing (e.g., preview/prod deployment forgot to set it),
+// fall back to the public API host so schedule data is still fetched.
+const PROD_FALLBACK_API = "https://api.gabiclub.ru/api";
+const rawEnvApiBase = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
+const preferApiBase =
+  rawEnvApiBase || (process.env.NODE_ENV === "production" ? PROD_FALLBACK_API : "");
+
 const API_BASE = (() => {
-  if (!rawApiBase) {
+  if (!preferApiBase) {
     return "";
   }
-  const sanitized = rawApiBase.replace(/\/$/, "");
+  const sanitized = preferApiBase.replace(/\/$/, "");
   // If the value is an absolute origin without a path (e.g. https://api.domain.tld),
   // normalize it to point to the Django /api root so schedule/other endpoints resolve.
   if (/^https?:\/\//i.test(sanitized)) {
@@ -44,6 +47,8 @@ const API_BASE = (() => {
 const IS_BUILD = process.env.NEXT_PHASE === "phase-production-build";
 const SKIP_API_AT_BUILD = process.env.SKIP_API_AT_BUILD === "1";
 const hasApi = Boolean(API_BASE) && !(IS_BUILD && SKIP_API_AT_BUILD);
+const DEBUG_API_FETCH =
+  process.env.NEXT_PUBLIC_DEBUG_API_FETCH === "1" || process.env.DEBUG_API_FETCH === "1";
 
 // Extract origin (scheme+host+port) from API base to resolve media URLs like 
 // "/media/..." coming from Django. Example: https://api.gabiclub.ru/api -> https://api.gabiclub.ru
@@ -100,8 +105,12 @@ async function fetchFromApi<T>(endpoint: string, init?: RequestInit): Promise<T 
     }
     return null;
   }
+  const url = `${API_BASE}${endpoint}`;
+  if (DEBUG_API_FETCH) {
+    console.log(`[api] ${init?.method ?? "GET"} ${url}`);
+  }
   try {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    const response = await fetch(url, {
       ...init,
       headers: {
         "Content-Type": "application/json",
