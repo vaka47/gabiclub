@@ -154,11 +154,14 @@ async function fetchFromApi<T>(endpoint: string, init?: RequestInit): Promise<T 
 
 export async function getTrainingSessions(params?: URLSearchParams): Promise<TrainingSession[]> {
   const query = params ? `?${params.toString()}` : "";
-  const data = await fetchFromApi<TrainingSession[]>(`/trainings/schedule/${query}`);
+  let data = await fetchFromApi<TrainingSession[]>(`/trainings/schedule/${query}`);
   if (!data) {
-    console.warn("[api] schedule: returning empty list due to API unavailability or error", {
-      query,
-    });
+    // Fallback to a lightweight endpoint that avoids heavy nested fields
+    // and is robust to missing media files.
+    data = await fetchFromApi<TrainingSession[]>(`/trainings/schedule-simple/${query}`);
+  }
+  if (!data) {
+    console.warn("[api] schedule: empty after primary and fallback endpoints", { query });
   }
   return data ?? [];
 }

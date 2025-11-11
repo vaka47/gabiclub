@@ -62,10 +62,10 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
         return false;
       }
       if (filters.type && session.type !== filters.type) return false;
-      if (filters.direction && String(session.direction.id) !== filters.direction) return false;
+      if (filters.direction && String(session.direction?.id ?? "") !== filters.direction) return false;
       if (filters.coach && String(session.coach?.id ?? "") !== filters.coach) return false;
-      if (filters.location && String(session.location.id) !== filters.location) return false;
-      if (filters.level && !session.levels.some((level) => level.tag === filters.level)) return false;
+      if (filters.location && String(session.location?.id ?? "") !== filters.location) return false;
+      if (filters.level && !(session.levels ?? []).some((level) => level.tag === filters.level)) return false;
       return true;
     });
   }, [dataSource, weekStart, filters]);
@@ -264,14 +264,14 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                           {session.start_time} – {session.end_time}
                         </div>
                         <div className="text-sm font-semibold text-gabi-dark">
-                          {session.title || session.direction.title}
+                          {session.title || session.direction?.title || "Тренировка"}
                         </div>
                         <div className="text-xs text-slate-500">
-                          {session.coach?.full_name ?? "Тренер уточняется"} · {session.location.title}
+                          {session.coach?.full_name ?? "Тренер уточняется"} · {session.location?.title ?? "Локация уточняется"}
                         </div>
-                        {session.levels.length > 0 && (
+                        {(session.levels?.length ?? 0) > 0 && (
                           <div className="flex flex-wrap gap-1 text-[11px]">
-                            {session.levels.map((level) => (
+                            {(session.levels ?? []).map((level) => (
                               <span key={level.id} className="brand-chip px-2 py-1">
                                 {level.name}
                               </span>
@@ -292,7 +292,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                         onClick={() =>
                           openLeadModal({
                             source: "schedule",
-                            preferred_direction: session.direction.title,
+                            preferred_direction: session.direction?.title ?? "Тренировка",
                             message: `Хочу записаться на занятие ${format(parseISO(session.date), "d MMM", { locale: ru })} в ${session.start_time}`,
                           })
                         }
