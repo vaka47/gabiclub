@@ -76,12 +76,27 @@ const shortenLongWords = (title?: string) => {
     .join(" ");
 };
 
+const sortSessionsByDate = (list: TrainingSession[]) =>
+  [...list].sort((sessionA, sessionB) => {
+    const dateDiff = sessionA.date.localeCompare(sessionB.date);
+    if (dateDiff !== 0) return dateDiff;
+    return sessionA.start_time.localeCompare(sessionB.start_time);
+  });
+
+const mergeSessions = (prev: TrainingSession[], next: TrainingSession[]) => {
+  if (!next.length) return prev;
+  const map = new Map<number, TrainingSession>();
+  prev.forEach((session) => map.set(session.id, session));
+  next.forEach((session) => map.set(session.id, session));
+  return sortSessionsByDate(Array.from(map.values()));
+};
+
 export default function ScheduleExplorer({ sessions, directions, coaches, locations, levels }: ScheduleExplorerProps) {
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const { openLeadModal } = useLeadModal();
   const [autoAdjusted, setAutoAdjusted] = useState(false);
-  const [dataSource, setDataSource] = useState<TrainingSession[]>(sessions);
+  const [dataSource, setDataSource] = useState<TrainingSession[]>(() => sortSessionsByDate(sessions));
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, idx) => addDays(weekStart, idx)), [weekStart]);
 
@@ -120,18 +135,28 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
       const d = parseISO(s.date);
       return !(isBefore(d, start) || isAfter(d, end));
     };
-    const needFetch = dataSource.length === 0 || dataSource.every((s) => !inCurrentWeek(s));
-    if (!needFetch) return;
+    const hasSessionsForWeek = dataSource.some(inCurrentWeek);
+    if (hasSessionsForWeek) {
+      return;
+    }
 
     const params = new URLSearchParams({
       start: format(start, "yyyy-MM-dd"),
       end: format(end, "yyyy-MM-dd"),
     });
+
+    let cancelled = false;
+
     getTrainingSessions(params).then((res) => {
-      if (Array.isArray(res) && res.length > 0) {
-        setDataSource(res);
+      if (cancelled || !Array.isArray(res) || res.length === 0) {
+        return;
       }
+      setDataSource((prev) => mergeSessions(prev, res));
     });
+
+    return () => {
+      cancelled = true;
+    };
   }, [weekStart, dataSource]);
 
   const dayMap = new Map<string, TrainingSession[]>();
