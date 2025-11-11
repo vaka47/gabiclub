@@ -107,6 +107,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
   const { openLeadModal } = useLeadModal();
   const [autoAdjusted, setAutoAdjusted] = useState(false);
   const [dataSource, setDataSource] = useState<TrainingSession[]>(() => sortSessionsByDate(sessions));
+  const [hasUserNavigated, setHasUserNavigated] = useState(false);
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, idx) => addDays(weekStart, idx)), [weekStart]);
 
@@ -142,7 +143,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
   // Auto-jump to the week of the earliest upcoming session if the current
   // week is empty, to avoid confusing "empty schedule" on first load.
   useEffect(() => {
-    if (!autoAdjusted && dataSource.length > 0 && filteredSessions.length === 0) {
+    if (!autoAdjusted && !hasUserNavigated && dataSource.length > 0 && filteredSessions.length === 0) {
       const firstDate = parseISO(dataSource[0].date);
       const newStart = startOfWeek(firstDate, { weekStartsOn: 1 });
       logSchedule("auto-adjust week start", {
@@ -153,7 +154,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
       setWeekStart(newStart);
       setAutoAdjusted(true);
     }
-  }, [dataSource, filteredSessions, autoAdjusted, weekStart]);
+  }, [dataSource, filteredSessions, autoAdjusted, weekStart, hasUserNavigated]);
 
   // If the current visible week has no sessions in the current dataset,
   // fetch just this week's sessions from the API and use them as data source.
@@ -227,6 +228,11 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
 
   const resetFilters = () => setFilters(defaultFilters);
 
+  const handleWeekShift = (days: number) => {
+    setHasUserNavigated(true);
+    setWeekStart((prev) => addDays(prev, days));
+  };
+
   return (
     <motion.section
       id="schedule"
@@ -245,12 +251,12 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
           <div className="flex items-center gap-2">
             <button
               className="btn-secondary"
-              onClick={() => setWeekStart(addDays(weekStart, -7))}
+              onClick={() => handleWeekShift(-7)}
               type="button"
             >
               ← Неделя назад
             </button>
-            <button className="btn-secondary" onClick={() => setWeekStart(addDays(weekStart, 7))} type="button">
+            <button className="btn-secondary" onClick={() => handleWeekShift(7)} type="button">
               Вперёд →
             </button>
           </div>
