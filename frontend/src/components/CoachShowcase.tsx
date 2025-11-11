@@ -59,7 +59,7 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
       {showHeading && (
         <div className="flex flex-col gap-2">
           <h2 className="section-title section-accent">Команда тренеров</h2>
-          <p className="section-subtitle">Лыжники, трейлраннеры, методисты — мы подбираем тренера под вашу цель.</p>
+          <p className="section-subtitle">Лыжники, бегуны, методисты — мы подбираем тренера под вашу цель.</p>
         </div>
       )}
       <motion.div
