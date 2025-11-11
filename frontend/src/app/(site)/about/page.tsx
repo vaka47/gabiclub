@@ -77,7 +77,7 @@ export default async function AboutPage() {
         </div>
         <div className="card-surface space-y-3">
           <h3 className="text-xl font-semibold text-gabi-dark">Соцсети</h3>
-          <div className="flex items-center gap-4 text-2xl text-slate-500">
+          <div className="mt-6 flex items-center gap-6 text-3xl md:text-4xl text-slate-500">
             {contact.instagram && (
               <a
                 href={toUrl(contact.instagram, "instagram")}
