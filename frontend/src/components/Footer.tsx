@@ -27,11 +27,19 @@ export default function Footer({ contact, club }: FooterProps) {
     if (platform === "whatsapp") return `https://wa.me/${v.replace(/[^\d]/g, "")}`;
     return v;
   };
+  const logoSrc = process.env.NEXT_PUBLIC_LOGO?.trim() || undefined;
   return (
     <footer className="relative mt-16 border-t border-slate-200 bg-white text-slate-700">
       <div className="mx-auto grid max-w-6xl gap-12 px-4 pb-12 pt-12 md:grid-cols-[2fr_1fr_1fr]">
         <div className="space-y-4">
-          <h3 className="text-2xl font-semibold text-gabi-blue">{club?.name ?? "Gabi Club"}</h3>
+          <div className="flex items-center gap-3">
+            {logoSrc ? (
+              <img src={logoSrc} alt="Gabi logo" className="h-8 w-auto" />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded bg-gabi-blue/10 text-gabi-blue">G</div>
+            )}
+            <h3 className="text-2xl font-semibold text-gabi-blue">{club?.name ?? "Gabi Club"}</h3>
+          </div>
           <p className="max-w-md text-sm text-slate-600">
             {club?.mission ??
               "Тренировки для взрослых и детей. Индивидуальные планы, техника и комфортный сервис."}
