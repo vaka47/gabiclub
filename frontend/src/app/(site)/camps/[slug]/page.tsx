@@ -125,9 +125,14 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
           <div className="card-surface space-y-3">
             <h3 className="text-lg font-semibold text-gabi-dark">Присоединяйтесь</h3>
             <p className="text-sm text-slate-500">
-              Оставьте контакты — организаторы свяжутся с подробностями, подбором проживания и билетов.
+              Оставьте контакты — организаторы свяжутся с подробностями о проживании, билетах и программе кэмпа.
             </p>
-            <LeadCtaButton label="Записаться" className="btn-primary w-full" source={`camp-${camp.slug}`} />
+            <LeadCtaButton
+              label="Записаться"
+              className="btn-primary w-full"
+              source={`camp-${camp.slug}`}
+              initial={{ preferred_direction: camp.title, message: "Хочу узнать подробнее" }}
+            />
             {camp.registration_link && (
               <a href={camp.registration_link} target="_blank" rel="noreferrer" className="btn-secondary w-full text-center">
                 Перейти к регистрации

@@ -66,14 +66,19 @@ export default async function CampsPage() {
       <header className="space-y-4">
         <h1 className="section-title">Кэмпы Gabi Club</h1>
         <p className="section-subtitle">
-          Авторские спортивные путешествия: снег, трейлы и семейные приключения. Выбирайте анонсы или вдохновляйтесь прошедшими выездами.
+          Авторские спортивные путешествия: снег и горы, лыжи и трейлы, спорт и приключения. Выбирайте анонсы или вдохновляйтесь прошедшими выездами.
         </p>
       </header>
 
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-semibold text-gabi-dark">Ближайшие кэмпы</h2>
-          <LeadCtaButton label="Оставить заявку" className="btn-primary" source="camps-list" />
+          <LeadCtaButton
+            label="Оставить заявку"
+            className="btn-primary"
+            source="camps-list"
+            initial={{ preferred_direction: "Кэмпы", message: "Расскажите мне о предстоящих кэмпах" }}
+          />
         </div>
         <div className="grid gap-6 md:grid-cols-2">
           {upcoming.map((camp) => (
