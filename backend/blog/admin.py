@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from .models import Article, ArticleTag
+from .models import Article, ArticleGalleryImage, ArticleTag
+
+
+class ArticleGalleryInline(admin.TabularInline):
+    model = ArticleGalleryImage
+    extra = 0
 
 
 @admin.register(Article)
@@ -16,6 +21,7 @@ class ArticleAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
     filter_horizontal = ("tags",)
     ordering = ("-published_at",)
+    inlines = [ArticleGalleryInline]
 
 
 @admin.register(ArticleTag)

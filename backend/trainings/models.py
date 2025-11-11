@@ -140,9 +140,16 @@ class TrainingPlan(models.Model):
     category = models.CharField(
         "Категория", max_length=32, choices=TrainingPlanCategory.choices
     )
+    icon = models.CharField(
+        "Иконка", max_length=120, blank=True, help_text="CSS-класс или emoji"
+    )
     description = models.TextField("Описание", blank=True)
     price = models.DecimalField("Стоимость", max_digits=9, decimal_places=2)
     period = models.CharField("Периодичность", max_length=80)
+    buy_link = models.URLField("Ссылка на покупку", blank=True)
+    buy_label = models.CharField(
+        "Текст кнопки", max_length=60, blank=True, default="Приобрести"
+    )
     is_featured = models.BooleanField("Выделенный тариф", default=False)
     order = models.PositiveIntegerField("Порядок", default=0)
     created_at = models.DateTimeField(auto_now_add=True)

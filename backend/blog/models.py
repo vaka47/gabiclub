@@ -50,3 +50,20 @@ class Article(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+
+
+class ArticleGalleryImage(models.Model):
+    article = models.ForeignKey(
+        Article, related_name="gallery", on_delete=models.CASCADE
+    )
+    image = models.ImageField("Фото", upload_to="articles/gallery/")
+    caption = models.CharField("Подпись", max_length=200, blank=True)
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Фото статьи"
+        verbose_name_plural = "Галерея статьи"
+
+    def __str__(self) -> str:
+        return self.caption or (self.image.name if self.image else f"Фото #{self.pk}")

@@ -84,7 +84,10 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                 <span className="badge bg-gabi-orange/15 text-gabi-orange">Хит</span>
               )}
               <div>
-                <h3 className="text-2xl font-semibold text-gabi-dark">{plan.title}</h3>
+                <h3 className="text-2xl font-semibold text-gabi-dark flex items-center gap-2">
+                  {plan.icon && <span className="text-2xl" aria-hidden>{plan.icon}</span>}
+                  <span>{plan.title}</span>
+                </h3>
                 <p className="text-sm text-slate-500">{plan.description}</p>
               </div>
               <div className="flex items-baseline gap-2">
@@ -102,19 +105,30 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                 ))}
               </ul>
             </div>
-            <button
-              className="btn-primary mt-6 w-full"
-              onClick={() =>
-                openLeadModal({
-                  source: "plan",
-                  preferred_direction: plan.title,
-                  message: `Хочу тариф "${plan.title}"`,
-                })
-              }
-              type="button"
-            >
-              Выбрать тариф
-            </button>
+            {plan.buy_link ? (
+              <a
+                className="btn-primary mt-6 w-full text-center"
+                href={plan.buy_link}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {plan.buy_label || "Приобрести"}
+              </a>
+            ) : (
+              <button
+                className="btn-primary mt-6 w-full"
+                onClick={() =>
+                  openLeadModal({
+                    source: "plan",
+                    preferred_direction: plan.title,
+                    message: `Хочу тариф \"${plan.title}\"`,
+                  })
+                }
+                type="button"
+              >
+                Выбрать тариф
+              </button>
+            )}
           </motion.div>
         ))}
       </motion.div>

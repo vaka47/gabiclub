@@ -28,7 +28,7 @@ class TrainingPlanBenefitInline(admin.TabularInline):
 
 @admin.register(TrainingPlan)
 class TrainingPlanAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "price", "period", "is_featured", "order")
+    list_display = ("title", "category", "price", "period", "buy_link", "is_featured", "order")
     list_filter = ("category", "is_featured")
     ordering = ("category", "order")
     inlines = [TrainingPlanBenefitInline]

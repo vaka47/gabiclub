@@ -51,11 +51,14 @@ export type TrainingPlanCategory =
 export type TrainingPlan = {
   id: number;
   title: string;
+  icon?: string;
   category: TrainingPlanCategory;
   category_display: string;
   description?: string;
   price: number;
   period: string;
+  buy_link?: string;
+  buy_label?: string;
   is_featured?: boolean;
   order?: number;
   benefits: TrainingPlanBenefit[];
@@ -135,6 +138,7 @@ export type Article = {
   excerpt?: string;
   content: string;
   cover_image?: string;
+  gallery?: CampGalleryImage[];
   published_at: string;
   updated_at?: string;
   reading_time?: number;

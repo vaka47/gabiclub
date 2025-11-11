@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import LeadCtaButton from "@/components/LeadCtaButton";
+import CampGallery from "@/components/CampGallery";
 import { getArticleBySlug, getArticles, resolveMediaUrl } from "@/lib/api";
 
 function formatDate(date: string) {
@@ -43,6 +44,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <div className="prose prose-lg max-w-none text-slate-700 prose-headings:text-gabi-dark prose-a:text-gabi-blue">
         <div dangerouslySetInnerHTML={{ __html: article.content }} />
       </div>
+
+      {Array.isArray(article.gallery) && article.gallery.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold text-gabi-dark">Галерея</h2>
+          <CampGallery slug={article.slug} title={article.title} photos={article.gallery} />
+        </section>
+      )}
 
       {article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wide text-gabi-blue">
