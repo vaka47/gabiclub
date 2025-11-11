@@ -70,7 +70,7 @@ export default function ActivityTabs() {
 
   return (
     <motion.section
-      className="mt-10 space-y-4"
+      className="activity-tabs mt-10 space-y-4"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
@@ -82,7 +82,7 @@ export default function ActivityTabs() {
             key={a.key}
             type="button"
             className={clsx(
-              "rounded-full px-5 py-2 text-sm font-semibold transition",
+              "tab-btn rounded-full font-semibold transition",
               active === a.key
                 ? "bg-gabi-blue text-white shadow-glow"
                 : "bg-white text-slate-600 shadow-sm hover:bg-slate-100",

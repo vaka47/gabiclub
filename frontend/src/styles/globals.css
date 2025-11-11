@@ -186,3 +186,21 @@ a:hover {
   color: var(--brand-primary);
   background-color: color-mix(in srgb, var(--brand-primary) 12%, transparent);
 }
+
+/* Activity tabs: responsive size on mobile so 4 fit the width */
+.activity-tabs {
+  --tab-fs: clamp(11px, 3.5vw, 14px);
+  --tab-py: clamp(6px, 2.0vw, 10px);
+  --tab-px: clamp(10px, 4.2vw, 20px);
+}
+.activity-tabs .tab-btn {
+  font-size: var(--tab-fs);
+  padding: var(--tab-py) var(--tab-px);
+}
+@media (min-width: 768px) {
+  .activity-tabs {
+    --tab-fs: 14px;
+    --tab-py: 8px;
+    --tab-px: 20px;
+  }
+}
