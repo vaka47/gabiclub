@@ -34,9 +34,9 @@ export default function Footer({ contact, club }: FooterProps) {
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             {logoSrc ? (
-              <img src={logoSrc} alt="Gabi logo" className="h-8 w-auto" />
+              <img src={logoSrc} alt="Gabi logo" className="h-16 w-auto" />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded bg-gabi-blue/10 text-gabi-blue">G</div>
+              <div className="flex h-16 w-16 items-center justify-center rounded bg-gabi-blue/10 text-gabi-blue text-xl">G</div>
             )}
             <h3 className="text-2xl font-semibold text-gabi-blue">{club?.name ?? "Gabi Club"}</h3>
           </div>
