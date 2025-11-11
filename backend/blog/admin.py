@@ -19,10 +19,11 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = (
         "title",
         "published_at",
+        "is_featured",
         "is_published",
         "reading_time",
     )
-    list_filter = ("is_published", "published_at", "tags")
+    list_filter = ("is_published", "is_featured", "published_at", "tags")
     search_fields = ("title", "excerpt", "content")
     prepopulated_fields = {"slug": ("title",)}
     filter_horizontal = ("tags",)

@@ -148,6 +148,7 @@ export type Article = {
   seo_title?: string;
   seo_description?: string;
   is_published?: boolean;
+  is_featured?: boolean;
 };
 
 export type ArticleTag = {

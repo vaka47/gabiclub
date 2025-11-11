@@ -18,7 +18,7 @@ export default async function TrainingsPage() {
     getClubProfile(),
     getTheme(),
     getCamps(new URLSearchParams("is_featured=1")),
-    getArticles(),
+    getArticles(new URLSearchParams("is_featured=1")),
   ]);
 
   const featuredCoaches = coaches.filter((coach) => coach.is_featured);

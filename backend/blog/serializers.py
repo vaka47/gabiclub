@@ -22,6 +22,7 @@ class ArticleListSerializer(serializers.ModelSerializer):
             "cover_image",
             "header_image",
             "published_at",
+            "is_featured",
             "reading_time",
             "tags",
         )
@@ -56,6 +57,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             "sections",
             "published_at",
             "updated_at",
+            "is_featured",
             "reading_time",
             "tags",
             "seo_title",

@@ -11,7 +11,7 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ArticleSerializer
     lookup_field = "slug"
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
-    filterset_fields = {"tags__slug": ["exact"], "tags__id": ["exact"]}
+    filterset_fields = {"tags__slug": ["exact"], "tags__id": ["exact"], "is_featured": ["exact"]}
     search_fields = ("title", "excerpt", "content")
     ordering_fields = ("published_at", "reading_time")
     ordering = ("-published_at",)
@@ -27,10 +27,16 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
         params = self.request.query_params
         tag_slug = params.get("tags__slug") or params.get("tag")
         tag_id = params.get("tags__id") or params.get("tag_id")
+        featured = params.get("is_featured") or params.get("featured")
         if tag_slug:
             qs = qs.filter(tags__slug=tag_slug)
         if tag_id:
             qs = qs.filter(tags__id=tag_id)
+        if featured is not None:
+            if str(featured).lower() in {"1", "true", "yes"}:
+                qs = qs.filter(is_featured=True)
+            elif str(featured).lower() in {"0", "false", "no"}:
+                qs = qs.filter(is_featured=False)
         return qs.distinct()
 
 

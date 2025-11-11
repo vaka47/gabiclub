@@ -204,8 +204,14 @@ export async function getCampBySlug(slug: string): Promise<CampDetail | null> {
   return data ?? getMockCampBySlug(slug) ?? null;
 }
 
-export async function getArticles(tag?: string): Promise<Article[]> {
-  const query = tag ? `?tags__slug=${tag}` : "";
+export async function getArticles(tagOrParams?: string | URLSearchParams): Promise<Article[]> {
+  let query = "";
+  if (typeof tagOrParams === "string" && tagOrParams) {
+    query = `?tags__slug=${tagOrParams}`;
+  } else if (tagOrParams instanceof URLSearchParams) {
+    const s = tagOrParams.toString();
+    query = s ? `?${s}` : "";
+  }
   const data = await fetchFromApi<Article[]>(`/blog/articles/${query}`);
   return data ?? mockData.articles;
 }

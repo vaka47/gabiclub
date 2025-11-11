@@ -32,6 +32,7 @@ class Article(models.Model):
     published_at = models.DateTimeField("Дата публикации", auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_published = models.BooleanField("Опубликовано", default=True)
+    is_featured = models.BooleanField("Показывать на главной", default=False)
     seo_title = models.CharField("SEO Title", max_length=200, blank=True)
     seo_description = models.TextField("SEO Description", blank=True)
     reading_time = models.PositiveIntegerField(
