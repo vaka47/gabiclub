@@ -128,7 +128,7 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                 }
                 type="button"
               >
-                Записаться
+                Подробнее
               </button>
             )}
           </motion.div>
