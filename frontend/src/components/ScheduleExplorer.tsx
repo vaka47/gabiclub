@@ -83,6 +83,25 @@ const shortenLongWords = (title?: string) => {
     .join(" ");
 };
 
+// Shorten level labels to fit pills (e.g., "Продвинутый" -> "Продвин.")
+const shortenLevelLabel = (name?: string) => {
+  const src = (name ?? "").trim();
+  if (!src) return "";
+  // Common verbose variants coming from API
+  if (/(^|\s)продвинут/i.test(src)) return "Продвин.";
+  if (/(^|\s)начальн/i.test(src)) return "Нач.";
+  if (/(^|\s)средн/i.test(src)) return "Средн.";
+  if (/любой\s+уровень/i.test(src)) return "Любой";
+  if (/уровень$/i.test(src)) return src.replace(/\s*уровень$/i, "");
+  // Generic fallback: clamp long words
+  const LIMIT = 10;
+  if (src.length <= LIMIT) return src;
+  let cutoff = LIMIT;
+  while (cutoff > 1 && !RUSSIAN_CONSONANT.test(src[cutoff - 1])) cutoff--;
+  if (cutoff < 3) cutoff = LIMIT;
+  return `${src.slice(0, cutoff)}.`;
+};
+
 const sortSessionsByDate = (list: TrainingSession[]) =>
   [...list].sort((sessionA, sessionB) => {
     const dateDiff = sessionA.date.localeCompare(sessionB.date);
@@ -388,15 +407,15 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                         {(session.levels?.length ?? 0) > 0 && (
                           <div className="flex flex-wrap gap-1 text-[11px]">
                             {(session.levels ?? []).map((level) => (
-                              <span key={level.id} className="brand-chip px-2 py-1">
-                                {level.name}
+                              <span key={level.id} className="brand-chip px-2 py-1 text-[10px]">
+                                {shortenLevelLabel(level.name)}
                               </span>
                             ))}
                           </div>
                         )}
                       </div>
                       <button
-                        className="btn-secondary mt-auto w-full justify-center px-3 py-1.5 text-[12px] leading-tight"
+                        className="btn-secondary mt-auto w-full justify-center px-2.5 py-1 text-[11px] leading-tight"
                         onClick={() =>
                           openLeadModal({
                             source: "schedule",
