@@ -120,6 +120,11 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, idx) => addDays(weekStart, idx)), [weekStart]);
+  const coachById = useMemo(() => {
+    const map = new Map<number, Coach>();
+    coaches.forEach((c) => map.set(c.id, c));
+    return map;
+  }, [coaches]);
 
   const filteredSessions = useMemo(() => {
     return dataSource.filter((session) => {
@@ -395,7 +400,10 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                               <button
                                 type="button"
                                 className="block text-left underline-offset-2 hover:underline text-gabi-blue"
-                                onClick={() => setSelectedCoach(session.coach!)}
+                                onClick={() => {
+                                  const full = coachById.get(session.coach!.id) ?? session.coach!;
+                                  setSelectedCoach(full);
+                                }}
                               >
                                 {session.coach.full_name}
                               </button>
