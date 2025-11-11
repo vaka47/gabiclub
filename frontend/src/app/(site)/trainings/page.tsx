@@ -51,9 +51,9 @@ export default async function TrainingsPage() {
         ]}
       />
 
-      <CoachShowcase coaches={featuredCoaches} />
-
       <ActivityTabs />
+
+      <CoachShowcase coaches={featuredCoaches} />
 
       <PlanTabs plans={plans} />
 
