@@ -87,7 +87,7 @@ export default function CoachModal({ open, coach, onClose }: CoachModalProps) {
                 className="btn-primary w-full"
                 source="coach-modal"
                 initial={{
-                  preferred_direction: coach.directions[0]?.title ?? coach.full_name,
+                  preferred_direction: coach.directions?.[0]?.title ?? coach.full_name,
                   message: `Хочу тренироваться с ${coach.full_name}`,
                 }}
               />
