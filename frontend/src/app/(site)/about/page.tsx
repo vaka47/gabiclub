@@ -1,5 +1,6 @@
 import LeadCtaButton from "@/components/LeadCtaButton";
 import { getClubProfile, getCoaches, getContactInfo } from "@/lib/api";
+import { FaInstagram, FaTelegramPlane, FaVk } from "react-icons/fa";
 
 export default async function AboutPage() {
   const [club, contact, coaches] = await Promise.all([
@@ -9,6 +10,16 @@ export default async function AboutPage() {
   ]);
 
   const coachCount = coaches.length;
+
+  const toUrl = (val?: string | null, platform?: "instagram" | "telegram" | "vk") => {
+    if (!val) return undefined;
+    const v = String(val).trim();
+    if (/^https?:\/\//i.test(v)) return v;
+    if (platform === "instagram") return `https://instagram.com/${v.replace(/^@/, "")}`;
+    if (platform === "telegram") return `https://t.me/${v.replace(/^@/, "")}`;
+    if (platform === "vk") return `https://vk.com/${v.replace(/^@/, "")}`;
+    return v;
+  };
 
   return (
     <div className="space-y-12 pb-12">
@@ -66,6 +77,44 @@ export default async function AboutPage() {
         </div>
         <div className="card-surface space-y-3">
           <h3 className="text-xl font-semibold text-gabi-dark">Соцсети</h3>
+          <div className="flex items-center gap-4 text-2xl text-slate-500">
+            {contact.instagram && (
+              <a
+                href={toUrl(contact.instagram, "instagram")}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram"
+                title="Instagram"
+                className="transition hover:text-gabi-blue"
+              >
+                <FaInstagram />
+              </a>
+            )}
+            {contact.telegram && (
+              <a
+                href={toUrl(contact.telegram, "telegram")}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Telegram"
+                title="Telegram"
+                className="transition hover:text-gabi-blue"
+              >
+                <FaTelegramPlane />
+              </a>
+            )}
+            {contact.vk && (
+              <a
+                href={toUrl(contact.vk, "vk")}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="VK"
+                title="VK"
+                className="transition hover:text-gabi-blue"
+              >
+                <FaVk />
+              </a>
+            )}
+          </div>
           <ul className="space-y-2 text-sm text-slate-600">
             {contact.social_links?.map((link) => (
               <li key={link.id}>
