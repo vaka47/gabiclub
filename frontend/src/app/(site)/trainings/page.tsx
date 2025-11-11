@@ -51,6 +51,8 @@ export default async function TrainingsPage() {
         ]}
       />
 
+      <CoachShowcase coaches={featuredCoaches} />
+
       <ActivityTabs />
 
       <PlanTabs plans={plans} />
@@ -62,9 +64,6 @@ export default async function TrainingsPage() {
         locations={meta.locations}
         levels={meta.levels}
       />
-
-      <CoachShowcase coaches={featuredCoaches} />
-
       <section
         className="relative overflow-hidden rounded-[32px] bg-white shadow-[0_20px_60px_-25px_rgba(15,23,42,0.15)] border border-slate-200"
       >
