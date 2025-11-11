@@ -76,7 +76,7 @@ export default function ActivityTabs() {
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         {ACTIVITIES.map((a) => (
           <button
             key={a.key}
