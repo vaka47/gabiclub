@@ -20,6 +20,17 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
   const frameRef = useRef<HTMLDivElement | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Track viewport to disable drag on desktop completely
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(min-width: 768px)");
+    const apply = () => setIsDesktop(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   const close = useCallback(() => setOpenIdx(null), []);
   const prev = useCallback(() => setOpenIdx((i) => (i == null ? i : (i + items.length - 1) % items.length)), [items.length]);
@@ -60,9 +71,11 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
       {openIdx != null && (
         <div className="fixed left-0 right-0 bottom-0 top-[56px] md:top-[72px] z-40 flex items-center justify-center bg-black/90" onClick={close} role="dialog" aria-modal="true">
           <button
-            className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white shadow-md transition hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            className="absolute right-4 top-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white shadow-md transition hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
+              console.log('[gallery] close click');
               close();
             }}
             aria-label="Закрыть"
@@ -70,33 +83,39 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
           >
             <FiX size={22} />
           </button>
-          <button className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); prev(); }} aria-label="Предыдущее">
+          <button className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); console.log('[gallery] prev click'); prev(); }} aria-label="Предыдущее" type="button">
             ‹
           </button>
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); next(); }} aria-label="Следующее">
+          <button className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); console.log('[gallery] next click'); next(); }} aria-label="Следующее" type="button">
             ›
           </button>
           <div
-            className="relative h-[80vh] w-[90vw] max-w-5xl cursor-grab active:cursor-grabbing"
+            className="relative z-0 h-[80vh] w-[90vw] max-w-5xl cursor-grab md:cursor-auto active:cursor-grabbing md:active:cursor-auto"
             ref={frameRef}
             onClick={(e) => {
+              // Only close overlay clicks should bubble; keep image clicks local
               e.stopPropagation();
-              // Desktop convenience: click left/right halves to navigate
-              if (dragStartX != null || Math.abs(dragX) > 2) return;
-              const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
-              const isRight = e.clientX - rect.left > rect.width / 2;
-              isRight ? next() : prev();
             }}
             onPointerDown={(e) => {
+              if (isDesktop) { console.log('[gallery] pointerDown ignored on desktop'); return; } // disable drag on desktop
+              // Ignore pointer starts on controls to avoid hijacking their clicks
+              const t = e.target as HTMLElement;
+              if (t.closest('button')) return;
               setDragStartX(e.clientX);
               setAnimating(false);
               try { (e.currentTarget as any).setPointerCapture(e.pointerId); } catch {}
             }}
             onPointerMove={(e) => {
+              if (isDesktop) return;
               if (dragStartX == null) return;
               setDragX(e.clientX - dragStartX);
             }}
             onPointerUp={(e) => {
+              if (isDesktop) return;
               if (dragStartX == null) return;
               const delta = dragX;
               setDragStartX(null);

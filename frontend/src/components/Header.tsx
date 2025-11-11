@@ -76,9 +76,8 @@ export default function Header({ socialLinks }: HeaderProps) {
         </Link>
 
         {/* Center: desktop social icons */}
-        {socialLinks?.length ? (
-          <div className="hidden items-center justify-center gap-8 md:flex">
-            {socialLinks.map((link) => {
+        <div className="hidden items-center justify-center gap-8 md:flex">
+            {socialLinks?.map((link) => {
               const title = (link.title || "").toLowerCase();
               const Icon = title.includes("telegram")
                 ? FaTelegramPlane
@@ -102,7 +101,6 @@ export default function Header({ socialLinks }: HeaderProps) {
               );
             })}
           </div>
-        ) : <div className="hidden md:block" />}
 
         <div className="hidden items-center gap-6 md:flex">
           {renderLinks("desktop")}
@@ -116,9 +114,8 @@ export default function Header({ socialLinks }: HeaderProps) {
         </div>
 
         {/* Mobile social icons to the left of burger */}
-        {socialLinks?.length ? (
-          <div className="mr-2 flex shrink-0 items-center gap-6 md:hidden">
-            {socialLinks.map((link) => {
+        <div className="mr-2 flex shrink-0 items-center gap-6 md:hidden">
+            {socialLinks?.map((link) => {
               const title = (link.title || "").toLowerCase();
               const Icon = title.includes("telegram")
                 ? FaTelegramPlane
@@ -142,7 +139,6 @@ export default function Header({ socialLinks }: HeaderProps) {
               );
             })}
           </div>
-        ) : null}
 
         <button
           onClick={toggleMenu}
@@ -168,21 +164,7 @@ export default function Header({ socialLinks }: HeaderProps) {
             >
               Записаться на тренировку
             </button>
-            {socialLinks?.length ? (
-              <div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-500">
-                {socialLinks.map((link) => (
-                  <a
-                    key={link.id ?? link.title}
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition hover:text-gabi-blue"
-                  >
-                    {link.title}
-                  </a>
-                ))}
-              </div>
-            ) : null}
+            {/* Соцсети в мобильном меню не показываем — иконки уже в хедере */}
           </div>
         </div>
       )}
