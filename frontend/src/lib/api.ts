@@ -1,4 +1,4 @@
-import { getMockCampBySlug, getMockSessions, mockData } from "./mockData";
+import { getMockCampBySlug, mockData } from "./mockData";
 import {
   Article,
   ArticleTag,
@@ -155,10 +155,12 @@ async function fetchFromApi<T>(endpoint: string, init?: RequestInit): Promise<T 
 export async function getTrainingSessions(params?: URLSearchParams): Promise<TrainingSession[]> {
   const query = params ? `?${params.toString()}` : "";
   const data = await fetchFromApi<TrainingSession[]>(`/trainings/schedule/${query}`);
-  if (!data && process.env.NODE_ENV !== "production") {
-    console.warn("[api] Using mock training sessions", { reason: hasApi ? "empty-response" : "api-disabled" });
+  if (!data) {
+    console.warn("[api] schedule: returning empty list due to API unavailability or error", {
+      query,
+    });
   }
-  return data ?? getMockSessions();
+  return data ?? [];
 }
 
 export async function getTrainingPlans(category?: string): Promise<TrainingPlan[]> {

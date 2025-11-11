@@ -84,9 +84,20 @@ class TrainingPlanSerializer(serializers.ModelSerializer):
 
 
 class SessionAttachmentSerializer(serializers.ModelSerializer):
+    file = serializers.SerializerMethodField()
+
     class Meta:
         model = SessionAttachment
         fields = ("id", "title", "file")
+
+    def get_file(self, obj):
+        f = getattr(obj, "file", None)
+        if not f:
+            return None
+        try:
+            return f.url
+        except Exception:
+            return None
 
 
 class TrainingSessionSerializer(serializers.ModelSerializer):
