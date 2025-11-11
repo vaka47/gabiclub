@@ -23,17 +23,31 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
     const map = new Map<TrainingPlan["category"], string>();
     plans.forEach((plan) => {
       if (!map.has(plan.category)) {
-        map.set(plan.category, plan.category_display);
+        map.set(plan.category, plan.category_display ?? "");
       }
     });
+    // Keep all categories in state, but render only those with labels later
     return Array.from(map.entries()).map(([value, label]) => ({ value, label }));
   }, [plans]);
 
+  const visibleCategories = useMemo(
+    () => categories.filter((c) => (c.label ?? "").trim().length > 0),
+    [categories],
+  );
+  const showTabs = visibleCategories.length > 1;
+
   const [activeCategory, setActiveCategory] = useState<TrainingPlan["category"]>(
-    categories[0]?.value ?? "personal",
+    (visibleCategories[0]?.value as TrainingPlan["category"]) ?? (categories[0]?.value as TrainingPlan["category"]) ?? "personal",
   );
 
-  const filteredPlans = plans.filter((plan) => plan.category === activeCategory);
+  const filteredPlans = showTabs
+    ? plans.filter((plan) => {
+        const label = (plan as any).category_display?.trim?.() ?? "";
+        // Plans без категории показываем всегда, чтобы они не терялись при выборе вкладок
+        if (!label) return true;
+        return plan.category === activeCategory;
+      })
+    : plans;
 
   return (
     <motion.section
@@ -47,8 +61,9 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
         <h2 className="section-title section-accent">Тренировочные планы</h2>
         <p className="section-subtitle">Подберите комфортный формат: индивидуально или в группе.</p>
       </div>
+      {showTabs && (
       <div className="flex flex-wrap gap-3">
-        {categories.map((category) => (
+        {visibleCategories.map((category) => (
           <button
             key={category.value}
             className={clsx(
@@ -64,6 +79,7 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
           </button>
         ))}
       </div>
+      )}
 
       <motion.div
         className="grid gap-6 md:grid-cols-2"
