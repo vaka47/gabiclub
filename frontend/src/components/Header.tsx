@@ -62,7 +62,7 @@ export default function Header({ socialLinks }: HeaderProps) {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-lg">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:py-5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 md:py-5">
         <Link href="/" className="flex items-center gap-3 text-xl font-semibold text-gabi-dark">
           {logoSrc ? (
             <img src={logoSrc} alt="Gabi logo" className="h-10 w-auto" />
@@ -75,35 +75,9 @@ export default function Header({ socialLinks }: HeaderProps) {
           </div>
         </Link>
 
-        <div className="hidden items-center gap-6 md:flex">
-          {renderLinks("desktop")}
-          {socialLinks?.length ? (
-            <div className="flex items-center gap-4 text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.id ?? link.title}
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="transition hover:text-gabi-blue"
-                >
-                  {link.title}
-                </a>
-              ))}
-            </div>
-          ) : null}
-          <button
-            className="btn-primary"
-            onClick={() => openLeadModal({ source: "header" })}
-            type="button"
-          >
-            Записаться
-          </button>
-        </div>
-
-        {/* Mobile social icons to the left of burger */}
+        {/* Center: desktop social icons */}
         {socialLinks?.length ? (
-          <div className="mr-2 flex items-center gap-3 md:hidden">
+          <div className="hidden items-center justify-center gap-8 md:flex">
             {socialLinks.map((link) => {
               const title = (link.title || "").toLowerCase();
               const Icon = title.includes("telegram")
@@ -124,6 +98,46 @@ export default function Header({ socialLinks }: HeaderProps) {
                   aria-label={link.title}
                 >
                   <Icon size={18} />
+                </a>
+              );
+            })}
+          </div>
+        ) : <div className="hidden md:block" />}
+
+        <div className="hidden items-center gap-6 md:flex">
+          {renderLinks("desktop")}
+          <button
+            className="btn-primary"
+            onClick={() => openLeadModal({ source: "header" })}
+            type="button"
+          >
+            Записаться
+          </button>
+        </div>
+
+        {/* Mobile social icons to the left of burger */}
+        {socialLinks?.length ? (
+          <div className="mr-2 flex shrink-0 items-center gap-6 md:hidden">
+            {socialLinks.map((link) => {
+              const title = (link.title || "").toLowerCase();
+              const Icon = title.includes("telegram")
+                ? FaTelegramPlane
+                : title.includes("instagram")
+                ? FaInstagram
+                : title.includes("vk")
+                ? FaVk
+                : null;
+              if (!Icon) return null;
+              return (
+                <a
+                  key={link.id ?? link.title}
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="shrink-0 text-slate-500 transition hover:text-gabi-blue"
+                  aria-label={link.title}
+                >
+                  <Icon size={16} />
                 </a>
               );
             })}

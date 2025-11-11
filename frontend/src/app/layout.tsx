@@ -43,6 +43,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     ["--brand-grad-end" as any]: theme?.gradient_end || "#FF6A00",
     ["--brand-bg" as any]: brandBg,
   };
+  // Build header social links from contact block; add basic ones if missing
+  const baseLinks = contact.social_links ?? [];
+  const ensure = (title: string, url?: string) =>
+    url ? ({ id: `${title.toLowerCase()}-auto`, title, url }) : null;
+  const extras = [
+    ensure("Telegram", contact.telegram),
+    ensure("Instagram", contact.instagram),
+    ensure("VK", contact.vk),
+  ].filter(Boolean) as any[];
+  const names = new Set(baseLinks.map((l) => (l.title || "").toLowerCase()));
+  const headerLinks = baseLinks.slice();
+  extras.forEach((e) => {
+    if (!names.has((e.title || "").toLowerCase())) headerLinks.push(e as any);
+  });
+
   return (
     <html lang="ru">
       <body className={`${inter.variable} ${bebas.variable} min-h-screen text-gabi-gray`} style={themeVars}>
@@ -50,7 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div className="relative min-h-screen">
           <LeadModalProvider>
             <CursorTrail />
-            <Header socialLinks={contact.social_links} />
+            <Header socialLinks={headerLinks} />
             {/* Mobile-only camp ticker overlay across the site */}
             <MobileCampTicker camp={(featuredCamps ?? [])[0]} />
             <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-40 pb-20 md:px-6 lg:px-8">

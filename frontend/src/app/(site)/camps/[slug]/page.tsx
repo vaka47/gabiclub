@@ -34,8 +34,7 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
 
   // Server-side debug: log hero and gallery media resolution (visible in server logs)
   if (process.env.NEXT_PUBLIC_DEBUG_MEDIA === '1') {
-    const heroResolved = heroImg ?? undefined;
-    console.log('[media] camp detail hero', { slug: camp.slug, raw: headerRaw, resolved: heroResolved });
+    console.log('[media] camp detail hero', { slug: camp.slug, mobile: mobileImg ?? undefined, desktop: desktopImg ?? undefined });
     if (camp.gallery?.length) {
       console.log('[media] camp detail gallery count', { slug: camp.slug, count: camp.gallery.length });
       for (const g of camp.gallery) {
@@ -79,7 +78,9 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" aria-hidden />
           <div className="absolute bottom-0 left-0 right-0 px-8 py-10 text-white">
-            <span className="badge bg-white/20 text-white">{camp.status_display ?? camp.status}</span>
+            <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white" style={{ backgroundColor: "rgba(255,255,255,0.25)" }}>
+              {camp.status_display ?? camp.status}
+            </span>
             <h1 className="mt-3 text-3xl font-semibold md:text-4xl">{camp.title}</h1>
             <p className="max-w-2xl text-sm text-white/80">{camp.summary}</p>
             <div className="mt-4 flex flex-wrap gap-4 text-sm text-white/80">
