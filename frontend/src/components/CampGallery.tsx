@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { resolveMediaUrl } from "@/lib/api";
 import { FiX } from "react-icons/fi";
@@ -19,6 +19,7 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
   const [dragStartX, setDragStartX] = useState<number | null>(null);
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const frameRef = useRef<HTMLDivElement | null>(null);
 
   const close = useCallback(() => setOpenIdx(null), []);
   const prev = useCallback(() => setOpenIdx((i) => (i == null ? i : (i + items.length - 1) % items.length)), [items.length]);
@@ -77,7 +78,15 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
           </button>
           <div
             className="relative h-[80vh] w-[90vw] max-w-5xl cursor-grab active:cursor-grabbing"
-            onClick={(e) => e.stopPropagation()}
+            ref={frameRef}
+            onClick={(e) => {
+              e.stopPropagation();
+              // Desktop convenience: click left/right halves to navigate
+              if (dragStartX != null || Math.abs(dragX) > 2) return;
+              const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+              const isRight = e.clientX - rect.left > rect.width / 2;
+              isRight ? next() : prev();
+            }}
             onPointerDown={(e) => {
               setDragStartX(e.clientX);
               setAnimating(false);
@@ -92,11 +101,23 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
               const delta = dragX;
               setDragStartX(null);
               const threshold = 60;
+              const width = frameRef.current?.clientWidth ?? 0;
               if (Math.abs(delta) > threshold) {
-                if (delta < 0) next(); else prev();
+                // Animate slide out then switch index and snap back without transition
+                const target = delta < 0 ? -width : width;
+                setAnimating(true);
+                setDragX(target);
+                setTimeout(() => {
+                  if (delta < 0) next(); else prev();
+                  setAnimating(false);
+                  setDragX(0);
+                }, 220);
+              } else {
+                // Return to center
+                setAnimating(true);
+                setDragX(0);
+                setTimeout(() => setAnimating(false), 200);
               }
-              setAnimating(true);
-              setDragX(0);
               try { (e.currentTarget as any).releasePointerCapture(e.pointerId); } catch {}
             }}
             style={{ touchAction: "pan-y" }}
