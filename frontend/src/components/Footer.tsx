@@ -30,8 +30,8 @@ export default function Footer({ contact, club }: FooterProps) {
   const logoSrc = process.env.NEXT_PUBLIC_LOGO?.trim() || undefined;
   return (
     <footer className="relative mt-16 border-t border-slate-200 bg-white text-slate-700">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 pb-12 pt-12 md:grid-cols-[2fr_1fr_1fr]">
-        <div className="space-y-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-12 px-4 pb-12 pt-12 md:grid-cols-[2fr_1fr_1fr]">
+        <div className="col-span-2 space-y-4 md:col-span-1">
           <div className="flex items-center gap-3">
             {logoSrc ? (
               <img src={logoSrc} alt="Gabi logo" className="h-16 w-auto" />

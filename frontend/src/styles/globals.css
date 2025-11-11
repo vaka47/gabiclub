@@ -139,6 +139,33 @@ a:hover {
   .hero-desc { font-size: clamp(14px, 4.2vw, 18px); line-height: 1.35; }
 }
 
+/* Mobile camp ticker (appears under fixed header on mobile) */
+.mobile-camp-ticker {
+  background: rgba(0, 0, 0, 0.78);
+  color: #fff;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+.mobile-camp-ticker .marquee {
+  display: flex;
+  gap: 48px;
+  width: 200%;
+  animation: marquee-scroll 14s linear infinite;
+  white-space: nowrap;
+}
+.mobile-camp-ticker .marquee-item {
+  padding-left: 16px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* Soft mask to blend hero slideshow edges into the page gradient */
 .hero-bg-image {
   -webkit-mask-image: radial-gradient(140% 180% at 50% 28%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);

@@ -65,7 +65,7 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
     >
       <div className="flex flex-col gap-2">
         <h2 className="section-title section-accent">Тренировочные планы</h2>
-        <p className="section-subtitle">Подберите комфортный формат: индивидуально или в группе.</p>
+        <p className="section-subtitle">Подберите комфортный формат наших взаимодействий.</p>
       </div>
       {showTabs && (
       <div className="flex flex-wrap gap-3">

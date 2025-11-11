@@ -270,13 +270,13 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.75, ease: "easeOut" }}
     >
-      <div className="flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/80 p-6 shadow-glow backdrop-blur">
+      <div className="flex flex-col gap-4 md:rounded-3xl md:border md:border-white/60 md:bg-white/80 md:p-6 md:shadow-glow md:backdrop-blur">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="section-title section-accent">Календарь тренировок</h2>
-            <p className="section-subtitle">Выбирайте направление, уровень и локацию — и записывайтесь онлайн.</p>
+            <p className="section-subtitle mt-2">Выбирайте направление, уровень, локацию — записывайтесь.</p>
           </div>
-        <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-2 md:flex">
           <button
             className="btn-secondary"
             onClick={() => handleWeekShift(-7)}
