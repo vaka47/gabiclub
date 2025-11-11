@@ -66,6 +66,13 @@ a:hover {
   background-color: color-mix(in srgb, var(--brand-primary) 10%, transparent);
 }
 
+/* Compact variant for secondary buttons (smaller paddings and font) */
+.btn-compact {
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.1;
+}
+
 .card-surface {
   @apply rounded-3xl bg-white/90 p-6 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35)] backdrop-blur;
 }

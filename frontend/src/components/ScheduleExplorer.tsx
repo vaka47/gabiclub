@@ -369,7 +369,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                   return (
                     <motion.div
                       key={session.id}
-                      className="group flex h-full flex-col rounded-2xl border border-white/60 bg-white/90 p-4 shadow transition hover:-translate-y-1 hover:shadow-lg"
+                      className="group flex h-full flex-col gap-2 rounded-2xl border border-white/60 bg-white/90 p-4 shadow transition hover:-translate-y-1 hover:shadow-lg"
                       initial={{ opacity: 0, y: 10 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true, amount: 0.2 }}
@@ -404,8 +404,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                         )}
                       </div>
                       <button
-                        className="btn-secondary mt-auto w-full justify-center leading-tight"
-                        style={{ padding: "4px 10px", fontSize: 11 }}
+                        className="btn-secondary btn-compact mt-2 md:mt-auto w-full justify-center leading-tight"
                         onClick={() =>
                           openLeadModal({
                             source: "schedule",
