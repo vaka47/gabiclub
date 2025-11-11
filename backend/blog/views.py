@@ -21,6 +21,18 @@ class ArticleViewSet(viewsets.ReadOnlyModelViewSet):
             return ArticleListSerializer
         return super().get_serializer_class()
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        # Allow both DRF filter (tags__slug) and a short alias (?tag=...)
+        params = self.request.query_params
+        tag_slug = params.get("tags__slug") or params.get("tag")
+        tag_id = params.get("tags__id") or params.get("tag_id")
+        if tag_slug:
+            qs = qs.filter(tags__slug=tag_slug)
+        if tag_id:
+            qs = qs.filter(tags__id=tag_id)
+        return qs.distinct()
+
 
 class ArticleTagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ArticleTag.objects.all()

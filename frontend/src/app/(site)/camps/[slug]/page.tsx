@@ -77,7 +77,7 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
       <section className="grid gap-10 md:grid-cols-[1.3fr_0.7fr]">
         <div className="space-y-8 text-slate-600">
           <h2 className="section-title section-accent text-2xl">О кэмпе</h2>
-          <p className="text-base leading-relaxed">{camp.description}</p>
+          <p className="text-base leading-relaxed whitespace-pre-line">{camp.description}</p>
 
           {camp.target_audience && (
             <div className="space-y-3">

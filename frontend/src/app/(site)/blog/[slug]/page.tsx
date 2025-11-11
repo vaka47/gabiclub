@@ -25,6 +25,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     notFound();
   }
 
+  const isLikelyHtml = /<\/?[a-z][\s\S]*>/i.test(article.content);
+
   return (
     <article className="space-y-10 pb-12">
       <header className="space-y-4">
@@ -41,9 +43,15 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         )}
       </header>
 
-      <div className="prose prose-lg max-w-none text-slate-700 prose-headings:text-gabi-dark prose-a:text-gabi-blue">
-        <div dangerouslySetInnerHTML={{ __html: article.content }} />
-      </div>
+      {isLikelyHtml ? (
+        <div className="prose prose-lg max-w-none text-slate-700 prose-headings:text-gabi-dark prose-a:text-gabi-blue">
+          <div dangerouslySetInnerHTML={{ __html: article.content }} />
+        </div>
+      ) : (
+        <div className="prose prose-lg max-w-none whitespace-pre-line text-slate-700 prose-headings:text-gabi-dark prose-a:text-gabi-blue">
+          {article.content}
+        </div>
+      )}
 
       {Array.isArray(article.gallery) && article.gallery.length > 0 && (
         <section className="space-y-4">
@@ -55,9 +63,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       {article.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 text-xs uppercase tracking-wide text-gabi-blue">
           {article.tags.map((tag) => (
-            <span key={tag.slug} className="rounded-full bg-gabi-blue/10 px-3 py-1">
+            <Link key={tag.slug} href={`/blog?tag=${tag.slug}`} className="rounded-full bg-gabi-blue/10 px-3 py-1 hover:bg-gabi-blue/20">
               #{tag.title}
-            </span>
+            </Link>
           ))}
         </div>
       )}
