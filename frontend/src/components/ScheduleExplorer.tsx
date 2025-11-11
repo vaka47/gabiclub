@@ -48,6 +48,13 @@ const defaultFilters: Filters = {
 
 const RUSSIAN_CONSONANT = /[бвгджзйклмнпрстфхцчшщ]/i;
 const LONG_WORD_LIMIT = 12;
+const isDev = process.env.NODE_ENV !== "production";
+
+const logSchedule = (...args: unknown[]) => {
+  if (isDev) {
+    console.log("[schedule]", ...args);
+  }
+};
 
 const formatSessionTime = (time?: string) => {
   if (!time) return "";
@@ -83,11 +90,14 @@ const sortSessionsByDate = (list: TrainingSession[]) =>
     return sessionA.start_time.localeCompare(sessionB.start_time);
   });
 
+const getSessionKey = (session: TrainingSession) =>
+  `${session.id}-${session.date}-${session.start_time ?? ""}-${session.end_time ?? ""}`;
+
 const mergeSessions = (prev: TrainingSession[], next: TrainingSession[]) => {
   if (!next.length) return prev;
-  const map = new Map<number, TrainingSession>();
-  prev.forEach((session) => map.set(session.id, session));
-  next.forEach((session) => map.set(session.id, session));
+  const map = new Map<string, TrainingSession>();
+  prev.forEach((session) => map.set(getSessionKey(session), session));
+  next.forEach((session) => map.set(getSessionKey(session), session));
   return sortSessionsByDate(Array.from(map.values()));
 };
 
@@ -114,6 +124,20 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
       return true;
     });
   }, [dataSource, weekStart, filters]);
+  const filteredCount = filteredSessions.length;
+  const totalSessions = dataSource.length;
+
+  useEffect(() => {
+    logSchedule("week start updated", {
+      weekStart: format(weekStart, "yyyy-MM-dd"),
+      filteredCount,
+      totalSessions,
+    });
+  }, [weekStart, filteredCount, totalSessions]);
+
+  useEffect(() => {
+    logSchedule("data source size changed", { totalSessions });
+  }, [totalSessions]);
 
   // Auto-jump to the week of the earliest upcoming session if the current
   // week is empty, to avoid confusing "empty schedule" on first load.
@@ -121,10 +145,15 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
     if (!autoAdjusted && dataSource.length > 0 && filteredSessions.length === 0) {
       const firstDate = parseISO(dataSource[0].date);
       const newStart = startOfWeek(firstDate, { weekStartsOn: 1 });
+      logSchedule("auto-adjust week start", {
+        from: format(weekStart, "yyyy-MM-dd"),
+        to: format(newStart, "yyyy-MM-dd"),
+        firstSessionDate: dataSource[0].date,
+      });
       setWeekStart(newStart);
       setAutoAdjusted(true);
     }
-  }, [dataSource, filteredSessions, autoAdjusted]);
+  }, [dataSource, filteredSessions, autoAdjusted, weekStart]);
 
   // If the current visible week has no sessions in the current dataset,
   // fetch just this week's sessions from the API and use them as data source.
@@ -137,6 +166,10 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
     };
     const hasSessionsForWeek = dataSource.some(inCurrentWeek);
     if (hasSessionsForWeek) {
+      logSchedule("skip fetch – week already cached", {
+        weekStart: format(weekStart, "yyyy-MM-dd"),
+        weekEnd: format(end, "yyyy-MM-dd"),
+      });
       return;
     }
 
@@ -147,11 +180,29 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
 
     let cancelled = false;
 
+    logSchedule("fetch week requested", {
+      start: params.get("start"),
+      end: params.get("end"),
+    });
+
     getTrainingSessions(params).then((res) => {
       if (cancelled || !Array.isArray(res) || res.length === 0) {
+        logSchedule("fetch week returned empty", {
+          cancelled,
+          start: params.get("start"),
+          end: params.get("end"),
+        });
         return;
       }
-      setDataSource((prev) => mergeSessions(prev, res));
+      setDataSource((prev) => {
+        const merged = mergeSessions(prev, res);
+        logSchedule("merged new sessions", {
+          added: res.length,
+          total: merged.length,
+          range: { start: params.get("start"), end: params.get("end") },
+        });
+        return merged;
+      });
     });
 
     return () => {
@@ -347,7 +398,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                         )}
                       </div>
                       <button
-                        className="btn-secondary mt-auto w-full justify-center px-4 py-2.5 text-sm"
+                        className="btn-secondary mt-auto w-full justify-center px-4 py-2 text-[13px] leading-tight"
                         onClick={() =>
                           openLeadModal({
                             source: "schedule",
