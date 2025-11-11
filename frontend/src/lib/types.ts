@@ -68,10 +68,10 @@ export type TrainingSession = {
   start_time: string;
   end_time: string;
   type: string;
-  direction: TrainingDirection;
-  coach: Coach | null;
-  location: Location;
-  levels: LevelTag[];
+  direction?: TrainingDirection | null;
+  coach?: Coach | null;
+  location?: Location | null;
+  levels?: LevelTag[];
   intensity?: string;
   spots_total?: number;
   spots_available?: number;
