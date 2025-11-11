@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
+import { FaInstagram, FaTelegramPlane, FaVk } from "react-icons/fa";
 
 import type { SocialLink } from "@/lib/types";
 import { useLeadModal } from "./providers/LeadModalProvider";
@@ -99,6 +100,35 @@ export default function Header({ socialLinks }: HeaderProps) {
             Записаться
           </button>
         </div>
+
+        {/* Mobile social icons to the left of burger */}
+        {socialLinks?.length ? (
+          <div className="mr-2 flex items-center gap-3 md:hidden">
+            {socialLinks.map((link) => {
+              const title = (link.title || "").toLowerCase();
+              const Icon = title.includes("telegram")
+                ? FaTelegramPlane
+                : title.includes("instagram")
+                ? FaInstagram
+                : title.includes("vk")
+                ? FaVk
+                : null;
+              if (!Icon) return null;
+              return (
+                <a
+                  key={link.id ?? link.title}
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-slate-500 transition hover:text-gabi-blue"
+                  aria-label={link.title}
+                >
+                  <Icon size={18} />
+                </a>
+              );
+            })}
+          </div>
+        ) : null}
 
         <button
           onClick={toggleMenu}

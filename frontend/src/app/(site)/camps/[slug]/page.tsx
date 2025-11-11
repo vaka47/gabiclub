@@ -26,8 +26,11 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
     notFound();
   }
   const price = Number(camp.price_from);
-  const headerRaw = camp.header_image || camp.hero_image || null;
-  const heroImg = headerRaw ? (resolveMediaUrl(headerRaw) ?? headerRaw) : null;
+  // Desktop (md+): prefer header image; Mobile: prefer cover/hero image
+  const desktopRaw = camp.header_image || camp.hero_image || null;
+  const mobileRaw = camp.hero_image || camp.header_image || null;
+  const desktopImg = desktopRaw ? (resolveMediaUrl(desktopRaw) ?? desktopRaw) : null;
+  const mobileImg = mobileRaw ? (resolveMediaUrl(mobileRaw) ?? mobileRaw) : null;
 
   // Server-side debug: log hero and gallery media resolution (visible in server logs)
   if (process.env.NEXT_PUBLIC_DEBUG_MEDIA === '1') {
@@ -46,19 +49,33 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
     <div className="space-y-12 pb-12">
       <header className="space-y-6">
         <div className="relative h-[420px] overflow-hidden rounded-[32px]">
-          { heroImg ? (
+          {/* Mobile: show cover image */}
+          {mobileImg && (
             <DebugImage
-              debugName={`camp-hero:${camp.slug}`}
-              src={heroImg}
+              debugName={`camp-hero-mobile:${camp.slug}`}
+              src={mobileImg}
               alt={camp.title}
               fill
-              className="object-cover"
+              className="object-cover md:hidden"
+              priority
+            />
+          )}
+          {/* Desktop: show header image */}
+          {desktopImg ? (
+            <DebugImage
+              debugName={`camp-hero-desktop:${camp.slug}`}
+              src={desktopImg}
+              alt={camp.title}
+              fill
+              className="hidden object-cover md:block"
               priority
             />
           ) : (
-            <div className="flex h-full items-center justify-center bg-gabi-blue/10 text-2xl font-semibold text-gabi-blue">
-              {camp.title}
-            </div>
+            !mobileImg && (
+              <div className="flex h-full items-center justify-center bg-gabi-blue/10 text-2xl font-semibold text-gabi-blue">
+                {camp.title}
+              </div>
+            )
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" aria-hidden />
           <div className="absolute bottom-0 left-0 right-0 px-8 py-10 text-white">
