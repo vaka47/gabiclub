@@ -23,7 +23,9 @@ class TrainingAdmin(admin.ModelAdmin):
 
 class TrainingPlanBenefitInline(admin.TabularInline):
     model = TrainingPlanBenefit
-    extra = 1
+    extra = 3
+    fields = ("order", "text")
+    ordering = ("order", "id")
 
 
 @admin.register(TrainingPlan)
@@ -31,6 +33,21 @@ class TrainingPlanAdmin(admin.ModelAdmin):
     list_display = ("title", "category", "price", "period", "buy_link", "is_featured", "order")
     list_filter = ("category", "is_featured")
     ordering = ("category", "order")
+    fieldsets = (
+        ("Основное", {
+            "fields": ("title", "icon", "category"),
+        }),
+        ("Стоимость", {
+            "fields": ("price", "period"),
+        }),
+        ("Кнопка покупки (необязательно)", {
+            "fields": ("buy_link", "buy_label"),
+            "classes": ("collapse",),
+        }),
+        ("Публикация", {
+            "fields": ("is_featured", "order"),
+        }),
+    )
     inlines = [TrainingPlanBenefitInline]
 
 

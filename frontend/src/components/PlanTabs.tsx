@@ -126,7 +126,7 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                 }
                 type="button"
               >
-                Выбрать тариф
+                Записаться
               </button>
             )}
           </motion.div>
