@@ -75,7 +75,7 @@ export default async function TrainingsPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
-            <a href="tel:+79992003030" className="btn-secondary">
+            <a href="tel:+79309341395" className="btn-secondary">
               Позвонить клубу
             </a>
             <LeadCtaButton label="Записаться сейчас" className="btn-primary" source="trainings-cta" />
