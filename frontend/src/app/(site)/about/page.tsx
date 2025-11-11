@@ -30,16 +30,16 @@ export default async function AboutPage() {
 
       <section className="grid gap-6 md:grid-cols-3">
         <div className="card-surface">
-          <div className="text-3xl font-semibold text-gabi-blue">{club.founded_year ?? "2015"}</div>
+          <div className="text-3xl font-semibold text-gabi-blue">{club.founded_year ?? "2022"}</div>
           <p className="mt-2 text-sm text-slate-500">Год основания клуба. С тех пор мы провели десятки кэмпов и сотни тренировок.</p>
         </div>
         <div className="card-surface">
           <div className="text-3xl font-semibold text-gabi-blue">{coachCount}</div>
-          <p className="mt-2 text-sm text-slate-500">Тренеров и методистов в команде Gabi Club.</p>
+          <p className="mt-2 text-sm text-slate-500">Тренеров и методистов в команде Gabi Club работают над вашим результатом.</p>
         </div>
         <div className="card-surface">
           <div className="text-3xl font-semibold text-gabi-blue">200+</div>
-          <p className="mt-2 text-sm text-slate-500">Участников клуба в Москве, Санкт-Петербурге и на кэмпах.</p>
+          <p className="mt-2 text-sm text-slate-500">Участников клуба в Санкт-Петербурге, Москве и на кэмпах.</p>
         </div>
       </section>
 

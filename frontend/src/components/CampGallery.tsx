@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { resolveMediaUrl } from "@/lib/api";
+import { FiX } from "react-icons/fi";
 
 type Photo = { id: number; image: string; caption?: string };
 
@@ -53,9 +54,17 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
       </div>
 
       {openIdx != null && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90" onClick={close} role="dialog" aria-modal="true">
-          <button className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); close(); }} aria-label="Закрыть">
-            ✕
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/90" onClick={close} role="dialog" aria-modal="true">
+          <button
+            className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white shadow-md transition hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            onClick={(e) => {
+              e.stopPropagation();
+              close();
+            }}
+            aria-label="Закрыть"
+            type="button"
+          >
+            <FiX size={22} />
           </button>
           <button className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20" onClick={(e) => { e.stopPropagation(); prev(); }} aria-label="Предыдущее">
             ‹

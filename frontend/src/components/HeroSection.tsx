@@ -109,6 +109,42 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
   const [edgeColors, setEdgeColors] = useState<Record<string, string>>({});
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ ПРИКЛЮЧЕНИЯ");
   const currentPromo = promos.length > 0 ? promos[bgIndex % promos.length] : undefined;
+  const defaultDesc =
+    "Тренируйся системно. Развивайся с GABI — лыжи, роллеры, бег с вниманием к деталям и технике.";
+  const rawDesc = description ?? defaultDesc;
+  const descNode = useMemo(() => {
+    const txt = rawDesc;
+    const lower = txt.toLowerCase();
+    const anchor = "мы сопровождаем";
+    const idx = lower.indexOf(anchor);
+    if (idx !== -1) {
+      const before = txt.slice(0, idx + anchor.length);
+      const rest = txt.slice(idx + anchor.length);
+      if (/^\s*вас\s+/i.test(rest)) {
+        const after = rest.trimStart();
+        return (
+          <>
+            {before}
+            <br />
+            {after}
+          </>
+        );
+      }
+    }
+    const vasIdx = lower.indexOf(" вас от");
+    if (vasIdx !== -1) {
+      const before = txt.slice(0, vasIdx);
+      const after = txt.slice(vasIdx + 1);
+      return (
+        <>
+          {before}
+          <br />
+          {after}
+        </>
+      );
+    }
+    return txt;
+  }, [rawDesc]);
 
   useEffect(() => {
     if (!prevBg) return;
@@ -191,16 +227,16 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
                 {l3 && (<><br />{l3}</>)}
               </h1>
 
-              <p className="max-w-2xl text-base text-slate-700 md:text-lg">
-                {description ?? "Тренируйся системно. Развивайся с GABI — лыжи, роллеры, бег с вниманием к деталям и технике."}
-              </p>
+              <p className="max-w-2xl text-base text-slate-700 md:text-lg">{descNode}</p>
             </div>
 
-            {/* Compact inline CTA row */}
-            <div className="mt-6 inline-flex items-center gap-4 rounded-2xl border border-white/15 bg-black/55 px-5 py-4 backdrop-blur-sm">
-              <div className="text-base font-semibold text-white">Готовы начать?</div>
-              <LeadCtaButton label="Записаться" className="btn-primary" source="hero-cta" />
-            </div>
+            {/* Primary CTA */}
+            <LeadCtaButton
+              label="Присоединиться к GABI"
+              className="btn-primary mt-6"
+              source="hero-cta"
+              style={{ backgroundColor: "rgb(36, 70, 95)", borderRadius: 14, padding: "16px 28px" }}
+            />
 
             <div className="mt-6 flex items-center gap-3 text-sm text-white/90">
               <div className="flex items-center gap-1">

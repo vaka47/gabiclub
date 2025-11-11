@@ -13,6 +13,7 @@ import type {
   TrainingSession,
 } from "@/lib/types";
 import { useLeadModal } from "./providers/LeadModalProvider";
+import CoachModal from "./CoachModal";
 import { getTrainingSessions } from "@/lib/api";
 
 type ScheduleExplorerProps = {
@@ -116,6 +117,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
   const [autoAdjusted, setAutoAdjusted] = useState(false);
   const [dataSource, setDataSource] = useState<TrainingSession[]>(() => sortSessionsByDate(sessions));
   const [hasUserNavigated, setHasUserNavigated] = useState(false);
+  const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, idx) => addDays(weekStart, idx)), [weekStart]);
 
@@ -389,7 +391,19 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                         <div className="space-y-1">
                           <div className="text-sm font-semibold text-gabi-dark">{title}</div>
                           <div className="text-xs text-slate-500">
-                            {session.coach?.full_name ?? "Тренер уточняется"} ·{" "}
+                            {session.coach ? (
+                              <button
+                                type="button"
+                                className="block text-left underline-offset-2 hover:underline text-gabi-blue"
+                                onClick={() => setSelectedCoach(session.coach!)}
+                              >
+                                {session.coach.full_name}
+                              </button>
+                            ) : (
+                              "Тренер уточняется"
+                            )}
+                          </div>
+                          <div className="text-xs text-slate-500">
                             {session.location?.title ?? "Локация уточняется"}
                           </div>
                         </div>
@@ -426,6 +440,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
           );
         })}
       </div>
+      <CoachModal open={!!selectedCoach} coach={selectedCoach} onClose={() => setSelectedCoach(null)} />
     </motion.section>
   );
 }
