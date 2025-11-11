@@ -6,6 +6,7 @@ import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
+import ActivityTabs from "@/components/ActivityTabs";
 import { getArticles, getCamps, getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, resolveMediaUrl } from "@/lib/api";
 // (animations handled inside client components)
 
@@ -49,6 +50,8 @@ export default async function TrainingsPage() {
           })),
         ]}
       />
+
+      <ActivityTabs />
 
       <PlanTabs plans={plans} />
 
