@@ -68,3 +68,20 @@ class ArticleGalleryImage(models.Model):
 
     def __str__(self) -> str:
         return self.caption or (self.image.name if self.image else f"Фото #{self.pk}")
+
+
+class ArticleSection(models.Model):
+    article = models.ForeignKey(
+        Article, related_name="sections", on_delete=models.CASCADE
+    )
+    title = models.CharField("Подзаголовок", max_length=160, blank=True)
+    content = models.TextField("Текст абзаца", blank=True)
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Абзац статьи"
+        verbose_name_plural = "Абзацы статьи"
+
+    def __str__(self) -> str:
+        return self.title or (self.content[:40] + ("…" if len(self.content) > 40 else ""))

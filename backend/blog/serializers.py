@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Article, ArticleGalleryImage, ArticleTag
+from .models import Article, ArticleGalleryImage, ArticleSection, ArticleTag
 
 
 class ArticleTagSerializer(serializers.ModelSerializer):
@@ -36,6 +36,12 @@ class ArticleSerializer(serializers.ModelSerializer):
             fields = ("id", "image", "caption", "order")
     gallery = GalleryImageSerializer(many=True, read_only=True)
 
+    class SectionSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = ArticleSection
+            fields = ("id", "title", "content", "order")
+    sections = SectionSerializer(many=True, read_only=True)
+
     class Meta:
         model = Article
         fields = (
@@ -47,6 +53,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             "cover_image",
             "header_image",
             "gallery",
+            "sections",
             "published_at",
             "updated_at",
             "reading_time",

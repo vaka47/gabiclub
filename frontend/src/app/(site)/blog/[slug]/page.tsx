@@ -26,6 +26,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   }
 
   const isLikelyHtml = /<\/?[a-z][\s\S]*>/i.test(article.content);
+  const hasSections = Array.isArray(article.sections) && article.sections.length > 0;
 
   return (
     <article className="space-y-10 pb-12">
@@ -43,13 +44,39 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         )}
       </header>
 
-      {isLikelyHtml ? (
+      {hasSections ? (
+        <div className="space-y-5 text-slate-700">
+          {article.sections!.sort((a,b) => (a.order??0)-(b.order??0)).map((sec) => (
+            <section key={sec.id} className="space-y-2">
+              {sec.title && <h3 className="text-xl font-semibold text-gabi-dark">{sec.title}</h3>}
+              {sec.content && <p className="whitespace-pre-line text-base leading-relaxed">{sec.content}</p>}
+            </section>
+          ))}
+        </div>
+      ) : isLikelyHtml ? (
         <div className="prose prose-lg max-w-none text-slate-700 prose-headings:text-gabi-dark prose-a:text-gabi-blue">
           <div dangerouslySetInnerHTML={{ __html: article.content }} />
         </div>
       ) : (
-        <div className="prose prose-lg max-w-none whitespace-pre-line text-slate-700 prose-headings:text-gabi-dark prose-a:text-gabi-blue">
-          {article.content}
+        <div className="prose prose-lg max-w-none text-slate-700 prose-headings:text-gabi-dark prose-a:text-gabi-blue">
+          {article.content
+            .split(/\n{2,}/)
+            .map((block, idx) => {
+              const trimmed = block.trim();
+              const boldHeading = /^\*\*(.+)\*\*$/.exec(trimmed);
+              if (boldHeading && boldHeading[1].trim().length <= 120) {
+                return (
+                  <h3 key={idx} className="text-xl font-semibold text-gabi-dark">
+                    {boldHeading[1].trim()}
+                  </h3>
+                );
+              }
+              return (
+                <p key={idx} className="whitespace-pre-line">
+                  {block}
+                </p>
+              );
+            })}
         </div>
       )}
 

@@ -140,6 +140,7 @@ export type Article = {
   cover_image?: string;
   header_image?: string;
   gallery?: CampGalleryImage[];
+  sections?: { id: number; title?: string; content?: string; order?: number }[];
   published_at: string;
   updated_at?: string;
   reading_time?: number;
