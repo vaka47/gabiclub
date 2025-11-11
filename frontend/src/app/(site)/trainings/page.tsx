@@ -6,15 +6,14 @@ import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
-import { getArticles, getCamps, getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, getTrainingSessions, resolveMediaUrl } from "@/lib/api";
+import { getArticles, getCamps, getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, resolveMediaUrl } from "@/lib/api";
 // (animations handled inside client components)
 
 
 export default async function TrainingsPage() {
-  const [plans, meta, sessions, coaches, club, theme, camps, articles] = await Promise.all([
+  const [plans, meta, coaches, club, theme, camps, articles] = await Promise.all([
     getTrainingPlans(),
     getTrainingMeta(),
-    getTrainingSessions(),
     getCoaches(),
     getClubProfile(),
     getTheme(),
@@ -53,7 +52,7 @@ export default async function TrainingsPage() {
       <PlanTabs plans={plans} />
 
       <ScheduleExplorer
-        sessions={sessions}
+        sessions={[]}
         directions={meta.directions}
         coaches={meta.coaches}
         locations={meta.locations}
