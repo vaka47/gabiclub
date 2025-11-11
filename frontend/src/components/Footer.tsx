@@ -15,6 +15,18 @@ type FooterProps = {
 };
 
 export default function Footer({ contact, club }: FooterProps) {
+  const toTelHref = (val?: string | null) =>
+    val ? `tel:${String(val).replace(/[^+\d]/g, "")}` : undefined;
+  const toUrl = (val?: string | null, platform?: "telegram" | "instagram" | "whatsapp" | "vk" | "youtube") => {
+    if (!val) return undefined;
+    const v = String(val).trim();
+    if (/^https?:\/\//i.test(v)) return v;
+    if (platform === "telegram") return `https://t.me/${v.replace(/^@/, "")}`;
+    if (platform === "instagram") return `https://instagram.com/${v.replace(/^@/, "")}`;
+    if (platform === "vk") return `https://vk.com/${v.replace(/^@/, "")}`;
+    if (platform === "whatsapp") return `https://wa.me/${v.replace(/[^\d]/g, "")}`;
+    return v;
+  };
   return (
     <footer className="relative mt-16 border-t border-slate-200 bg-white text-slate-700">
       <div className="mx-auto grid max-w-6xl gap-12 px-4 pb-12 pt-12 md:grid-cols-[2fr_1fr_1fr]">
@@ -24,14 +36,6 @@ export default function Footer({ contact, club }: FooterProps) {
             {club?.mission ??
               "Тренировки для взрослых и детей. Индивидуальные планы, техника и комфортный сервис."}
           </p>
-          <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-            {contact.phone_primary && <span>{contact.phone_primary}</span>}
-            {contact.email && (
-              <a href={`mailto:${contact.email}`} className="hover:text-gabi-blue">
-                {contact.email}
-              </a>
-            )}
-          </div>
         </div>
 
         <div className="space-y-3">
@@ -50,6 +54,62 @@ export default function Footer({ contact, club }: FooterProps) {
         <div className="space-y-3">
           <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Мы на связи</h4>
           <ul className="space-y-2 text-sm text-slate-600">
+            {contact.phone_primary && (
+              <li>
+                <a href={toTelHref(contact.phone_primary)} className="transition hover:text-gabi-blue">
+                  {contact.phone_primary}
+                </a>
+              </li>
+            )}
+            {contact.phone_secondary && (
+              <li>
+                <a href={toTelHref(contact.phone_secondary)} className="transition hover:text-gabi-blue">
+                  {contact.phone_secondary}
+                </a>
+              </li>
+            )}
+            {contact.email && (
+              <li>
+                <a href={`mailto:${contact.email}`} className="transition hover:text-gabi-blue">
+                  {contact.email}
+                </a>
+              </li>
+            )}
+            {contact.telegram && (
+              <li>
+                <a href={toUrl(contact.telegram, "telegram")} target="_blank" rel="noreferrer" className="transition hover:text-gabi-blue">
+                  Telegram
+                </a>
+              </li>
+            )}
+            {contact.whatsapp && (
+              <li>
+                <a href={toUrl(contact.whatsapp, "whatsapp")} target="_blank" rel="noreferrer" className="transition hover:text-gabi-blue">
+                  WhatsApp
+                </a>
+              </li>
+            )}
+            {contact.instagram && (
+              <li>
+                <a href={toUrl(contact.instagram, "instagram")} target="_blank" rel="noreferrer" className="transition hover:text-gabi-blue">
+                  Instagram
+                </a>
+              </li>
+            )}
+            {contact.youtube && (
+              <li>
+                <a href={toUrl(contact.youtube, "youtube")} target="_blank" rel="noreferrer" className="transition hover:text-gabi-blue">
+                  YouTube
+                </a>
+              </li>
+            )}
+            {contact.vk && (
+              <li>
+                <a href={toUrl(contact.vk, "vk")} target="_blank" rel="noreferrer" className="transition hover:text-gabi-blue">
+                  VK
+                </a>
+              </li>
+            )}
             {contact.social_links?.map((link) => (
               <li key={link.id}>
                 <a href={link.url} target="_blank" rel="noreferrer" className="transition hover:text-gabi-blue">
