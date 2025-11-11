@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { Camp } from "@/lib/types";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -17,7 +18,10 @@ function formatDates(start?: string, end?: string) {
 }
 
 export default function MobileCampTicker({ camp }: MobileCampTickerProps) {
+  const pathname = usePathname();
   if (!camp) return null;
+  if (pathname === "/camps") return null;
+  if (pathname === `/camps/${camp.slug}`) return null;
   const dates = formatDates(camp.start_date, camp.end_date);
   const text = `${dates} • ${camp.title}`.trim();
 
@@ -38,4 +42,3 @@ export default function MobileCampTicker({ camp }: MobileCampTickerProps) {
     </Link>
   );
 }
-

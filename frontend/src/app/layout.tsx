@@ -6,9 +6,10 @@ import { Russo_One, Inter } from "next/font/google";
 
 import CursorTrail from "@/components/CursorTrail";
 import Footer from "@/components/Footer";
+import MobileCampTicker from "@/components/MobileCampTicker";
 import Header from "@/components/Header";
 import LeadModalProvider from "@/components/providers/LeadModalProvider";
-import { getClubProfile, getContactInfo, getTheme } from "@/lib/api";
+import { getClubProfile, getContactInfo, getTheme, getCamps } from "@/lib/api";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 // Use Russo One for display headings (supports Cyrillic, strong geometric look)
@@ -28,7 +29,12 @@ export const metadata: Metadata = {
 
 const DEFAULT_BG_COLOR = "#E9E9E9";
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [contact, club, theme] = await Promise.all([getContactInfo(), getClubProfile(), getTheme()]);
+  const [contact, club, theme, featuredCamps] = await Promise.all([
+    getContactInfo(),
+    getClubProfile(),
+    getTheme(),
+    getCamps(new URLSearchParams("is_featured=1")),
+  ]);
   const brandBg = theme?.background_color || DEFAULT_BG_COLOR;
   const themeVars: React.CSSProperties = {
     ["--brand-primary" as any]: theme?.primary_color || "#1A5ACB",
@@ -45,6 +51,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <LeadModalProvider>
             <CursorTrail />
             <Header socialLinks={contact.social_links} />
+            {/* Mobile-only camp ticker overlay across the site */}
+            <MobileCampTicker camp={(featuredCamps ?? [])[0]} />
             <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-40 pb-20 md:px-6 lg:px-8">
               {children}
             </main>

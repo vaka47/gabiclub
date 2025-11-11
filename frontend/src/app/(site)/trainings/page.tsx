@@ -7,7 +7,6 @@ import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
 import ActivityTabs from "@/components/ActivityTabs";
-import MobileCampTicker from "@/components/MobileCampTicker";
 import { getArticles, getCamps, getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, resolveMediaUrl } from "@/lib/api";
 // (animations handled inside client components)
 
@@ -28,7 +27,6 @@ export default async function TrainingsPage() {
 
   return (
     <div className="space-y-20 pb-10">
-      <MobileCampTicker camp={(camps ?? [])[0]} />
       <HeroSection
         slides={club.hero_slides ?? []}
         clubName={club.name}
