@@ -138,7 +138,7 @@ class Coach(models.Model):
 class TrainingPlan(models.Model):
     title = models.CharField("Название тарифа", max_length=160)
     category = models.CharField(
-        "Категория", max_length=32, choices=TrainingPlanCategory.choices
+        "Категория", max_length=32, choices=TrainingPlanCategory.choices, blank=True
     )
     icon = models.CharField(
         "Иконка", max_length=120, blank=True, help_text="CSS-класс или emoji"
