@@ -107,8 +107,8 @@ export default function ActivityTabs() {
             className={clsx(
               "tab-btn rounded-full font-semibold transition",
               active === a.key
-                ? "bg-gabi-blue text-white shadow-glow"
-                : "bg-white text-slate-600 shadow-sm hover:bg-slate-100",
+                ? "tab-active text-white shadow-glow"
+                : "bg-white shadow-sm hover:bg-slate-100",
             )}
             onClick={() => setActive((prev) => (prev === a.key ? null : a.key))}
           >

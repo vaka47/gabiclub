@@ -117,6 +117,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
   const [autoAdjusted, setAutoAdjusted] = useState(false);
   const [dataSource, setDataSource] = useState<TrainingSession[]>(() => sortSessionsByDate(sessions));
   const [hasUserNavigated, setHasUserNavigated] = useState(false);
+  const [mobileDay, setMobileDay] = useState<Date>(() => new Date());
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
 
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, idx) => addDays(weekStart, idx)), [weekStart]);
@@ -154,6 +155,14 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
   useEffect(() => {
     logSchedule("data source size changed", { totalSessions });
   }, [totalSessions]);
+
+  // Keep weekStart in sync with a selected day on mobile so fetching works
+  useEffect(() => {
+    const mobWeek = startOfWeek(mobileDay, { weekStartsOn: 1 });
+    if (mobWeek.getTime() !== weekStart.getTime()) {
+      setWeekStart(mobWeek);
+    }
+  }, [mobileDay]);
 
   // Auto-jump to the week of the earliest upcoming session if the current
   // week is empty, to avoid confusing "empty schedule" on first load.
@@ -248,6 +257,10 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
     setWeekStart((prev) => addDays(prev, days));
   };
 
+  const handleMobileShift = (days: number) => {
+    setMobileDay((prev) => addDays(prev, days));
+  };
+
   return (
     <motion.section
       id="schedule"
@@ -263,21 +276,21 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
             <h2 className="section-title section-accent">Календарь тренировок</h2>
             <p className="section-subtitle">Выбирайте направление, уровень и локацию — и записывайтесь онлайн.</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              className="btn-secondary"
-              onClick={() => handleWeekShift(-7)}
-              type="button"
-            >
-              ← Неделя назад
-            </button>
-            <button className="btn-secondary" onClick={() => handleWeekShift(7)} type="button">
-              Вперёд →
-            </button>
-          </div>
+        <div className="hidden items-center gap-2 md:flex">
+          <button
+            className="btn-secondary"
+            onClick={() => handleWeekShift(-7)}
+            type="button"
+          >
+            ← Неделя назад
+          </button>
+          <button className="btn-secondary" onClick={() => handleWeekShift(7)} type="button">
+            Вперёд →
+          </button>
         </div>
+      </div>
 
-        <div className="grid gap-4 md:grid-cols-5">
+        <div className="hidden grid gap-4 md:grid-cols-5 md:grid">
           <select
             value={filters.type}
             onChange={(event) => handleFilterChange("type", event.target.value)}
@@ -347,7 +360,8 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
         )}
       </div>
 
-        <div className="grid gap-6 md:grid-cols-7">
+        {/* Desktop: week grid */}
+        <div className="hidden gap-6 md:grid md:grid-cols-7">
         {weekDays.map((day) => {
           const dateKey = format(day, "yyyy-MM-dd");
           const daySessions = (dayMap.get(dateKey) ?? []).sort((a, b) => (a.start_time > b.start_time ? 1 : -1));
@@ -447,6 +461,94 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
             </div>
           );
         })}
+      </div>
+
+      {/* Mobile: single day with arrows */}
+      <div className="md:hidden">
+        {(() => {
+          const dateKey = format(mobileDay, "yyyy-MM-dd");
+          // Build sessions for this day ignoring filters to keep mobile simple
+          const daySessions = dataSource
+            .filter((s) => s.date === dateKey)
+            .sort((a, b) => (a.start_time > b.start_time ? 1 : -1));
+          return (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between rounded-2xl bg-white/80 p-3 text-center shadow-sm">
+                <button className="btn-secondary btn-compact" type="button" onClick={() => handleMobileShift(-1)} aria-label="Назад">
+                  ←
+                </button>
+                <div>
+                  <div className="text-xs uppercase tracking-widest text-slate-400">
+                    {format(mobileDay, "EEE", { locale: ru })}
+                  </div>
+                  <div className="text-lg font-semibold text-gabi-dark">{format(mobileDay, "d MMM", { locale: ru })}</div>
+                </div>
+                <button className="btn-secondary btn-compact" type="button" onClick={() => handleMobileShift(1)} aria-label="Вперёд">
+                  →
+                </button>
+              </div>
+              <div className="space-y-3">
+                {daySessions.length === 0 && (
+                  <div className="rounded-2xl border border-dashed border-slate-200 p-4 text-center text-xs text-slate-400">
+                    Нет занятий
+                  </div>
+                )}
+                {daySessions.map((session) => (
+                  <div key={session.id} className="group flex h-full flex-col gap-2 rounded-2xl border border-white/60 bg-white/90 p-4 shadow">
+                    <div className="flex flex-col gap-3">
+                      <div className="flex flex-col gap-1">
+                        <span className="brand-chip w-fit px-2 py-1 text-[10px]">{typeLabels[session.type] ?? session.type}</span>
+                        <div className="text-sm font-semibold text-gabi-blue">
+                          {formatSessionTime(session.start_time)}
+                          {session.start_time && session.end_time && " – "}
+                          {formatSessionTime(session.end_time)}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-sm font-semibold text-gabi-dark">{shortenLongWords(session.title || session.direction?.title)}</div>
+                        <div className="text-xs text-slate-500">
+                          {session.coach ? (
+                            <button
+                              type="button"
+                              className="inline text-left underline-offset-2 hover:underline text-gabi-blue"
+                              onClick={() => setSelectedCoach(coachById.get(session.coach!.id) ?? session.coach!)}
+                            >
+                              {session.coach.full_name}
+                            </button>
+                          ) : (
+                            "Тренер уточняется"
+                          )}
+                          {" · "}
+                          {session.location?.title ?? "Локация уточняется"}
+                        </div>
+                      </div>
+                      {(session.levels?.length ?? 0) > 0 && (
+                        <div className="flex flex-wrap gap-1 text-[11px]">
+                          {(session.levels ?? []).map((level) => (
+                            <span key={level.id} className="brand-chip px-2 py-1 text-[10px]">{shortenLevelLabel(level.name)}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      className="btn-secondary btn-compact mt-2 w-full justify-center leading-tight"
+                      onClick={() =>
+                        openLeadModal({
+                          source: "schedule",
+                          preferred_direction: session.direction?.title ?? "Тренировка",
+                          message: `Хочу записаться на занятие ${format(parseISO(session.date), "d MMM", { locale: ru })} в ${formatSessionTime(session.start_time)}`,
+                        })
+                      }
+                      type="button"
+                    >
+                      Записаться
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </div>
       <CoachModal open={!!selectedCoach} coach={selectedCoach} onClose={() => setSelectedCoach(null)} />
     </motion.section>

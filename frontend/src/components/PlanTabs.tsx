@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { TrainingPlan } from "@/lib/types";
 import { useLeadModal } from "./providers/LeadModalProvider";
@@ -49,6 +49,12 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
       })
     : plans;
 
+  // Mobile carousel index
+  const [mobileIndex, setMobileIndex] = useState(0);
+  useEffect(() => {
+    setMobileIndex(0);
+  }, [activeCategory]);
+
   return (
     <motion.section
       className="mt-14 space-y-8"
@@ -81,8 +87,94 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
       </div>
       )}
 
+      {/* Mobile: single-card carousel */}
+      <div className="md:hidden">
+        {filteredPlans.length > 0 && (
+          <div className="flex items-center justify-between gap-3">
+            <button
+              className="btn-secondary btn-compact"
+              type="button"
+              onClick={() => setMobileIndex((i) => (i - 1 + filteredPlans.length) % filteredPlans.length)}
+              aria-label="Предыдущий тариф"
+            >
+              ‹
+            </button>
+            <div className="flex-1">
+              {(() => {
+                const plan = filteredPlans[mobileIndex % filteredPlans.length]!;
+                return (
+                  <div className="card-surface mt-2 flex h-full flex-col justify-between">
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between gap-3">
+                          <h3 className="text-2xl font-semibold text-gabi-dark flex items-center gap-2">
+                            {plan.icon && <span className="text-2xl" aria-hidden>{plan.icon}</span>}
+                            <span>{plan.title}</span>
+                          </h3>
+                          {plan.is_featured && (
+                            <span className="badge bg-gabi-orange/15 text-gabi-orange flex-shrink-0">Хит</span>
+                          )}
+                        </div>
+                        <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-semibold text-gabi-blue">
+                          {plan.price.toLocaleString("ru-RU")}
+                        </span>
+                        <span className="text-sm text-slate-500">{plan.period}</span>
+                      </div>
+                      <ul className="space-y-2 text-sm text-slate-600">
+                        {plan.benefits.map((benefit) => (
+                          <li key={benefit.id} className="flex items-center gap-2">
+                            <span className="h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
+                            {benefit.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    {plan.buy_link ? (
+                      <a
+                        className="btn-primary mt-6 w-full text-center"
+                        href={plan.buy_link}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {plan.buy_label || "Приобрести"}
+                      </a>
+                    ) : (
+                      <button
+                        className="btn-primary mt-6 w-full"
+                        onClick={() =>
+                          openLeadModal({
+                            source: "plan",
+                            preferred_direction: plan.title,
+                            message: `Хочу тариф \"${plan.title}\"`,
+                          })
+                        }
+                        type="button"
+                      >
+                        Подробнее
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+            <button
+              className="btn-secondary btn-compact"
+              type="button"
+              onClick={() => setMobileIndex((i) => (i + 1) % filteredPlans.length)}
+              aria-label="Следующий тариф"
+            >
+              ›
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: grid of cards */}
       <motion.div
-        className="grid gap-6 md:grid-cols-2"
+        className="hidden gap-6 md:grid md:grid-cols-2"
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}

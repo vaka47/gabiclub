@@ -131,6 +131,14 @@ a:hover {
     radial-gradient(120% 90% at 50% 35%, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.70) 45%, rgba(255,255,255,0.55) 70%, rgba(255,255,255,0.40) 100%);
 }
 
+/* Hero description: responsive sizing on mobile to fit 2-3 lines nicely */
+.hero-desc {
+  line-height: 1.45;
+}
+@media (max-width: 768px) {
+  .hero-desc { font-size: clamp(14px, 4.2vw, 18px); line-height: 1.35; }
+}
+
 /* Soft mask to blend hero slideshow edges into the page gradient */
 .hero-bg-image {
   -webkit-mask-image: radial-gradient(140% 180% at 50% 28%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
@@ -192,15 +200,25 @@ a:hover {
   --tab-fs: clamp(11px, 3.5vw, 14px);
   --tab-py: clamp(6px, 2.0vw, 10px);
   --tab-px: clamp(10px, 4.2vw, 20px);
+  /* Match hero tagline color */
+  --hero-tagline-color: rgb(58, 52, 71);
+  /* Match hero primary CTA color (see HeroSection inline style) */
+  --hero-cta-color: rgb(36, 70, 95);
 }
 .activity-tabs .tab-btn {
   font-size: var(--tab-fs);
   padding: var(--tab-py) var(--tab-px);
+  color: var(--hero-tagline-color);
+}
+.activity-tabs .tab-active {
+  /* Softer variant of the hero tagline color */
+  background-color: color-mix(in srgb, var(--hero-tagline-color) 70%, white);
+  color: #fff;
 }
 @media (min-width: 768px) {
   .activity-tabs {
-    --tab-fs: 14px;
-    --tab-py: 8px;
-    --tab-px: 20px;
+    --tab-fs: 16px;
+    --tab-py: 10px;
+    --tab-px: 24px;
   }
 }

@@ -110,9 +110,37 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ ПРИКЛЮЧЕНИЯ");
   const currentPromo = promos.length > 0 ? promos[bgIndex % promos.length] : undefined;
   const defaultDesc =
-    "Тренируйся системно. Развивайся с GABI — лыжи, роллеры, бег с вниманием к деталям и технике.";
+    "Академия лыж, трейла и силы в Санкт-Петербурге. Вметсте с первой тренировки до финиша марафона.";
   const rawDesc = description ?? defaultDesc;
   const descNode = useMemo(() => {
+    const normalized = rawDesc.toLowerCase();
+    const triggers = ["академия лыж, трейла и силы", "санкт-петербурге"];
+    const shouldSpecialFormat = triggers.every((t) => normalized.includes(t));
+    if (shouldSpecialFormat) {
+      const desktop = (
+        <>
+          <span>Академия лыж, трейла и силы в Санкт-Петербурге.</span>
+          <br />
+          <span>Вметсте с первой тренировки до финиша марафона.</span>
+        </>
+      );
+      const mobile = (
+        <>
+          <span>Академия лыж, трейла и силы в</span>
+          <br />
+          <span>Санкт-Петербурге. Вметсте с первой</span>
+          <br />
+          <span>тренировки до финиша марафона.</span>
+        </>
+      );
+      return (
+        <>
+          <span className="hidden md:inline">{desktop}</span>
+          <span className="md:hidden inline">{mobile}</span>
+        </>
+      );
+    }
+    // Fallback: keep original text and split conservatively by long clause
     const txt = rawDesc;
     const lower = txt.toLowerCase();
     const anchor = "мы сопровождаем";
@@ -130,18 +158,6 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
           </>
         );
       }
-    }
-    const vasIdx = lower.indexOf(" вас от");
-    if (vasIdx !== -1) {
-      const before = txt.slice(0, vasIdx);
-      const after = txt.slice(vasIdx + 1);
-      return (
-        <>
-          {before}
-          <br />
-          {after}
-        </>
-      );
     }
     return txt;
   }, [rawDesc]);
@@ -227,7 +243,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
                 {l3 && (<><br />{l3}</>)}
               </h1>
 
-              <p className="max-w-2xl text-base text-slate-700 md:text-lg">{descNode}</p>
+              <p className="hero-desc max-w-2xl text-base text-slate-700 md:text-lg">{descNode}</p>
             </div>
 
             {/* Primary CTA */}

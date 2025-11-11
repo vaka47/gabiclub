@@ -134,7 +134,7 @@ export default function Footer({ contact, club }: FooterProps) {
       <div className="border-t border-slate-200">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} Gabi Club. Все права защищены.</p>
-          <p>Сайт собрал @Vaka47</p>
+          <p>Сайт собрал @Vaka47.</p>
           <p>С уважением к вашему времени и уровню сервиса.</p>
         </div>
       </div>
