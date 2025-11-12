@@ -110,7 +110,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ ПРИКЛЮЧЕНИЯ");
   const currentPromo = promos.length > 0 ? promos[bgIndex % promos.length] : undefined;
   const defaultDesc =
-    "Академия лыж, трейла и силы в Санкт-Петербурге. Вметсте с первой тренировки до финиша марафона.";
+    "Академия лыж, трейла и силы в Санкт-Петербурге. Вместе с первой тренировки до финиша марафона.";
   const rawDesc = description ?? defaultDesc;
   const descNode = useMemo(() => {
     const normalized = rawDesc.toLowerCase();
@@ -121,14 +121,14 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
         <>
           <span>Академия лыж, трейла и силы в Санкт-Петербурге.</span>
           <br />
-          <span>Вметсте с первой тренировки до финиша марафона.</span>
+          <span>Вместе с первой тренировки до финиша марафона.</span>
         </>
       );
       const mobile = (
         <>
           <span>Академия лыж, трейла и силы в</span>
           <br />
-          <span>Санкт-Петербурге. Вметсте с первой</span>
+          <span>Санкт-Петербурге. Вместе с первой</span>
           <br />
           <span>тренировки до финиша марафона.</span>
         </>
