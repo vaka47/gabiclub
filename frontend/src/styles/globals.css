@@ -141,7 +141,7 @@ a:hover {
 
 /* Mobile camp ticker (appears under fixed header on mobile) */
 .mobile-camp-ticker {
-  background: rgba(0, 0, 0, 0.78);
+  background: var(--brand-primary);
   color: #fff;
   height: 34px;
   display: flex;
