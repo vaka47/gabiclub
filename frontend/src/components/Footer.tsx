@@ -38,7 +38,7 @@ export default function Footer({ contact, club }: FooterProps) {
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded bg-gabi-blue/10 text-gabi-blue text-xl">G</div>
             )}
-            <h3 className="text-2xl font-semibold text-gabi-blue">{club?.name ?? "Gabi Club"}</h3>
+            <h3 className="text-2xl font-semibold text-gabi-blue">{club?.name ?? "GABI CLUB"}</h3>
           </div>
           <p className="max-w-md text-sm text-slate-600">
             {club?.mission ??
