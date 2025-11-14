@@ -33,6 +33,8 @@ export default function DebugImage({ debugName, onError, onLoad, ...props }: Deb
     onLoad?.(e);
   };
 
-  return <Image {...props} onError={handleError} onLoad={handleLoad} />;
+  // Use unoptimized images so that any valid browser-supported JPG/PNG from Django
+  // loads without going through Next.js' Sharp-based optimizer (which can fail on
+  // certain color profiles or very large originals).
+  return <Image {...props} onError={handleError} onLoad={handleLoad} unoptimized />;
 }
-
