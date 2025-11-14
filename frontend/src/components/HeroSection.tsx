@@ -86,7 +86,13 @@ function sampleEdgeColor(src: string): Promise<string | null> {
 }
 
 export default function HeroSection({ slides, clubName, tagline, description, promos = [] }: HeroSectionProps) {
-  const envSlides = useMemo(() => [process.env.NEXT_PUBLIC_HERO_BG_1, process.env.NEXT_PUBLIC_HERO_BG_2].filter(Boolean).map((s) => resolveMediaUrl(String(s))) as string[], []);
+  const envSlides = useMemo(
+    () =>
+      [process.env.NEXT_PUBLIC_HERO_BG_1, process.env.NEXT_PUBLIC_HERO_BG_2, process.env.NEXT_PUBLIC_HERO_BG_3]
+        .filter(Boolean)
+        .map((s) => resolveMediaUrl(String(s))) as string[],
+    [],
+  );
   const bgSlides = useMemo(() => {
     const fromClub = slides.map((s) => resolveMediaUrl(s.image) ?? s.image).filter(Boolean) as string[];
     return envSlides.length > 0 ? envSlides : fromClub;
