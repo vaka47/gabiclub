@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { resolveMediaUrl } from "@/lib/api";
 import { FiX } from "react-icons/fi";
+import DebugImage from "./DebugImage";
 
 type Photo = { id: number; image: string; caption?: string };
 
@@ -57,7 +57,8 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
             className="group overflow-hidden rounded-3xl focus:outline-none"
             onClick={() => setOpenIdx(idx)}
           >
-            <Image
+            <DebugImage
+              debugName={`camp-gallery-thumb:${slug}:${photo.id}`}
               src={photo.src}
               alt={photo.caption || title}
               width={640}
@@ -155,21 +156,41 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
                     className="absolute top-0 bottom-0 left-0 w-full"
                     style={{ ...common, transform: `translateX(${dragX}px)` }}
                   >
-                    <Image src={curr.src} alt={curr.caption || title} fill className="object-contain" />
+                    <DebugImage
+                      debugName={`camp-gallery-current:${slug}:${curr.id}`}
+                      src={curr.src}
+                      alt={curr.caption || title}
+                      fill
+                      className="object-contain"
+                    />
                   </div>
                   {/* Next (to the right) */}
                   <div
                     className="absolute top-0 bottom-0 w-full"
                     style={{ ...common, left: "100%", transform: `translateX(${dragX}px)` }}
                   >
-                    <Image src={items[nextIdxCalc].src} alt="" fill className="object-contain" aria-hidden />
+                    <DebugImage
+                      debugName={`camp-gallery-next:${slug}:${items[nextIdxCalc].id}`}
+                      src={items[nextIdxCalc].src}
+                      alt=""
+                      fill
+                      className="object-contain"
+                      aria-hidden
+                    />
                   </div>
                   {/* Prev (to the left) */}
                   <div
                     className="absolute top-0 bottom-0 w-full"
                     style={{ ...common, left: "-100%", transform: `translateX(${dragX}px)` }}
                   >
-                    <Image src={items[prevIdxCalc].src} alt="" fill className="object-contain" aria-hidden />
+                    <DebugImage
+                      debugName={`camp-gallery-prev:${slug}:${items[prevIdxCalc].id}`}
+                      src={items[prevIdxCalc].src}
+                      alt=""
+                      fill
+                      className="object-contain"
+                      aria-hidden
+                    />
                   </div>
                 </>
               );

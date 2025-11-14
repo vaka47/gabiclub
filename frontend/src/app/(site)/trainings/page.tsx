@@ -23,6 +23,28 @@ export default async function TrainingsPage() {
   ]);
 
   const featuredCoaches = coaches.filter((coach) => coach.is_featured);
+  if (process.env.NEXT_PUBLIC_DEBUG_MEDIA === "1") {
+    for (const camp of camps ?? []) {
+      const raw = camp.hero_image || camp.header_image || null;
+      const resolved = raw ? resolveMediaUrl(raw) ?? raw : null;
+      console.log("[media] trainings hero promo camp", {
+        slug: camp.slug,
+        id: camp.id,
+        raw,
+        resolved,
+      });
+    }
+    for (const article of articles ?? []) {
+      const raw = article.cover_image || null;
+      const resolved = raw ? resolveMediaUrl(raw) ?? raw : null;
+      console.log("[media] trainings hero promo article", {
+        slug: article.slug,
+        id: article.id,
+        raw,
+        resolved,
+      });
+    }
+  }
   // form photo no longer used inline; hero background slideshow is controlled via env/club slides
 
   return (

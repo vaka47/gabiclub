@@ -1,11 +1,11 @@
 "use client";
 
 import { clsx } from "clsx";
-import Image from "next/image";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import type { HeroSlide } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
+import DebugImage from "./DebugImage";
 
 type PromoItem = { id: string | number; title: string; subtitle?: string; image?: string; href: string; label?: string };
 type HeroSectionProps = { slides: HeroSlide[]; clubName: string; tagline?: string; description?: string; promos?: PromoItem[] };
@@ -292,7 +292,15 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
           <div className="hidden md:block">
             {currentPromo && (
               <a href={currentPromo.href} className="relative block h-[420px] overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow">
-                {currentPromo.image && <Image src={currentPromo.image} alt={currentPromo.title} fill className="object-cover" />}
+                {currentPromo.image && (
+                  <DebugImage
+                    debugName={`hero-promo:${currentPromo.id}`}
+                    src={currentPromo.image}
+                    alt={currentPromo.title}
+                    fill
+                    className="object-cover"
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
                   <div className="text-xs uppercase tracking-[0.2em] text-white/80">
