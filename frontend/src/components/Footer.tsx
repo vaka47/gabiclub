@@ -38,7 +38,7 @@ export default function Footer({ contact, club }: FooterProps) {
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded bg-gabi-blue/10 text-gabi-blue text-xl">G</div>
             )}
-            <h3 className="text-2xl font-semibold text-gabi-blue">{club?.name ?? "GABI CLUB"}</h3>
+            <h3 className="text-2xl font-semibold uppercase text-gabi-blue">{club?.name ?? "GABI CLUB"}</h3>
           </div>
           <p className="max-w-md text-sm text-slate-600">
             {club?.mission ??
@@ -133,7 +133,7 @@ export default function Footer({ contact, club }: FooterProps) {
 
       <div className="border-t border-slate-200">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} Gabi Club. Все права защищены.</p>
+          <p>© {new Date().getFullYear()} GABI CLUB. Все права защищены.</p>
           <p>Сайт собрал @Vaka47.</p>
           <p>С уважением к вашему времени и уровню сервиса.</p>
         </div>
