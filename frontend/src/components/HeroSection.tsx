@@ -242,7 +242,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
               </div>
               <h1
                 className="font-wordmark text-3xl uppercase tracking-[0.18em] leading-[1.05] md:text-5xl"
-                style={{ color: "rgb(20, 80, 170)" }}
+                style={{ color: "#FF6A00" }}
               >
                 {l1}
                 {l2 && (<><br />{l2}</>)}
@@ -257,7 +257,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
               label="Присоединиться к GABI"
               className="btn-primary mt-6"
               source="hero-cta"
-              style={{ backgroundColor: "rgb(36, 70, 95)", borderRadius: 14, padding: "16px 28px" }}
+              style={{ backgroundColor: "rgb(20, 80, 170)", borderRadius: 14, padding: "16px 28px" }}
             />
 
             <div className="mt-6 flex items-center gap-3 text-sm text-white/90">
