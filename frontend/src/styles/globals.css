@@ -128,7 +128,7 @@ a:hover {
   pointer-events: none;
   z-index: 10;
   background:
-    radial-gradient(120% 90% at 50% 35%, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0.70) 45%, rgba(255,255,255,0.55) 70%, rgba(255,255,255,0.40) 100%);
+    radial-gradient(120% 90% at 50% 35%, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.55) 45%, rgba(255,255,255,0.40) 70%, rgba(255,255,255,0.28) 100%);
 }
 
 /* Hero description: responsive sizing on mobile to fit 2-3 lines nicely */
