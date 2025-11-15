@@ -244,7 +244,7 @@ const contactInfo: ContactInfo = {
   address: "Москва, Спортивная 12, манеж GABI",
   map_url: "https://yandex.ru/maps/?um=constructor%3Agabi",
   working_hours: "Ежедневно 07:00 – 22:00",
-  whatsapp: "https://wa.me/79309341395",
+  whatsapp: "https://wa.me/89151949527",
   telegram: "https://t.me/gabi_club",
   instagram: "https://instagram.com/gabi.club",
   youtube: "https://youtube.com/@gabi.club",
