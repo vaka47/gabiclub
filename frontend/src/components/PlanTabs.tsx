@@ -54,10 +54,17 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
   const [dragStartX, setDragStartX] = useState<number | null>(null);
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const [desktopIndex, setDesktopIndex] = useState(0);
   const swipeRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     setMobileIndex(0);
-  }, [activeCategory]);
+    setDesktopIndex(0);
+  }, [activeCategory, filteredPlans.length]);
+
+  const showDesktopNav = filteredPlans.length > 2;
+  const desktopPlansToRender = showDesktopNav
+    ? [0, 1].map((offset) => filteredPlans[(desktopIndex + offset) % filteredPlans.length]!)
+    : filteredPlans;
 
   return (
     <motion.section
@@ -240,76 +247,103 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
         )}
       </div>
 
-      {/* Desktop: grid of cards */}
-      <motion.div
-        className="hidden gap-6 md:grid md:grid-cols-2"
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
-      >
-        {filteredPlans.map((plan) => (
-          <motion.div
-            key={plan.id}
-            className="card-surface flex h-full flex-col justify-between"
-            variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
-            transition={{ duration: 0.55, ease: "easeOut" }}
-          >
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-2xl font-semibold text-gabi-dark flex items-center gap-2">
-                    {plan.icon && <span className="text-2xl" aria-hidden>{plan.icon}</span>}
-                    <span>{plan.title}</span>
-                  </h3>
-                  {plan.is_featured && (
-                    <span className="badge bg-gabi-orange/15 text-gabi-orange flex-shrink-0">Хит</span>
-                  )}
+      {/* Desktop: horizontal carousel with two cards */}
+      {desktopPlansToRender.length > 0 && (
+        <div className="hidden items-center gap-4 md:flex">
+          {showDesktopNav && (
+            <button
+              className="btn-secondary btn-compact"
+              type="button"
+              onClick={() => setDesktopIndex((i) => (i - 1 + filteredPlans.length) % filteredPlans.length)}
+              aria-label="Предыдущий тариф"
+            >
+              ‹
+            </button>
+          )}
+        <motion.div
+          className={clsx(
+            "grid flex-1 gap-6",
+            desktopPlansToRender.length === 1 ? "grid-cols-1" : "grid-cols-2",
+          )}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
+        >
+          {desktopPlansToRender.map((plan, idx) => (
+            <motion.div
+              key={`${plan.id}-${idx}`}
+              className="card-surface flex h-full flex-col justify-between"
+              variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.55, ease: "easeOut" }}
+            >
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-2xl font-semibold text-gabi-dark flex items-center gap-2">
+                      {plan.icon && <span className="text-2xl" aria-hidden>{plan.icon}</span>}
+                      <span>{plan.title}</span>
+                    </h3>
+                    {plan.is_featured && (
+                      <span className="badge bg-gabi-orange/15 text-gabi-orange flex-shrink-0">Хит</span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
                 </div>
-                <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-gabi-blue">
+                    {plan.price.toLocaleString("ru-RU")}
+                  </span>
+                  <span className="text-sm text-slate-500">{plan.period}</span>
+                </div>
+                <ul className="space-y-2 text-sm text-slate-600">
+                  {plan.benefits.map((benefit) => (
+                    <li key={benefit.id} className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
+                      {benefit.text}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-semibold text-gabi-blue">
-                  {plan.price.toLocaleString("ru-RU")}
-                </span>
-                <span className="text-sm text-slate-500">{plan.period}</span>
-              </div>
-              <ul className="space-y-2 text-sm text-slate-600">
-                {plan.benefits.map((benefit) => (
-                  <li key={benefit.id} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
-                    {benefit.text}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {plan.buy_link ? (
-              <a
-                className="btn-primary mt-6 w-full text-center"
-                href={plan.buy_link}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {plan.buy_label || "Приобрести"}
-              </a>
-            ) : (
-              <button
-                className="btn-primary mt-6 w-full"
-                onClick={() =>
-                  openLeadModal({
-                    source: "plan",
-                    preferred_direction: plan.title,
-                    message: `Хочу тариф \"${plan.title}\"`,
-                  })
-                }
-                type="button"
-              >
-                Подробнее
-              </button>
-            )}
-          </motion.div>
-        ))}
-      </motion.div>
+              {plan.buy_link ? (
+                <a
+                  className="btn-primary mt-6 w-full text-center"
+                  href={plan.buy_link}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {plan.buy_label || "Приобрести"}
+                </a>
+              ) : (
+                <button
+                  className="btn-primary mt-6 w-full"
+                  onClick={() =>
+                    openLeadModal({
+                      source: "plan",
+                      preferred_direction: plan.title,
+                      message: `Хочу тариф \"${plan.title}\"`,
+                    })
+                  }
+                  type="button"
+                >
+                  Подробнее
+                </button>
+              )}
+            </motion.div>
+          ))}
+        </motion.div>
+          {showDesktopNav && (
+            <button
+              className="btn-secondary btn-compact"
+              type="button"
+              onClick={() => setDesktopIndex((i) => (i + 1) % filteredPlans.length)}
+              aria-label="Следующий тариф"
+            >
+              ›
+            </button>
+          )}
+        </div>
+      )}
     </motion.section>
   );
 }
