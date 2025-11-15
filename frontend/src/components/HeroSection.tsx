@@ -18,15 +18,17 @@ const EDGE_ALPHA = 0.82;
 
 function splitHeading(rawText: string): [string, string, string] {
   const raw = rawText.toUpperCase();
-  // Aim: line1 = before "КТО" (keeps comma), line2 = "КТО ..." until "ПРИКЛЮЧЕНИЯ", line3 = from "ПРИКЛЮЧЕНИЯ"
+  // Aim: line1 = before "КТО" (keeps comma), line2 = "КТО ..." until anchor, line3 = anchor word (e.g. "РЕЗУЛЬТАТ")
   const ktoIdx = raw.indexOf("КТО");
   if (ktoIdx === -1) return [raw, "", ""];
   const before = raw.slice(0, ktoIdx).trim();
   const rest = raw.slice(ktoIdx).trim();
-  const prIdx = rest.indexOf("ПРИКЛЮЧЕНИЯ");
-  if (prIdx === -1) return [before, rest, ""];
-  const line2 = rest.slice(0, prIdx).trim();
-  const line3 = rest.slice(prIdx).trim();
+  const thirdLineAnchors = ["РЕЗУЛЬТАТ", "ПРИКЛЮЧЕНИЯ"];
+  const anchor = thirdLineAnchors.find((word) => rest.includes(word));
+  if (!anchor) return [before, rest, ""];
+  const anchorIdx = rest.indexOf(anchor);
+  const line2 = rest.slice(0, anchorIdx).trim();
+  const line3 = rest.slice(anchorIdx).trim();
   return [before, line2, line3];
 }
 
@@ -113,7 +115,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
 
   const currentBg = bgSlides[bgIndex] ?? null;
   const [edgeColors, setEdgeColors] = useState<Record<string, string>>({});
-  const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ ПРИКЛЮЧЕНИЯ");
+  const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ РЕЗУЛЬТАТ");
   const currentPromo = promos.length > 0 ? promos[bgIndex % promos.length] : undefined;
   const defaultDesc =
     "Академия лыж, трейла и силы в Санкт-Петербурге. Вместе с первой тренировки до финиша марафона.";
