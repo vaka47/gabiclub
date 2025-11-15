@@ -118,22 +118,6 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ РЕЗУЛЬТАТ");
   const currentPromo = promos.length > 0 ? promos[bgIndex % promos.length] : undefined;
   const heroDescriptionVariants = useMemo<ReactNode[]>(() => {
-    const thirdDesktop = (
-      <>
-        <span>Академия лыж, трейла и силы в Санкт-Петербурге.</span>
-        <br />
-        <span>Вместе с первой тренировки до финиша марафона.</span>
-      </>
-    );
-    const thirdMobile = (
-      <>
-        <span>Академия лыж, трейла и силы в</span>
-        <br />
-        <span>Санкт-Петербурге. Вместе с первой</span>
-        <br />
-        <span>тренировки до финиша марафона.</span>
-      </>
-    );
     return [
       (
         <>
@@ -152,25 +136,31 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
       (
         <>
           <span className="hidden md:inline">
-            <span>Тренируем спортсменов разного уровня подготовки в Санкт-Петербурге и работаем онлайн.</span>
-            <br />
-            <span>Помогаем кататься технично и добиваться результатов, получая удовольствие от тренировок.</span>
+            Тренируем спортсменов разного уровня подготовки в Санкт-Петербурге и работаем онлайн.
           </span>
           <span className="md:hidden inline">
-            <span>Тренируем спортсменов разного уровня подготовки</span>
+            <span>Тренируем спортсменов разного уровня</span>
             <br />
-            <span>в Санкт-Петербурге и работаем онлайн.</span>
+            <span>подготовки в Санкт-Петербурге</span>
             <br />
-            <span>Помогаем кататься технично и добиваться результатов,</span>
-            <br />
-            <span>получая удовольствие от тренировок.</span>
+            <span>и работаем онлайн.</span>
           </span>
         </>
       ),
       (
         <>
-          <span className="hidden md:inline">{thirdDesktop}</span>
-          <span className="md:hidden inline">{thirdMobile}</span>
+          <span className="hidden md:inline">
+            Помогаем кататься технично и добиваться результатов, получая удовольствие от тренировок.
+          </span>
+          <span className="md:hidden inline">
+            <span>Помогаем кататься технично</span>
+            <br />
+            <span>и добиваться результатов,</span>
+            <br />
+            <span>получая удовольствие</span>
+            <br />
+            <span>от тренировок.</span>
+          </span>
         </>
       ),
     ];
