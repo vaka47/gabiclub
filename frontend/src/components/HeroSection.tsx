@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import type { HeroSlide } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
@@ -117,58 +117,68 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
   const [edgeColors, setEdgeColors] = useState<Record<string, string>>({});
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ РЕЗУЛЬТАТ");
   const currentPromo = promos.length > 0 ? promos[bgIndex % promos.length] : undefined;
-  const defaultDesc =
-    "Академия лыж, трейла и силы в Санкт-Петербурге. Вместе с первой тренировки до финиша марафона.";
-  const rawDesc = description ?? defaultDesc;
-  const descNode = useMemo(() => {
-    const normalized = rawDesc.toLowerCase();
-    const triggers = ["академия лыж, трейла и силы", "санкт-петербурге"];
-    const shouldSpecialFormat = triggers.every((t) => normalized.includes(t));
-    if (shouldSpecialFormat) {
-      const desktop = (
+  const heroDescriptionVariants = useMemo<ReactNode[]>(() => {
+    const thirdDesktop = (
+      <>
+        <span>Академия лыж, трейла и силы в Санкт-Петербурге.</span>
+        <br />
+        <span>Вместе с первой тренировки до финиша марафона.</span>
+      </>
+    );
+    const thirdMobile = (
+      <>
+        <span>Академия лыж, трейла и силы в</span>
+        <br />
+        <span>Санкт-Петербурге. Вместе с первой</span>
+        <br />
+        <span>тренировки до финиша марафона.</span>
+      </>
+    );
+    return [
+      (
         <>
-          <span>Академия лыж, трейла и силы в Санкт-Петербурге.</span>
-          <br />
-          <span>Вместе с первой тренировки до финиша марафона.</span>
-        </>
-      );
-      const mobile = (
-        <>
-          <span>Академия лыж, трейла и силы в</span>
-          <br />
-          <span>Санкт-Петербурге. Вместе с первой</span>
-          <br />
-          <span>тренировки до финиша марафона.</span>
-        </>
-      );
-      return (
-        <>
-          <span className="hidden md:inline">{desktop}</span>
-          <span className="md:hidden inline">{mobile}</span>
-        </>
-      );
-    }
-    // Fallback: keep original text and split conservatively by long clause
-    const txt = rawDesc;
-    const lower = txt.toLowerCase();
-    const anchor = "мы сопровождаем";
-    const idx = lower.indexOf(anchor);
-    if (idx !== -1) {
-      const before = txt.slice(0, idx + anchor.length);
-      const rest = txt.slice(idx + anchor.length);
-      if (/^\s*вас\s+/i.test(rest)) {
-        const after = rest.trimStart();
-        return (
-          <>
-            {before}
+          <span className="hidden md:inline">
+            Лыжи, роллеры и бег под руководством Габриеллы Калугер и Андрея Краснова.
+          </span>
+          <span className="md:hidden inline">
+            <span>Лыжи, роллеры и бег</span>
             <br />
-            {after}
-          </>
-        );
-      }
-    }
-    return txt;
-  }, [rawDesc]);
+            <span>под руководством Габриеллы</span>
+            <br />
+            <span>Калугер и Андрея Краснова.</span>
+          </span>
+        </>
+      ),
+      (
+        <>
+          <span className="hidden md:inline">
+            <span>Тренируем спортсменов разного уровня подготовки в Санкт-Петербурге и работаем онлайн.</span>
+            <br />
+            <span>Помогаем кататься технично и добиваться результатов, получая удовольствие от тренировок.</span>
+          </span>
+          <span className="md:hidden inline">
+            <span>Тренируем спортсменов разного уровня подготовки</span>
+            <br />
+            <span>в Санкт-Петербурге и работаем онлайн.</span>
+            <br />
+            <span>Помогаем кататься технично и добиваться результатов,</span>
+            <br />
+            <span>получая удовольствие от тренировок.</span>
+          </span>
+        </>
+      ),
+      (
+        <>
+          <span className="hidden md:inline">{thirdDesktop}</span>
+          <span className="md:hidden inline">{thirdMobile}</span>
+        </>
+      ),
+    ];
+  }, []);
+  const fallbackDescription = description ?? "Лыжи, роллеры и бег под руководством Габриеллы Калугер и Андрея Краснова.";
+  const descNode = heroDescriptionVariants.length
+    ? heroDescriptionVariants[bgIndex % heroDescriptionVariants.length]
+    : fallbackDescription;
 
   useEffect(() => {
     if (!prevBg) return;
