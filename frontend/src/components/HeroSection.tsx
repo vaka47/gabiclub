@@ -159,6 +159,18 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
     return () => clearInterval(timer);
   }, [promos.length]);
 
+  // Preload promo images to avoid flashes when switching
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    promos.forEach((promo) => {
+      if (!promo.image) return;
+      const img = new window.Image();
+      img.decoding = "async";
+      (img as any).fetchPriority = "low";
+      img.src = promo.image;
+    });
+  }, [promos]);
+
   const currentBg = bgSlides[bgIndex] ?? null;
   const currentPromo = promos.length > 0 ? promos[promoIndex % promos.length] : undefined;
   const prevPromo = prevPromoIndex !== null ? promos[prevPromoIndex] : undefined;
