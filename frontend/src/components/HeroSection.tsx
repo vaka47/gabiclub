@@ -27,7 +27,16 @@ const EDGE_ALPHA = 0.82;
 
 function splitHeading(rawText: string): [string, string, string] {
   const raw = rawText.toUpperCase();
-  // Aim: line1 = before "КТО" (keeps comma), line2 = "КТО ..." until anchor, line3 = anchor word (e.g. "РЕЗУЛЬТАТ")
+  // 1) If tagline has commas/newlines, split into up to 3 parts
+  if (/[,\n]/.test(raw) && raw.length > 0) {
+    const parts = raw
+      .split(/[,|\n]/)
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+    return [parts[0] ?? raw, parts[1] ?? "", parts[2] ?? ""];
+  }
+  // 2) Legacy split by "КТО ...", keeping anchors
   const ktoIdx = raw.indexOf("КТО");
   if (ktoIdx === -1) return [raw, "", ""];
   const before = raw.slice(0, ktoIdx).trim();
