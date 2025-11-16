@@ -52,7 +52,7 @@ export default async function TrainingsPage() {
       <HeroSection
         slides={club.hero_slides ?? []}
         clubName={club.name}
-        tagline={"Тренировки, Здоровье, Вдохновение"}
+        tagline={"Тренировки\nВдохновение\nВовлеченность"}
         description={club.hero_description}
         promos={[
           ...([...(camps ?? [])].sort(
