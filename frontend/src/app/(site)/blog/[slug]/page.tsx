@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import Image from "next/image";
 import Link from "next/link";
 
 import LeadCtaButton from "@/components/LeadCtaButton";
 import CampGallery from "@/components/CampGallery";
 import { getArticleBySlug, getArticles, resolveMediaUrl } from "@/lib/api";
+import DebugImage from "@/components/DebugImage";
 
 function formatDate(date: string) {
   return format(new Date(date), "d MMMM yyyy", { locale: ru });
@@ -39,7 +39,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
         {(article.header_image || article.cover_image) && (
           <div className="relative h-[320px] overflow-hidden rounded-[32px]">
-            <Image src={(resolveMediaUrl(article.header_image || article.cover_image!) ?? (article.header_image || article.cover_image!))} alt={article.title} fill className="object-cover" />
+            <DebugImage
+              debugName={`blog-hero:${article.slug}`}
+              src={(resolveMediaUrl(article.header_image || article.cover_image!) ?? (article.header_image || article.cover_image!))}
+              alt={article.title}
+              fill
+              className="object-cover"
+            />
           </div>
         )}
       </header>
