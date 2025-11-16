@@ -58,8 +58,22 @@ function CampCard({ camp }: { camp: Camp }) {
 
 export default async function CampsPage() {
   const camps = await getCamps();
-  const upcoming = camps.filter((camp) => camp.status !== "completed");
-  const past = camps.filter((camp) => camp.status === "completed");
+  const upcoming = camps
+    .filter((camp) => camp.status !== "completed")
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(a.start_date).getTime() - new Date(b.start_date).getTime(),
+    );
+  const past = camps
+    .filter((camp) => camp.status === "completed")
+    .slice()
+    .sort((a, b) => {
+      const aEnd = new Date(a.end_date || a.start_date).getTime();
+      const bEnd = new Date(b.end_date || b.start_date).getTime();
+      // Для прошедших: сверху самые недавно завершившиеся
+      return bEnd - aEnd;
+    });
 
   return (
     <div className="space-y-8 md:space-y-16 pb-12">

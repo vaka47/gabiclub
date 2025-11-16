@@ -42,7 +42,7 @@ export default function MobileCampTicker({ camps }: MobileCampTickerProps) {
   if (items.length === 0) return null;
 
   return (
-    <Link href={`/camps/${items[0].camp.slug}`} className="fixed inset-x-0 top-14 z-40 md:hidden" aria-label="Открыть страницу кэмпа">
+    <Link href="/camps" className="fixed inset-x-0 top-14 z-40 md:hidden" aria-label="Открыть страницу кэмпов">
       <div className="mobile-camp-ticker pointer-events-auto mt-4">
         <div className="marquee">
           {[...items, ...items].map(({ camp, text }, idx) => (

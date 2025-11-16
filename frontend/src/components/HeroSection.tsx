@@ -105,6 +105,16 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
       .filter(Boolean) as string[];
   }, []);
 
+  const promoSlides = useMemo(
+    () =>
+      promos.map((p) => ({
+        ...p,
+        // image для промо уже приходит из API как абсолютный URL; оставляем как есть
+        imageSrc: p.image,
+      })),
+    [promos],
+  );
+
   const initialPromoIndex = useMemo(() => {
     if (!promos.length) return 0;
     const now = Date.now();
@@ -148,19 +158,19 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
   }, [bgSlides.length]);
 
   useEffect(() => {
-    if (typeof window === "undefined" || promos.length === 0) return;
+    if (typeof window === "undefined" || promoSlides.length === 0) return;
     // Preload all promo images once so that switching never shows unloaded photos.
-    promos.forEach((promo) => {
+    promoSlides.forEach((promo) => {
       const key = String(promo.id);
       if (loadedPromos[key]) return;
-      if (!promo.image) {
+      if (!promo.imageSrc) {
         setLoadedPromos((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
         return;
       }
       const img = new window.Image();
       img.decoding = "async";
       (img as any).fetchPriority = "high";
-      img.src = promo.image;
+      img.src = promo.imageSrc;
       if (img.complete) {
         setLoadedPromos((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
       } else {
@@ -173,7 +183,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
         };
       }
     });
-  }, [promos, loadedPromos]);
+  }, [promoSlides, loadedPromos]);
 
   const currentBg = bgSlides[bgIndex] ?? null;
   const currentPromo = promos.length > 0 ? promos[promoIndex % promos.length] : undefined;
@@ -374,23 +384,17 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
                   href={currentPromo.href}
                   className="relative block h-full overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow"
                 >
-                  {promos.map((promo, idx) =>
-                    promo.image ? (
-                      <DebugImage
+                  {promoSlides.map((promo, idx) =>
+                    promo.imageSrc ? (
+                      <img
                         key={promo.id}
-                        debugName={`hero-promo:${promo.id}`}
-                        src={promo.image}
+                        src={promo.imageSrc}
                         alt={promo.title}
-                        fill
-                        loading="eager"
                         className={clsx(
-                          "object-cover transition-opacity duration-700",
+                          "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
                           idx === promoIndex ? "opacity-100" : "opacity-0",
                         )}
-                        onLoad={() => {
-                          const key = String(promo.id);
-                          setLoadedPromos((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
-                        }}
+                        style={{ willChange: "opacity", backfaceVisibility: "hidden", transform: "translateZ(0)" }}
                       />
                     ) : null,
                   )}
