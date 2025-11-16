@@ -24,7 +24,7 @@ function CampCard({ camp }: { camp: Camp }) {
   }
   return (
     <article className="card-surface flex h-full flex-col overflow-hidden">
-      <div className="relative h-52 w-full overflow-hidden rounded-2xl">
+      <Link href={`/camps/${camp.slug}`} className="relative block h-52 w-full overflow-hidden rounded-2xl" aria-label={`Открыть страницу кэмпа ${camp.title}`}>
         {img ? (
           <DebugImage debugName={`camp-card:${camp.slug}`} src={img} alt={camp.title} fill className="object-cover" />
         ) : (
@@ -35,7 +35,7 @@ function CampCard({ camp }: { camp: Camp }) {
         <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gabi-blue">
           {camp.status_display ?? camp.status}
         </span>
-      </div>
+      </Link>
       <div className="mt-6 flex flex-col gap-4">
         <div>
           <h3 className="text-xl font-semibold text-gabi-dark">{camp.title}</h3>
