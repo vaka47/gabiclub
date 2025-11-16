@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { clsx } from "clsx";
 import { useLeadModal } from "./providers/LeadModalProvider";
 
-type ActivityKey = "ski" | "rollers" | "run" | "functional";
+type ActivityKey = "ski" | "rollers" | "functional";
 
 type Activity = {
   key: ActivityKey;
@@ -43,21 +43,6 @@ const ACTIVITIES: Activity[] = [
       'п. Токсово, ул. Лесгафта, 35 — УТЦ "Кавголово"',
       'просп. Луначарского — "Муринский парк"',
       'ул. Парашютная — завод "Ниссан"',
-    ],
-  },
-  {
-    key: "run",
-    title: "Бег",
-    lines: [
-      "Постановка техники и каданса",
-      "Трейл/шоссе — под вашу цель",
-      "Силовая подготовка бегуна",
-    ],
-    locations: [
-      'п. Токсово, ул. Лесгафта, 35 — УТЦ "Кавголово"',
-      'просп. Луначарского — "Муринский парк"',
-      'просп. Светлановский — парк "Сосновка"',
-      'Пулковский парк',
     ],
   },
   {
