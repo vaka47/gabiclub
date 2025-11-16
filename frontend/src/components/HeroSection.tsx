@@ -156,20 +156,27 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
 
   useEffect(() => {
     if (promos.length < 2) return;
-    const timer = setInterval(() => {
+    const nextIndex = (promoIndex + 1) % promos.length;
+    const nextPromo = promos[nextIndex];
+    const nextReady = !nextPromo?.image || !!loadedPromos[String(nextPromo.id)];
+    if (!nextReady) return;
+    const timer = setTimeout(() => {
       setPromoIndex((p) => {
         setPrevPromoIndex(p);
         return (p + 1) % promos.length;
       });
     }, PROMO_SWITCH);
-    return () => clearInterval(timer);
-  }, [promos.length]);
+    return () => clearTimeout(timer);
+  }, [promos, promoIndex, loadedPromos]);
 
   // Preload promo images to avoid flashes when switching
   useEffect(() => {
     if (typeof window === "undefined") return;
     promos.forEach((promo) => {
-      if (!promo.image) return;
+      if (!promo.image) {
+        markPromoLoaded(promo.id);
+        return;
+      }
       const img = new window.Image();
       img.decoding = "async";
       (img as any).fetchPriority = "high";
@@ -320,6 +327,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
             fill
             className="object-cover"
             onLoad={() => markPromoLoaded(promo.id)}
+            onError={() => markPromoLoaded(promo.id)}
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
