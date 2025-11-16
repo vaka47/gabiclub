@@ -217,10 +217,12 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
       (
         <>
           <span className="hidden md:inline">
-            Лыжи, роллеры и бег под руководством Габриеллы Калугер и Андрея Краснова.
+            Лыжи, лыжероллеры и ОФП. Технично и с удовольствием под руководством Габриеллы Калугер и Андрея Краснова.
           </span>
           <span className="md:hidden inline">
-            <span>Лыжи, роллеры и бег</span>
+            <span>Лыжи, лыжероллеры и ОФП.</span>
+            <br />
+            <span>Технично и с удовольствием</span>
             <br />
             <span>под руководством Габриеллы</span>
             <br />
@@ -231,30 +233,30 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
       (
         <>
           <span className="hidden md:inline">
-            Тренируем спортсменов разного уровня подготовки в Санкт-Петербурге и работаем онлайн.
+            Современные методики, забота о здоровье учеников и индивидуальный подход.
           </span>
           <span className="md:hidden inline">
-            <span>Тренируем спортсменов разного уровня</span>
+            <span>Современные методики, забота</span>
             <br />
-            <span>подготовки в Санкт-Петербурге</span>
+            <span>о здоровье учеников</span>
             <br />
-            <span>и работаем онлайн.</span>
+            <span>и индивидуальный подход.</span>
           </span>
         </>
       ),
       (
         <>
           <span className="hidden md:inline">
-            Помогаем кататься технично и добиваться результатов, получая удовольствие от тренировок.
+            Помогаем добиваться результатов новичкам и опытным спортсменам в Санкт-Петербурге и онлайн.
           </span>
           <span className="md:hidden inline">
-            <span>Помогаем кататься технично</span>
+            <span>Помогаем добиваться результатов</span>
             <br />
-            <span>и добиваться результатов,</span>
+            <span>новичкам и опытным спортсменам</span>
             <br />
-            <span>получая удовольствие</span>
+            <span>в Санкт-Петербурге</span>
             <br />
-            <span>от тренировок.</span>
+            <span>и онлайн.</span>
           </span>
         </>
       ),
