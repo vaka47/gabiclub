@@ -177,7 +177,6 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
 
   const currentBg = bgSlides[bgIndex] ?? null;
   const currentPromo = promos.length > 0 ? promos[promoIndex % promos.length] : undefined;
-  const currentLoaded = currentPromo ? !!loadedPromos[String(currentPromo.id)] : false;
 
   // Автопрокрутка: переключаемся только если следующий слайд уже в кеше.
   useEffect(() => {
@@ -370,19 +369,30 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
 
           <div className="hidden md:block">
             <div className="relative h-[420px]">
-              {currentPromo && currentLoaded && (
+              {currentPromo && (
                 <a
                   href={currentPromo.href}
-                  className="absolute inset-0 block h-full overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow"
+                  className="relative block h-full overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow"
                 >
-                  {currentPromo.image && (
-                    <DebugImage
-                      debugName={`hero-promo:${currentPromo.id}`}
-                      src={currentPromo.image}
-                      alt={currentPromo.title}
-                      fill
-                      className="object-cover"
-                    />
+                  {promos.map((promo, idx) =>
+                    promo.image ? (
+                      <DebugImage
+                        key={promo.id}
+                        debugName={`hero-promo:${promo.id}`}
+                        src={promo.image}
+                        alt={promo.title}
+                        fill
+                        loading="eager"
+                        className={clsx(
+                          "object-cover transition-opacity duration-700",
+                          idx === promoIndex ? "opacity-100" : "opacity-0",
+                        )}
+                        onLoad={() => {
+                          const key = String(promo.id);
+                          setLoadedPromos((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
+                        }}
+                      />
+                    ) : null,
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-5">
