@@ -52,7 +52,7 @@ export default async function BlogPage({ searchParams }: { searchParams?: Promis
       <section className="grid gap-8 md:grid-cols-2">
         {articles.map((article) => (
           <article key={article.slug} className="card-surface flex h-full flex-col overflow-hidden">
-            <div className="relative h-52 w-full overflow-hidden rounded-3xl">
+            <Link href={`/blog/${article.slug}`} className="relative h-52 w-full overflow-hidden rounded-3xl" aria-label={`Читать: ${article.title}`}>
               {(article.header_image || article.cover_image) ? (
                 <DebugImage
                   debugName={`blog-card:${article.slug}`}
@@ -66,7 +66,7 @@ export default async function BlogPage({ searchParams }: { searchParams?: Promis
                   {article.title}
                 </div>
               )}
-            </div>
+            </Link>
             <div className="mt-6 flex flex-col gap-4">
               <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-slate-400">
                 <span>{formatDate(article.published_at)}</span>
