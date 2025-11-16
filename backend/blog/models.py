@@ -26,7 +26,7 @@ class Article(models.Model):
     title = models.CharField("Заголовок", max_length=200)
     slug = models.SlugField("Слаг", max_length=240, unique=True, blank=True)
     excerpt = models.TextField("Краткое описание", blank=True)
-    content = models.TextField("Содержание")
+    content = models.TextField("Содержание", blank=True)
     cover_image = models.ImageField("Обложка", upload_to="articles/covers/", blank=True)
     header_image = models.ImageField("Шапка (горизонтальная)", upload_to="articles/headers/", blank=True)
     published_at = models.DateTimeField("Дата публикации", auto_now_add=True)
