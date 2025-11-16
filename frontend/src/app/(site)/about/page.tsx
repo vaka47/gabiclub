@@ -47,7 +47,9 @@ export default async function AboutPage() {
 
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold text-gabi-dark">Миссия</h2>
-        <p className="text-base text-slate-600">{club.mission}</p>
+        <p className="text-base text-slate-600">
+          Мы считаем, что лы считаем, что лжные гонки - самый лучший вид спорта, и хотим, чтобы каждый открывал в нем что то новое для себя. В клубе Gabi помогают реализовывать цели всех учеников вне зависимости от уровня подготовки: сделать первые шаги на лыжах, улучшить технику, пробежать первые соревнования или подготовиться к серии стартов. Мы помогаем нашим ученикам быстрее прийти к желаемому результату.
+        </p>
       </section>
 
       <section className="grid gap-6 md:grid-cols-[1.1fr_0.9fr]">
