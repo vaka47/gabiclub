@@ -291,6 +291,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
     const promoKey = String(promo.id);
     const isLoaded = !!loadedPromos[promoKey];
     const isVisible = isCurrent ? isLoaded : !currentLoaded;
+    const fallbackBg = isCurrent && !isLoaded && prevPromo?.image ? prevPromo.image : undefined;
 
     return (
       <a
@@ -301,6 +302,15 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
           isVisible ? "opacity-100" : "opacity-0",
           isCurrent ? "pointer-events-auto" : "pointer-events-none",
         )}
+        style={
+          fallbackBg
+            ? {
+                backgroundImage: `url(${fallbackBg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : undefined
+        }
       >
         {promo.image && (
           <DebugImage
