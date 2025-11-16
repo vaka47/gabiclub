@@ -25,7 +25,9 @@ export default async function AboutPage() {
     <div className="space-y-12 pb-12">
       <header className="space-y-4">
         <h1 className="section-title">О клубе</h1>
-        <p className="section-subtitle">{club.story}</p>
+        <p className="section-subtitle">
+          Gabi Club вырос из инициативы увлечённой спортсменки, решившей помогать людям встать на лыжи и уверенно прогрессировать. Сейчас с нами тренируются более 200 участников в Санкт-Петербурге, а наши кэмпы проходят по всей России.
+        </p>
       </header>
 
       <section className="grid gap-6 md:grid-cols-3">
