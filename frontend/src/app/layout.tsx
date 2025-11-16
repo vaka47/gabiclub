@@ -8,9 +8,11 @@ import CursorTrail from "@/components/CursorTrail";
 import Footer from "@/components/Footer";
 import MobileCampTicker from "@/components/MobileCampTicker";
 import Header from "@/components/Header";
+import dynamic from "next/dynamic";
 import LeadModalProvider from "@/components/providers/LeadModalProvider";
 import { getClubProfile, getContactInfo, getTheme, getCamps } from "@/lib/api";
 
+const NetworkDebugProbe = dynamic(() => import("@/components/NetworkDebugProbe"), { ssr: false });
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 // Use Russo One for display headings (supports Cyrillic, strong geometric look)
 const bebas = Russo_One({ weight: "400", subsets: ["latin", "cyrillic"], variable: "--font-bebas" });
@@ -64,6 +66,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div className="fixed inset-0 -z-10 sky-gradient-layer" aria-hidden />
         <div className="relative min-h-screen">
           <LeadModalProvider>
+            {process.env.NEXT_PUBLIC_DEBUG_NETWORK === "1" && <NetworkDebugProbe />}
             <CursorTrail />
             <Header socialLinks={headerLinks} />
             {/* Mobile-only camp ticker overlay across the site */}
