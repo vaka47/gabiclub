@@ -55,12 +55,15 @@ export default async function TrainingsPage() {
         tagline={club.tagline}
         description={club.hero_description}
         promos={[
-          ...(camps ?? []).slice(0, 3).map((c) => ({
+          ...([...(camps ?? [])].sort(
+            (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime(),
+          )).map((c) => ({
             id: `camp-${c.id}`,
             title: c.title,
             subtitle: `${new Date(c.start_date).toLocaleDateString("ru-RU", { day: "2-digit", month: "short" })} – ${new Date(c.end_date).toLocaleDateString("ru-RU", { day: "2-digit", month: "short" })}`,
             image: resolveMediaUrl(c.hero_image || c.header_image) ?? undefined,
             href: `/camps/${c.slug}`,
+            startDate: c.start_date,
           })),
           ...(articles ?? []).slice(0, 3).map((a) => ({
             id: `article-${a.id}`,

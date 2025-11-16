@@ -7,10 +7,20 @@ import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
 import DebugImage from "./DebugImage";
 
-type PromoItem = { id: string | number; title: string; subtitle?: string; image?: string; href: string; label?: string };
+type PromoItem = {
+  id: string | number;
+  title: string;
+  subtitle?: string;
+  image?: string;
+  href: string;
+  label?: string;
+  startDate?: string;
+};
 type HeroSectionProps = { slides: HeroSlide[]; clubName: string; tagline?: string; description?: string; promos?: PromoItem[] };
 
 const AUTO_SWITCH = 6000;
+const PROMO_SWITCH = 4500;
+const PROMO_FADE_MS = 700;
 const FADE_MS = 900;
 const EDGE_SAMPLE_SIZE = 48;
 const EDGE_BAND = 8;
@@ -95,13 +105,45 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
         .map((s) => resolveMediaUrl(String(s))) as string[],
     [],
   );
+  const primaryHeroBg = useMemo(() => resolveMediaUrl("/gabigroup-main.jpg") ?? "/gabigroup-main.jpg", []);
   const bgSlides = useMemo(() => {
     const fromClub = slides.map((s) => resolveMediaUrl(s.image) ?? s.image).filter(Boolean) as string[];
-    return envSlides.length > 0 ? envSlides : fromClub;
-  }, [slides, envSlides]);
+    const base = envSlides.length > 0 ? envSlides : fromClub;
+    const deduped = base.filter((src) => src && src !== primaryHeroBg);
+    return [primaryHeroBg, ...deduped];
+  }, [slides, envSlides, primaryHeroBg]);
+
+  const initialPromoIndex = useMemo(() => {
+    if (!promos.length) return 0;
+    const now = Date.now();
+    let bestFuture = Number.POSITIVE_INFINITY;
+    let bestPast = Number.POSITIVE_INFINITY;
+    let picked = 0;
+    promos.forEach((promo, idx) => {
+      if (!promo.startDate) return;
+      const ts = Date.parse(promo.startDate);
+      if (Number.isNaN(ts)) return;
+      const delta = ts - now;
+      if (delta >= 0 && delta < bestFuture) {
+        bestFuture = delta;
+        picked = idx;
+      } else if (bestFuture === Number.POSITIVE_INFINITY && -delta < bestPast) {
+        bestPast = -delta;
+        picked = idx;
+      }
+    });
+    return picked;
+  }, [promos]);
 
   const [bgIndex, setBgIndex] = useState(0);
   const [prevBg, setPrevBg] = useState<string | null>(null);
+  const [promoIndex, setPromoIndex] = useState(initialPromoIndex);
+  const [prevPromoIndex, setPrevPromoIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setPromoIndex(initialPromoIndex);
+  }, [initialPromoIndex]);
+
   useEffect(() => {
     if (bgSlides.length < 2) return;
     const timer = setInterval(() => {
@@ -113,10 +155,29 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
     return () => clearInterval(timer);
   }, [bgSlides.length]);
 
+  useEffect(() => {
+    if (promos.length < 2) return;
+    const timer = setInterval(() => {
+      setPromoIndex((p) => {
+        setPrevPromoIndex(p);
+        return (p + 1) % promos.length;
+      });
+    }, PROMO_SWITCH);
+    return () => clearInterval(timer);
+  }, [promos.length]);
+
   const currentBg = bgSlides[bgIndex] ?? null;
+  const currentPromo = promos.length > 0 ? promos[promoIndex % promos.length] : undefined;
+  const prevPromo = prevPromoIndex !== null ? promos[prevPromoIndex] : undefined;
+
+  useEffect(() => {
+    if (prevPromoIndex === null) return;
+    const t = setTimeout(() => setPrevPromoIndex(null), PROMO_FADE_MS);
+    return () => clearTimeout(t);
+  }, [prevPromoIndex]);
+
   const [edgeColors, setEdgeColors] = useState<Record<string, string>>({});
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ РЕЗУЛЬТАТ");
-  const currentPromo = promos.length > 0 ? promos[bgIndex % promos.length] : undefined;
   const heroDescriptionVariants = useMemo<ReactNode[]>(() => {
     return [
       (
@@ -208,6 +269,35 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
 
   // Wordmark now rendered as text using Halenoir (self-hosted); PNG/SVG is no longer needed
 
+  const renderPromoCard = (promo: PromoItem, state: "current" | "prev") => (
+    <a
+      key={promo.id}
+      href={promo.href}
+      className={clsx(
+        "absolute inset-0 block h-full overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow transition-opacity duration-700 ease-out",
+        state === "current" ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+      )}
+    >
+      {promo.image && (
+        <DebugImage
+          debugName={`hero-promo:${promo.id}`}
+          src={promo.image}
+          alt={promo.title}
+          fill
+          className="object-cover"
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 p-5">
+        <div className="text-xs uppercase tracking-[0.2em] text-white/80">
+          {promo.label ?? (typeof promo.id === "string" && promo.id.startsWith("article-") ? "Статья" : "Анонс")}
+        </div>
+        <div className="text-lg font-semibold text-white">{promo.title}</div>
+        {promo.subtitle && <div className="text-white/80">{promo.subtitle}</div>}
+      </div>
+    </a>
+  );
+
   return (
     <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow" style={edgeStyle}>
       <div className="absolute inset-0 z-0" aria-hidden>
@@ -292,27 +382,10 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
           </div>
 
           <div className="hidden md:block">
-            {currentPromo && (
-              <a href={currentPromo.href} className="relative block h-[420px] overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow">
-                {currentPromo.image && (
-                  <DebugImage
-                    debugName={`hero-promo:${currentPromo.id}`}
-                    src={currentPromo.image}
-                    alt={currentPromo.title}
-                    fill
-                    className="object-cover"
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <div className="text-xs uppercase tracking-[0.2em] text-white/80">
-                    {currentPromo.label ?? (typeof currentPromo.id === 'string' && currentPromo.id.startsWith('article-') ? 'Статья' : 'Анонс')}
-                  </div>
-                  <div className="text-lg font-semibold text-white">{currentPromo.title}</div>
-                  {currentPromo.subtitle && <div className="text-white/80">{currentPromo.subtitle}</div>}
-                </div>
-              </a>
-            )}
+            <div className="relative h-[420px]">
+              {prevPromo && renderPromoCard(prevPromo, "prev")}
+              {currentPromo && renderPromoCard(currentPromo, "current")}
+            </div>
           </div>
         </div>
       </div>
