@@ -97,21 +97,14 @@ function sampleEdgeColor(src: string): Promise<string | null> {
   });
 }
 
-export default function HeroSection({ slides, clubName, tagline, description, promos = [] }: HeroSectionProps) {
-  const envSlides = useMemo(
-    () =>
-      [process.env.NEXT_PUBLIC_HERO_BG_1, process.env.NEXT_PUBLIC_HERO_BG_2, process.env.NEXT_PUBLIC_HERO_BG_3]
-        .filter(Boolean)
-        .map((s) => resolveMediaUrl(String(s))) as string[],
-    [],
-  );
-  const primaryHeroBg = useMemo(() => resolveMediaUrl("/gabigroup-main.jpg") ?? "/gabigroup-main.jpg", []);
+export default function HeroSection({ slides: _slides, clubName, tagline, description, promos = [] }: HeroSectionProps) {
   const bgSlides = useMemo(() => {
-    const fromClub = slides.map((s) => resolveMediaUrl(s.image) ?? s.image).filter(Boolean) as string[];
-    const base = envSlides.length > 0 ? envSlides : fromClub;
-    const deduped = base.filter((src) => src && src !== primaryHeroBg);
-    return [primaryHeroBg, ...deduped];
-  }, [slides, envSlides, primaryHeroBg]);
+    // Fixed order backgrounds for hero: primary group photo first, then two alternates
+    const ordered = ["/gabigroup-main.jpg", "/hero-1-min.jpg", "/hero-2-min.jpg"];
+    return ordered
+      .map((src) => resolveMediaUrl(src) ?? src)
+      .filter(Boolean) as string[];
+  }, []);
 
   const initialPromoIndex = useMemo(() => {
     if (!promos.length) return 0;
