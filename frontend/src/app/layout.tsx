@@ -8,11 +8,9 @@ import CursorTrail from "@/components/CursorTrail";
 import Footer from "@/components/Footer";
 import MobileCampTicker from "@/components/MobileCampTicker";
 import Header from "@/components/Header";
-import dynamic from "next/dynamic";
 import LeadModalProvider from "@/components/providers/LeadModalProvider";
+import NetworkDebugProbe from "@/components/NetworkDebugProbe";
 import { getClubProfile, getContactInfo, getTheme, getCamps } from "@/lib/api";
-
-const NetworkDebugProbe = dynamic(() => import("@/components/NetworkDebugProbe"), { ssr: false });
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 // Use Russo One for display headings (supports Cyrillic, strong geometric look)
 const bebas = Russo_One({ weight: "400", subsets: ["latin", "cyrillic"], variable: "--font-bebas" });
