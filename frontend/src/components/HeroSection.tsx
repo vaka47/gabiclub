@@ -217,7 +217,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
       (
         <>
           <span className="hidden md:inline">
-            Лыжи, лыжероллеры и ОФП. Технично и с удовольствием под руководством Габриеллы Калугер и Андрея Краснова.
+            Лыжи, лыжероллеры и ОФП. Технично и с удовольствием<br />под руководством Габриеллы Калугер и Андрея Краснова.
           </span>
           <span className="md:hidden inline">
             <span>Лыжи, лыжероллеры и ОФП.</span>
@@ -233,12 +233,12 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
       (
         <>
           <span className="hidden md:inline">
-            Современные методики, забота о здоровье учеников и индивидуальный подход.
+            Современные методики, забота о здоровье учеников<br />и индивидуальный подход.
           </span>
           <span className="md:hidden inline">
-            <span>Современные методики, забота</span>
+            <span>Современные методики,</span>
             <br />
-            <span>о здоровье учеников</span>
+            <span>забота о здоровье учеников</span>
             <br />
             <span>и индивидуальный подход.</span>
           </span>
@@ -247,7 +247,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
       (
         <>
           <span className="hidden md:inline">
-            Помогаем добиваться результатов новичкам и опытным спортсменам в Санкт-Петербурге и онлайн.
+            Помогаем добиваться результатов новичкам<br />и опытным спортсменам в Санкт-Петербурге и онлайн.
           </span>
           <span className="md:hidden inline">
             <span>Помогаем добиваться результатов</span>
