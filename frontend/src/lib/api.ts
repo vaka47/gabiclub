@@ -59,6 +59,14 @@ const API_ORIGIN = (() => {
     return "";
   }
 })();
+const PROD_FALLBACK_ORIGIN = (() => {
+  try {
+    return new URL(PROD_FALLBACK_API).origin;
+  } catch {
+    return "";
+  }
+})();
+const MEDIA_ORIGIN = (process.env.NEXT_PUBLIC_MEDIA_ORIGIN?.trim() || "") || API_ORIGIN || PROD_FALLBACK_ORIGIN;
 
 const DEBUG_MEDIA = process.env.NEXT_PUBLIC_DEBUG_MEDIA === "1";
 
@@ -75,9 +83,9 @@ export function resolveMediaUrl(src?: string | null): string | undefined {
     // Only prefix absolute API-origin for media paths coming from Django.
     // Site-root assets like "/hero-1.jpg" must stay on the Next.js host.
     if (src.startsWith("/media/") || src.startsWith("/static/")) {
-      const out = API_ORIGIN ? `${API_ORIGIN}${src}` : src;
+      const out = MEDIA_ORIGIN ? `${MEDIA_ORIGIN}${src}` : src;
       if (DEBUG_MEDIA) {
-        console.log(`[media] resolved Django media`, { in: src, api_origin: API_ORIGIN, out });
+        console.log(`[media] resolved Django media`, { in: src, media_origin: MEDIA_ORIGIN, api_origin: API_ORIGIN, out });
       }
       return out;
     }
