@@ -25,6 +25,11 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
   if (!camp) {
     notFound();
   }
+  const highlights = camp.highlights ?? [];
+  const inclusions = camp.inclusions ?? [];
+  const gallery = camp.gallery ?? [];
+  const program = camp.program ?? [];
+  const trainers = camp.trainers ?? [];
   const price = Number(camp.price_from);
   // Desktop (md+): prefer header image; Mobile: prefer cover/hero image
   const desktopRaw = camp.header_image || camp.hero_image || null;
@@ -104,11 +109,11 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
             </div>
           )}
 
-          {camp.inclusions && camp.inclusions.length > 0 && (
+          {inclusions.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-xl font-semibold text-gabi-dark">Что входит в стоимость</h3>
               <ul className="space-y-2 text-sm text-slate-600">
-                {camp.inclusions.map((inc) => (
+                {inclusions.map((inc) => (
                   <li key={inc.id} className="flex items-start gap-2">
                     <span className="mt-1 h-2 w-2 rounded-full bg-gabi-blue" aria-hidden />
                     {inc.text}
@@ -124,11 +129,11 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
               <p className="text-sm text-slate-600 whitespace-pre-line">{camp.logistics}</p>
             </div>
           )}
-          {camp.program.length > 0 && (
+          {program.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gabi-dark">Программа по дням</h3>
               <ul className="space-y-3">
-                {camp.program.map((day) => (
+                {program.map((day) => (
                   <li key={day.id} className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
                     <div className="text-sm font-semibold text-gabi-blue">День {day.day_number}</div>
                     <div className="text-base font-semibold text-gabi-dark">{day.title}</div>
@@ -157,11 +162,11 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
               </a>
             )}
           </div>
-          {camp.highlights.length > 0 && (
+          {highlights.length > 0 && (
             <div className="card-surface space-y-3">
               <h3 className="text-lg font-semibold text-gabi-dark">Что вас ждёт</h3>
               <ul className="space-y-2 text-sm text-slate-600">
-                {camp.highlights.map((item) => (
+                {highlights.map((item) => (
                   <li key={item.id} className="flex items-start gap-2">
                     <span className="mt-1 h-2 w-2 rounded-full bg-gabi-blue" aria-hidden />
                     {item.text}
@@ -173,17 +178,17 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
         </aside>
       </section>
 
-      {camp.trainers && camp.trainers.length > 0 && (
+      {trainers.length > 0 && (
         <section className="space-y-6">
           <h2 className="section-title section-accent">Тренеры кэмпа</h2>
-          <CoachShowcase coaches={camp.trainers} showHeading={false} className="mt-6" />
+          <CoachShowcase coaches={trainers} showHeading={false} className="mt-6" />
         </section>
       )}
 
-      {camp.gallery.length > 0 && (
+      {gallery.length > 0 && (
         <section className="space-y-6">
           <h2 className="text-2xl font-semibold text-gabi-dark">Галерея</h2>
-          <CampGallery slug={camp.slug} title={camp.title} photos={camp.gallery} />
+          <CampGallery slug={camp.slug} title={camp.title} photos={gallery} />
         </section>
       )}
     </div>

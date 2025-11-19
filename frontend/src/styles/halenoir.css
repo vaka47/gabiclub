@@ -1,12 +1,10 @@
 /* Optional self-hosted Halenoir font
-   Place files at: public/fonts/halenoir/Halenoir-Black.woff2 (and .woff)
+   Place files at: public/fonts/halenoir/halenoir/Halenoir-Black.otf
    Build will not fail if files are absent; browser will fall back. */
 @font-face {
   font-family: 'Halenoir';
   src:
-    url('/fonts/halenoir/halenoir/Halenoir-Black.otf') format('opentype'),
-    url('/fonts/halenoir/Halenoir-Black.woff2') format('woff2'),
-    url('/fonts/halenoir/Halenoir-Black.woff') format('woff');
+    url('/fonts/halenoir/halenoir/Halenoir-Black.otf') format('opentype');
   font-weight: 900;
   font-style: normal;
   font-display: swap;

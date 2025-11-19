@@ -70,6 +70,31 @@ const MEDIA_ORIGIN = (process.env.NEXT_PUBLIC_MEDIA_ORIGIN?.trim() || "") || API
 
 const DEBUG_MEDIA = process.env.NEXT_PUBLIC_DEBUG_MEDIA === "1";
 
+let cachedContactInfo: ContactInfo | null = null;
+let cachedClubProfile: ClubProfile | null = null;
+
+const toNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const ensureArray = <T>(value: T[] | null | undefined): T[] => (Array.isArray(value) ? value : []);
+
+const normalizeCamp = <T extends Camp>(camp: T): T => ({
+  ...camp,
+  price_from: toNumber(camp.price_from, 0),
+});
+
+const normalizeCampDetail = (camp: CampDetail): CampDetail => ({
+  ...normalizeCamp(camp),
+  highlights: ensureArray(camp.highlights),
+  inclusions: ensureArray(camp.inclusions),
+  program: ensureArray(camp.program),
+  gallery: ensureArray(camp.gallery),
+  trainers: ensureArray(camp.trainers),
+});
+
 export function resolveMediaUrl(src?: string | null): string | undefined {
   if (!src) return undefined;
   if (/^https?:\/\//i.test(src)) {
@@ -204,12 +229,12 @@ export async function getCoaches(): Promise<Coach[]> {
 export async function getCamps(params?: URLSearchParams): Promise<Camp[]> {
   const query = params ? `?${params.toString()}` : "";
   const data = await fetchFromApi<Camp[]>(`/camps/${query}`);
-  return data ?? [];
+  return (data ?? []).map((camp) => normalizeCamp(camp));
 }
 
 export async function getCampBySlug(slug: string): Promise<CampDetail | null> {
   const data = await fetchFromApi<CampDetail>(`/camps/${slug}/`);
-  return data ?? null;
+  return data ? normalizeCampDetail(data) : null;
 }
 
 export async function getArticles(tagOrParams?: string | URLSearchParams): Promise<Article[]> {
@@ -236,12 +261,20 @@ export async function getTags(): Promise<ArticleTag[]> {
 
 export async function getContactInfo(): Promise<ContactInfo> {
   const data = await fetchFromApi<ContactInfo>(`/core/contact/`);
-  return data ?? mockData.contactInfo;
+  if (data) {
+    cachedContactInfo = data;
+    return data;
+  }
+  return cachedContactInfo ?? mockData.contactInfo;
 }
 
 export async function getClubProfile(): Promise<ClubProfile> {
   const data = await fetchFromApi<ClubProfile>(`/core/club/`);
-  return data ?? mockData.clubProfile;
+  if (data) {
+    cachedClubProfile = data;
+    return data;
+  }
+  return cachedClubProfile ?? mockData.clubProfile;
 }
 
 export async function getTheme(): Promise<ThemeConfig | null> {
