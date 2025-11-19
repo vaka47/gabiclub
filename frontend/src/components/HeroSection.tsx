@@ -2,6 +2,9 @@
 
 import { clsx } from "clsx";
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import heroPrimaryBg from "@public/gabigroup-main.jpg";
+import heroAltOne from "@public/hero-1-min.jpg";
+import heroAltTwo from "@public/hero-2-min.jpg";
 import type { HeroSlide } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
@@ -107,11 +110,11 @@ function sampleEdgeColor(src: string): Promise<string | null> {
 
 export default function HeroSection({ slides: _slides, clubName, tagline, description, promos = [] }: HeroSectionProps) {
   const bgSlides = useMemo(() => {
-    // Fixed order backgrounds for hero: primary group photo first, then two alternates
-    const ordered = ["/gabigroup-main.jpg", "/hero-1-min.jpg", "/hero-2-min.jpg"];
-    return ordered
-      .map((src) => resolveMediaUrl(src) ?? src)
-      .filter(Boolean) as string[];
+    // Fixed order backgrounds for hero: primary group photo first, then two alternates.
+    // Importing the assets ensures they are bundled into the standalone build and
+    // remain accessible even if the `public` folder is not copied during deploys.
+    const ordered = [heroPrimaryBg.src, heroAltOne.src, heroAltTwo.src];
+    return ordered.map((src) => resolveMediaUrl(src) ?? src).filter(Boolean) as string[];
   }, []);
 
   const promoSlides = useMemo(
