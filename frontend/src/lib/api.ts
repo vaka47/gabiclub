@@ -1,4 +1,4 @@
-import { getMockCampBySlug, mockData } from "./mockData";
+import { mockData } from "./mockData";
 import {
   Article,
   ArticleTag,
@@ -204,12 +204,12 @@ export async function getCoaches(): Promise<Coach[]> {
 export async function getCamps(params?: URLSearchParams): Promise<Camp[]> {
   const query = params ? `?${params.toString()}` : "";
   const data = await fetchFromApi<Camp[]>(`/camps/${query}`);
-  return data ?? mockData.camps;
+  return data ?? [];
 }
 
 export async function getCampBySlug(slug: string): Promise<CampDetail | null> {
   const data = await fetchFromApi<CampDetail>(`/camps/${slug}/`);
-  return data ?? getMockCampBySlug(slug) ?? null;
+  return data ?? null;
 }
 
 export async function getArticles(tagOrParams?: string | URLSearchParams): Promise<Article[]> {

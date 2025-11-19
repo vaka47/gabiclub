@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   eslint: { ignoreDuringBuilds: true },
+  // Produce a standalone build so we can deploy the compiled server on Reg.ru
+  output: "standalone",
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
