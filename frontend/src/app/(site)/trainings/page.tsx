@@ -95,14 +95,18 @@ export default async function TrainingsPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
-            <a href="/pricing" className="btn-primary">
+            <a href="/pricing" className="btn-primary w-full sm:w-auto sm:min-w-[220px]">
               Смотреть тарифы
             </a>
-            <a href="/camps" className="btn-secondary">
+            <a href="/camps" className="btn-primary w-full sm:w-auto sm:min-w-[220px]">
               Смотреть кэмпы
             </a>
-            <LeadCtaButton label="Записаться сейчас" className="btn-secondary" source="trainings-cta" />
-            <a href="tel:+79309341395" className="btn-secondary">
+            <LeadCtaButton
+              label="Записаться сейчас"
+              className="btn-secondary w-full sm:w-auto sm:min-w-[220px]"
+              source="trainings-cta"
+            />
+            <a href="tel:+79309341395" className="btn-secondary w-full sm:w-auto sm:min-w-[220px]">
               Позвонить клубу
             </a>
           </div>
