@@ -83,12 +83,10 @@ export default function SessionTariffCarousel({ tariffs }: SessionTariffCarousel
           </div>
           {primaryPrice && (
             <div className="flex items-baseline gap-2">
+              <span className="text-sm uppercase tracking-wide text-slate-400">от</span>
               <span className="text-3xl font-semibold text-gabi-blue">
                 {formatPrice(primaryPrice.price)}
               </span>
-              {primaryPrice.label && (
-                <span className="text-sm text-slate-500">{primaryPrice.label}</span>
-              )}
             </div>
           )}
           {priceOptions.length > 0 ? (
