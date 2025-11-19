@@ -139,7 +139,7 @@ export default function SessionTariffCarousel({ tariffs }: SessionTariffCarousel
             ‹
           </button>
           <div
-            className="flex-1 overflow-hidden"
+            className="flex-1 overflow-hidden rounded-[32px]"
             onPointerDown={(e) => {
               const t = e.target as HTMLElement;
               if (t.closest("button, a")) return;
@@ -190,7 +190,7 @@ export default function SessionTariffCarousel({ tariffs }: SessionTariffCarousel
               return (
                 <div className="relative" style={{ height: "100%" }}>
                   <div className="invisible pointer-events-none">
-                    <TariffCard className="mt-2" tariff={curr} />
+                    <TariffCard className="my-2" tariff={curr} />
                   </div>
                   <div
                     className="absolute inset-0"
@@ -199,7 +199,7 @@ export default function SessionTariffCarousel({ tariffs }: SessionTariffCarousel
                       transition: animating ? "transform 160ms ease" : undefined,
                     }}
                   >
-                    <TariffCard className="mt-2" tariff={curr} />
+                    <TariffCard className="my-2" tariff={curr} />
                   </div>
                   <div
                     className="absolute top-0 bottom-0 w-full"
@@ -209,7 +209,7 @@ export default function SessionTariffCarousel({ tariffs }: SessionTariffCarousel
                       transition: animating ? "transform 160ms ease" : undefined,
                     }}
                   >
-                    <TariffCard className="mt-2" tariff={items[nextIdx]!} />
+                    <TariffCard className="my-2" tariff={items[nextIdx]!} />
                   </div>
                   <div
                     className="absolute top-0 bottom-0 w-full"
@@ -219,7 +219,7 @@ export default function SessionTariffCarousel({ tariffs }: SessionTariffCarousel
                       transition: animating ? "transform 160ms ease" : undefined,
                     }}
                   >
-                    <TariffCard className="mt-2" tariff={items[prevIdx]!} />
+                    <TariffCard className="my-2" tariff={items[prevIdx]!} />
                   </div>
                 </div>
               );

@@ -113,7 +113,7 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
               ‹
             </button>
             <div
-              className="flex-1 overflow-hidden"
+              className="flex-1 overflow-hidden rounded-[32px]"
               onPointerDown={(e) => {
                 // Don't start swipe when interacting with buttons/links inside the card
                 const t = e.target as HTMLElement;
@@ -160,7 +160,7 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                 const nextIdx = (idx + 1) % filteredPlans.length;
 
                 const Card = ({ plan }: { plan: TrainingPlan }) => (
-                  <div className="card-surface mt-2 flex h-full flex-col justify-between">
+                  <div className="card-surface my-2 flex h-full flex-col justify-between">
                     <div className="space-y-4">
                       <div>
                         <div className="flex items-center justify-between gap-3">
