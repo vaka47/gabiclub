@@ -201,7 +201,7 @@ const sessionTariffs: SessionTariff[] = [
     title: "Индивидуальная тренировка",
     category: "personal",
     category_display: "Индивидуальные",
-    description: "Выезд тренера на удобную локацию и план под вашу задачу.",
+    description: "Самый эффективный вид занятий. Всё для достижения ваших целей",
     is_featured: true,
     order: 1,
     prices: [
@@ -214,7 +214,7 @@ const sessionTariffs: SessionTariff[] = [
     title: "Групповая тренировка",
     category: "group",
     category_display: "Групповые",
-    description: "До 10 человек, деление по уровню, поддержка команды.",
+    description: "Деление по уровню подготовки, поддержка команды.",
     order: 2,
     prices: [
       { id: 21, label: "Разовое участие", price: 1500, order: 1 },
@@ -223,7 +223,7 @@ const sessionTariffs: SessionTariff[] = [
   },
   {
     id: 3,
-    title: "Абонемент в группу начинающих",
+    title: "Абонемент на месяц в группу начинающих",
     category: "subscription",
     category_display: "Абонементы",
     description: "Каждый месяц вы выбираете количество групповых занятий.",
