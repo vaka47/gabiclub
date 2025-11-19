@@ -48,6 +48,12 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
 
   if (coaches.length === 0) return null;
 
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[CoachShowcase] layout debug", {
+      cards: coaches.length,
+    });
+  }
+
   return (
     <motion.section
       className={"mt-20 space-y-8 px-4 md:px-0 "+className}
@@ -63,49 +69,51 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
             <p className="section-subtitle">Мы подбираем тренера под вашу цель.</p>
           </div>
         )}
-      <motion.div
-        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 md:w-fit md:mx-auto md:justify-items-center"
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.2 }}
-        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
-      >
-        {coaches.map((coach) => (
+        <div className="md:flex md:justify-center">
           <motion.div
-            key={coach.id}
-            className="card-surface flex h-full flex-col gap-4"
-            variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
-            transition={{ duration: 0.55, ease: "easeOut" }}
+            className="grid gap-6 md:inline-grid md:grid-cols-2 lg:grid-cols-3 md:justify-items-center"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
           >
-            <button type="button" className="flex items-center gap-4 text-left" onClick={() => setSelectedCoach(coach)}>
-              <CoachAvatar coach={coach} />
-              <div>
-                <h3 className="text-lg font-semibold text-gabi-dark underline-offset-4 hover:underline">{coach.full_name}</h3>
-                {coach.role && <p className="text-sm text-slate-500">{coach.role}</p>}
-              </div>
-            </button>
-            <p className="text-sm text-slate-600">{coach.bio}</p>
-            {coach.directions.length > 0 && (
-              <div className="flex flex-wrap gap-2 text-xs">
-                {coach.directions.map((direction) => (
-                  <span key={direction.id} className="brand-chip px-3 py-1">
-                    {direction.title}
-                  </span>
-                ))}
-              </div>
-            )}
-            <LeadCtaButton
-              label="Связаться с тренером"
-              className="btn-secondary mt-auto"
-              source="coach"
-              initial={{
-                preferred_direction: coach.directions[0]?.title ?? coach.full_name,
-                message: `Хочу тренироваться с ${coach.full_name}`,
-              }}
-            />
+            {coaches.map((coach) => (
+              <motion.div
+                key={coach.id}
+                className="card-surface flex h-full flex-col gap-4"
+                variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
+                transition={{ duration: 0.55, ease: "easeOut" }}
+              >
+                <button type="button" className="flex items-center gap-4 text-left" onClick={() => setSelectedCoach(coach)}>
+                  <CoachAvatar coach={coach} />
+                  <div>
+                    <h3 className="text-lg font-semibold text-gabi-dark underline-offset-4 hover:underline">{coach.full_name}</h3>
+                    {coach.role && <p className="text-sm text-slate-500">{coach.role}</p>}
+                  </div>
+                </button>
+                <p className="text-sm text-slate-600">{coach.bio}</p>
+                {coach.directions.length > 0 && (
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    {coach.directions.map((direction) => (
+                      <span key={direction.id} className="brand-chip px-3 py-1">
+                        {direction.title}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <LeadCtaButton
+                  label="Связаться с тренером"
+                  className="btn-secondary mt-auto"
+                  source="coach"
+                  initial={{
+                    preferred_direction: coach.directions[0]?.title ?? coach.full_name,
+                    message: `Хочу тренироваться с ${coach.full_name}`,
+                  }}
+                />
+              </motion.div>
+            ))}
           </motion.div>
-        ))}
-      </motion.div>
+        </div>
       </div>
       <CoachModal open={!!selectedCoach} coach={selectedCoach} onClose={() => setSelectedCoach(null)} />
     </motion.section>
