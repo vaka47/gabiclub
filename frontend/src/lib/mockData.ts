@@ -214,7 +214,7 @@ const sessionTariffs: SessionTariff[] = [
     title: "Парная тренировка",
     category: "personal",
     category_display: "Индивидуальные",
-    description: "Тренировка для двоих с упором на работу в паре и взаимную поддержку.",
+    description: "Тренировка для двух человек. Взаимная поддержка - залог результата.",
     order: 2,
     prices: [
       { id: 13, label: "Парная тренировка с Габриеллой Калугер", price: 5500, order: 1 },
