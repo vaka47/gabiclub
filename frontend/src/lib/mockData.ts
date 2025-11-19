@@ -205,7 +205,7 @@ const sessionTariffs: SessionTariff[] = [
     is_featured: true,
     order: 1,
     prices: [
-      { id: 11, label: "Занятие с Габриэллой Калугер", price: 3800, order: 1 },
+      { id: 11, label: "Занятие с Габриеллой Калугер", price: 3800, order: 1 },
       { id: 12, label: "Занятие с Андреем Красновым", price: 4500, order: 2 },
     ],
   },
