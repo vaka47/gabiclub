@@ -71,7 +71,7 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
         )}
         <div className="flex justify-center">
           <motion.div
-            className="grid gap-6 md:inline-grid md:grid-cols-2 lg:grid-cols-3 md:justify-items-center"
+            className="grid gap-6 md:inline-grid md:w-fit md:mx-auto md:grid-cols-2 lg:grid-cols-3 md:justify-items-center"
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
