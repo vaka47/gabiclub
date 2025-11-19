@@ -27,22 +27,24 @@ jobs:
           command_timeout: 20m
           script: |
             set -euo pipefail
-            # Update repo and run deploy script on the server
             if [ ! -d /srv/gabiclub/backend ]; then
-              echo "ERROR: /srv/gabiclub/backend not found on server" >&2; exit 1; fi
+              echo "ERROR: /srv/gabiclub/backend not found on server" >&2
+              exit 1
+            fi
             cd /srv/gabiclub/backend
             git fetch --all --prune
             git reset --hard origin/main
-            # Configure Telegram env for gunicorn via systemd drop-in (optional)
+
             TG_TOKEN='${{ secrets.TELEGRAM_BOT_TOKEN }}'
             TG_CHATS='${{ secrets.TELEGRAM_CHAT_IDS }}'
             if [ -n "${TG_TOKEN}" ] && [ -n "${TG_CHATS}" ]; then
               mkdir -p /etc/systemd/system/gunicorn-gabiclub.service.d
-              cat >/etc/systemd/system/gunicorn-gabiclub.service.d/override.conf <<EOF
+              cat >/etc/systemd/system/gunicorn-gabiclub.service.d/override.conf <<'EOF'
 [Service]
 Environment=TELEGRAM_BOT_TOKEN=${TG_TOKEN}
 Environment=TELEGRAM_CHAT_IDS=${TG_CHATS}
 EOF
               systemctl daemon-reload
             fi
+
             bash scripts/deploy-backend.sh
