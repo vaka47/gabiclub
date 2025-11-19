@@ -432,7 +432,7 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                         {(session.levels?.length ?? 0) > 0 && (
                           <div className="flex flex-wrap gap-1 text-[11px]">
                             {(session.levels ?? []).map((level) => (
-                              <span key={level.id} className="brand-chip px-2 py-1 text-[10px]">
+                              <span key={level.id} className="brand-chip px-2 py-1 text-[10px] justify-center">
                                 {shortenLevelLabel(level.name)}
                               </span>
                             ))}
@@ -541,7 +541,9 @@ export default function ScheduleExplorer({ sessions, directions, coaches, locati
                       {(session.levels?.length ?? 0) > 0 && (
                         <div className="flex flex-wrap gap-1 text-[11px]">
                           {(session.levels ?? []).map((level) => (
-                            <span key={level.id} className="brand-chip px-2 py-1 text-[10px]">{shortenLevelLabel(level.name)}</span>
+                            <span key={level.id} className="brand-chip px-2 py-1 text-[10px] justify-center">
+                              {shortenLevelLabel(level.name)}
+                            </span>
                           ))}
                         </div>
                       )}
