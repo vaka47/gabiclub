@@ -7,7 +7,7 @@ import type { Coach } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
 import { useLeadModal } from "./providers/LeadModalProvider";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CoachModal from "./CoachModal";
 
 function CoachAvatar({ coach }: { coach: Coach }) {
@@ -45,6 +45,7 @@ type CoachShowcaseProps = {
 export default function CoachShowcase({ coaches, showHeading = true, className = "" }: CoachShowcaseProps) {
   const { openLeadModal } = useLeadModal();
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
 
   if (coaches.length === 0) return null;
 
@@ -53,6 +54,28 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
       cards: coaches.length,
     });
   }
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production" || typeof window === "undefined") return;
+    const gridEl = gridRef.current;
+    if (!gridEl) return;
+    const parent = gridEl.parentElement;
+    if (!parent) return;
+    const parentBox = parent.getBoundingClientRect();
+    const gridBox = gridEl.getBoundingClientRect();
+    const parentStyles = window.getComputedStyle(parent);
+    const gridStyles = window.getComputedStyle(gridEl);
+    console.log("[CoachShowcase] center diagnostics", {
+      cards: coaches.length,
+      parentWidth: Math.round(parentBox.width),
+      gridWidth: Math.round(gridBox.width),
+      parentJustify: parentStyles.justifyContent,
+      gridDisplay: gridStyles.display,
+      gridInline: gridStyles.display.includes("inline"),
+      gridAutoWidth: gridStyles.width,
+      expectedOffset: Math.round((parentBox.width - gridBox.width) / 2),
+    });
+  }, [coaches.length]);
 
   return (
     <motion.section
@@ -71,6 +94,7 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
         )}
         <div className="flex justify-center">
           <motion.div
+            ref={gridRef}
             className="grid gap-6 md:inline-grid md:w-fit md:mx-auto md:grid-cols-2 lg:grid-cols-3 md:justify-items-center"
             initial="hidden"
             whileInView="show"
