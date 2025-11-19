@@ -1,4 +1,6 @@
-import Image from "next/image";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import DebugImage from "@/components/DebugImage";
 import Link from "next/link";
 import { format } from "date-fns";

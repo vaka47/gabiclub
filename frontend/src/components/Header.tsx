@@ -12,6 +12,7 @@ import { useLeadModal } from "./providers/LeadModalProvider";
 
 type HeaderProps = {
   socialLinks?: SocialLink[];
+  logoSrc?: string;
 };
 
 type NavLink = {
@@ -26,11 +27,11 @@ const links: NavLink[] = [
   { href: "/about", label: "О клубе" },
 ];
 
-export default function Header({ socialLinks }: HeaderProps) {
+export default function Header({ socialLinks, logoSrc }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const { openLeadModal } = useLeadModal();
-  const logoSrc = process.env.NEXT_PUBLIC_LOGO?.trim() || undefined;
+  const resolvedLogo = logoSrc?.trim();
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
@@ -64,8 +65,8 @@ export default function Header({ socialLinks }: HeaderProps) {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-lg">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 md:py-5">
         <Link href="/" className="flex items-center gap-3 text-xl font-semibold text-gabi-dark">
-          {logoSrc ? (
-            <img src={logoSrc} alt="Gabi logo" className="h-10 w-auto" />
+          {resolvedLogo ? (
+            <img src={resolvedLogo} alt="Gabi logo" className="h-10 w-auto" />
           ) : (
             <div className="h-10 w-auto flex items-center text-gabi-blue">G</div>
           )}

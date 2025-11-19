@@ -1,6 +1,9 @@
 import "../styles/globals.css";
 import "../styles/halenoir.css";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import type { Metadata } from "next";
 import { Russo_One, Inter } from "next/font/google";
 
@@ -10,7 +13,7 @@ import MobileCampTicker from "@/components/MobileCampTicker";
 import Header from "@/components/Header";
 import LeadModalProvider from "@/components/providers/LeadModalProvider";
 import NetworkDebugProbe from "@/components/NetworkDebugProbe";
-import { getClubProfile, getContactInfo, getTheme, getCamps } from "@/lib/api";
+import { getClubProfile, getContactInfo, getTheme, getCamps, resolveMediaUrl } from "@/lib/api";
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 // Use Russo One for display headings (supports Cyrillic, strong geometric look)
 const bebas = Russo_One({ weight: "400", subsets: ["latin", "cyrillic"], variable: "--font-bebas" });
@@ -35,6 +38,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     getTheme(),
     getCamps(new URLSearchParams("is_featured=1")),
   ]);
+  const envLogo = process.env.NEXT_PUBLIC_LOGO?.trim() || "";
+  const themedLogo = theme?.club_photo ? resolveMediaUrl(theme.club_photo) : "";
+  const logoSrc = envLogo || themedLogo || "/gabi-logo.png";
   const brandBg = theme?.background_color || DEFAULT_BG_COLOR;
   const themeVars: React.CSSProperties = {
     ["--brand-primary" as any]: theme?.primary_color || "#1A5ACB",
@@ -66,13 +72,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <LeadModalProvider>
             {process.env.NEXT_PUBLIC_DEBUG_NETWORK === "1" && <NetworkDebugProbe />}
             <CursorTrail />
-            <Header socialLinks={headerLinks} />
+            <Header socialLinks={headerLinks} logoSrc={logoSrc} />
             {/* Mobile-only camp ticker overlay across the site */}
             <MobileCampTicker camps={featuredCamps ?? []} />
             <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-32 md:pt-40 pb-20 md:px-6 lg:px-8">
               {children}
             </main>
-            <Footer contact={contact} club={club} />
+            <Footer contact={contact} club={club} logoSrc={logoSrc} />
           </LeadModalProvider>
         </div>
       </body>

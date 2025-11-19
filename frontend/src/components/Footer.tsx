@@ -12,9 +12,10 @@ const footerLinks = [
 type FooterProps = {
   contact: ContactInfo;
   club?: ClubProfile;
+  logoSrc?: string;
 };
 
-export default function Footer({ contact, club }: FooterProps) {
+export default function Footer({ contact, club, logoSrc }: FooterProps) {
   const toTelHref = (val?: string | null) =>
     val ? `tel:${String(val).replace(/[^+\d]/g, "")}` : undefined;
   const toUrl = (val?: string | null, platform?: "telegram" | "instagram" | "whatsapp" | "vk" | "youtube") => {
@@ -27,14 +28,14 @@ export default function Footer({ contact, club }: FooterProps) {
     if (platform === "whatsapp") return `https://wa.me/${v.replace(/[^\d]/g, "")}`;
     return v;
   };
-  const logoSrc = process.env.NEXT_PUBLIC_LOGO?.trim() || undefined;
+  const resolvedLogo = logoSrc?.trim();
   return (
     <footer className="relative mt-16 border-t border-slate-200 bg-white text-slate-700">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-12 px-4 pb-12 pt-12 md:grid-cols-[2fr_1fr_1fr]">
         <div className="col-span-2 space-y-4 md:col-span-1">
           <div className="flex items-center gap-3">
-            {logoSrc ? (
-              <img src={logoSrc} alt="Gabi logo" className="h-16 w-auto" />
+            {resolvedLogo ? (
+              <img src={resolvedLogo} alt="Gabi logo" className="h-16 w-auto" />
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded bg-gabi-blue/10 text-gabi-blue text-xl">G</div>
             )}
