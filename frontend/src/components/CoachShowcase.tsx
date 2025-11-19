@@ -69,7 +69,7 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
             <p className="section-subtitle">Мы подбираем тренера под вашу цель.</p>
           </div>
         )}
-        <div className="md:flex md:justify-center">
+        <div className="flex justify-center">
           <motion.div
             className="grid gap-6 md:inline-grid md:grid-cols-2 lg:grid-cols-3 md:justify-items-center"
             initial="hidden"
