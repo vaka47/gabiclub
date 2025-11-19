@@ -98,6 +98,9 @@ export default async function TrainingsPage() {
             <a href="/pricing" className="btn-primary">
               Смотреть тарифы
             </a>
+            <a href="/camps" className="btn-secondary">
+              Смотреть кэмпы
+            </a>
             <LeadCtaButton label="Записаться сейчас" className="btn-secondary" source="trainings-cta" />
             <a href="tel:+79309341395" className="btn-secondary">
               Позвонить клубу
