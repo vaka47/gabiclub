@@ -70,13 +70,6 @@ export default function SessionTariffCarousel({ tariffs }: SessionTariffCarousel
                 </span>
               )}
             </div>
-            <div className="mt-1 flex flex-wrap gap-2 text-xs uppercase tracking-wide text-slate-400">
-              {tariff.category_display && (
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-600">
-                  {tariff.category_display}
-                </span>
-              )}
-            </div>
             {tariff.description && (
               <p className="mt-2 text-sm text-slate-500">{tariff.description}</p>
             )}
