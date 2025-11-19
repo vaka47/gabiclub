@@ -201,7 +201,7 @@ const sessionTariffs: SessionTariff[] = [
     title: "Индивидуальная тренировка",
     category: "personal",
     category_display: "Индивидуальные",
-    description: "Самый эффективный вид занятий для достижения ваших целей",
+    description: "Самый эффективный вид занятий для достижения ваших целей.",
     is_featured: true,
     order: 1,
     prices: [
