@@ -206,9 +206,19 @@ const sessionTariffs: SessionTariff[] = [
     order: 1,
     prices: [
       { id: 11, label: "Тренировка с Габриеллой Калугер", price: 3800, order: 1 },
-      { id: 12, label: "Парная тренировка с Габриеллой Калугер", price: 5500, order: 2 },
-      { id: 13, label: "Тренировка с Андреем Красновым", price: 4500, order: 3 },
-      { id: 14, label: "Парная тренировка с Андреем Красновым", price: 6500, order: 4 },
+      { id: 12, label: "Тренировка с Андреем Красновым", price: 4500, order: 2 },
+    ],
+  },
+  {
+    id: 5,
+    title: "Парная тренировка",
+    category: "personal",
+    category_display: "Индивидуальные",
+    description: "Тренировка для двоих с упором на работу в паре и взаимную поддержку.",
+    order: 2,
+    prices: [
+      { id: 13, label: "Парная тренировка с Габриеллой Калугер", price: 5500, order: 1 },
+      { id: 14, label: "Парная тренировка с Андреем Красновым", price: 6500, order: 2 },
     ],
   },
   {
@@ -217,7 +227,7 @@ const sessionTariffs: SessionTariff[] = [
     category: "group",
     category_display: "Групповые",
     description: "Деление по уровню подготовки, поддержка команды.",
-    order: 2,
+    order: 3,
     prices: [
       { id: 21, label: "Разовое участие", price: 1500, order: 1 },
       { id: 22, label: "Группа PRO + анализ лактата", price: 1600, order: 2 },
@@ -229,7 +239,7 @@ const sessionTariffs: SessionTariff[] = [
     category: "subscription",
     category_display: "Абонементы",
     description: "Каждый месяц вы выбираете количество групповых занятий.",
-    order: 3,
+    order: 4,
     prices: [
       { id: 31, label: "4 занятия", price: 4800, order: 1 },
       { id: 32, label: "6 занятий", price: 6600, order: 2 },
@@ -242,7 +252,7 @@ const sessionTariffs: SessionTariff[] = [
     category: "service",
     category_display: "Сервисы",
     description: "Соберём комплект экипировки на первую тренировку.",
-    order: 4,
+    order: 5,
     prices: [{ id: 41, label: "Прокат на первом занятии", price: 0, order: 1 }],
   },
 ];
