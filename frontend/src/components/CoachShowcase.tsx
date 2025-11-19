@@ -50,20 +50,21 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
 
   return (
     <motion.section
-      className={"mt-20 space-y-8 "+className}
+      className={"mt-20 space-y-8 px-4 md:px-0 "+className}
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.75, ease: "easeOut" }}
     >
-      {showHeading && (
-        <div className="flex flex-col gap-2">
-          <h2 className="section-title section-accent">Команда тренеров</h2>
-          <p className="section-subtitle">Мы подбираем тренера под вашу цель.</p>
-        </div>
-      )}
+      <div className="space-y-8 md:mx-auto md:max-w-6xl">
+        {showHeading && (
+          <div className="flex flex-col gap-2 md:items-center md:text-center">
+            <h2 className="section-title section-accent">Команда тренеров</h2>
+            <p className="section-subtitle">Мы подбираем тренера под вашу цель.</p>
+          </div>
+        )}
       <motion.div
-        className="grid gap-6 md:mx-auto md:max-w-4xl md:grid-cols-2 lg:max-w-6xl lg:grid-cols-3"
+        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
@@ -105,6 +106,7 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
           </motion.div>
         ))}
       </motion.div>
+      </div>
       <CoachModal open={!!selectedCoach} coach={selectedCoach} onClose={() => setSelectedCoach(null)} />
     </motion.section>
   );
