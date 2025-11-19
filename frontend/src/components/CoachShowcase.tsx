@@ -64,7 +64,7 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
           </div>
         )}
       <motion.div
-        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 md:justify-center md:justify-items-center"
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
