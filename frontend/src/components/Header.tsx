@@ -22,6 +22,7 @@ type NavLink = {
 
 const links: NavLink[] = [
   { href: "/trainings", label: "Тренировки" },
+  { href: "/pricing", label: "Тарифы" },
   { href: "/camps", label: "Кэмпы" },
   { href: "/blog", label: "Блог" },
   { href: "/about", label: "О клубе" },

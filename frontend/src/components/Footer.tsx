@@ -4,6 +4,7 @@ import type { ClubProfile, ContactInfo } from "@/lib/types";
 
 const footerLinks = [
   { href: "/trainings", label: "Тренировки" },
+  { href: "/pricing", label: "Тарифы" },
   { href: "/camps", label: "Кэмпы" },
   { href: "/blog", label: "Блог" },
   { href: "/about", label: "О клубе" },

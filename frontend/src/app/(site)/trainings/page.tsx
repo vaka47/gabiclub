@@ -4,22 +4,17 @@ export const revalidate = 0;
 import CoachShowcase from "@/components/CoachShowcase";
 import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
-import PlanTabs from "@/components/PlanTabs";
-import SessionTariffCarousel from "@/components/SessionTariffCarousel";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
 import ActivityTabs from "@/components/ActivityTabs";
-import { getArticles, getCamps, getClubProfile, getCoaches, getSessionTariffs, getTheme, getTrainingMeta, getTrainingPlans, resolveMediaUrl } from "@/lib/api";
+import { getArticles, getCamps, getClubProfile, getCoaches, getTrainingMeta, resolveMediaUrl } from "@/lib/api";
 // (animations handled inside client components)
 
 
 export default async function TrainingsPage() {
-  const [sessionTariffs, plans, meta, coaches, club, theme, camps, articles] = await Promise.all([
-    getSessionTariffs(),
-    getTrainingPlans(),
+  const [meta, coaches, club, camps, articles] = await Promise.all([
     getTrainingMeta(),
     getCoaches(),
     getClubProfile(),
-    getTheme(),
     getCamps(new URLSearchParams("is_featured=1")),
     getArticles(new URLSearchParams("is_featured=1")),
   ]);
@@ -82,10 +77,6 @@ export default async function TrainingsPage() {
 
       <CoachShowcase coaches={featuredCoaches} />
 
-      <SessionTariffCarousel tariffs={sessionTariffs} />
-
-      <PlanTabs plans={plans} />
-
       <ScheduleExplorer
         sessions={[]}
         directions={meta.directions}
@@ -104,10 +95,13 @@ export default async function TrainingsPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
+            <a href="/pricing" className="btn-primary">
+              Смотреть тарифы
+            </a>
+            <LeadCtaButton label="Записаться сейчас" className="btn-secondary" source="trainings-cta" />
             <a href="tel:+79309341395" className="btn-secondary">
               Позвонить клубу
             </a>
-            <LeadCtaButton label="Записаться сейчас" className="btn-primary" source="trainings-cta" />
           </div>
         </div>
       </section>
