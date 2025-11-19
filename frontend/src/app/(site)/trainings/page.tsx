@@ -5,14 +5,16 @@ import CoachShowcase from "@/components/CoachShowcase";
 import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
+import SessionTariffCarousel from "@/components/SessionTariffCarousel";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
 import ActivityTabs from "@/components/ActivityTabs";
-import { getArticles, getCamps, getClubProfile, getCoaches, getTheme, getTrainingMeta, getTrainingPlans, resolveMediaUrl } from "@/lib/api";
+import { getArticles, getCamps, getClubProfile, getCoaches, getSessionTariffs, getTheme, getTrainingMeta, getTrainingPlans, resolveMediaUrl } from "@/lib/api";
 // (animations handled inside client components)
 
 
 export default async function TrainingsPage() {
-  const [plans, meta, coaches, club, theme, camps, articles] = await Promise.all([
+  const [sessionTariffs, plans, meta, coaches, club, theme, camps, articles] = await Promise.all([
+    getSessionTariffs(),
     getTrainingPlans(),
     getTrainingMeta(),
     getCoaches(),
@@ -79,6 +81,8 @@ export default async function TrainingsPage() {
       <ActivityTabs />
 
       <CoachShowcase coaches={featuredCoaches} />
+
+      <SessionTariffCarousel tariffs={sessionTariffs} />
 
       <PlanTabs plans={plans} />
 

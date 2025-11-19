@@ -11,6 +11,7 @@ import type {
   HeroSlide,
   LevelTag,
   Location,
+  SessionTariff,
   TrainingDirection,
   TrainingPlan,
   TrainingSession,
@@ -194,6 +195,56 @@ const plans: TrainingPlan[] = [
   },
 ];
 
+const sessionTariffs: SessionTariff[] = [
+  {
+    id: 1,
+    title: "Индивидуальная тренировка",
+    category: "personal",
+    category_display: "Индивидуальные",
+    description: "Выезд тренера на удобную локацию и план под вашу задачу.",
+    is_featured: true,
+    order: 1,
+    prices: [
+      { id: 11, label: "Занятие с Габриэллой Калугер", price: 3800, order: 1 },
+      { id: 12, label: "Занятие с Андреем Красновым", price: 4500, order: 2 },
+    ],
+  },
+  {
+    id: 2,
+    title: "Групповая тренировка",
+    category: "group",
+    category_display: "Групповые",
+    description: "До 10 человек, деление по уровню, поддержка команды.",
+    order: 2,
+    prices: [
+      { id: 21, label: "Разовое участие", price: 1500, order: 1 },
+      { id: 22, label: "Группа PRO + анализ лактата", price: 1600, order: 2 },
+    ],
+  },
+  {
+    id: 3,
+    title: "Абонемент в группу начинающих",
+    category: "subscription",
+    category_display: "Абонементы",
+    description: "Каждый месяц вы выбираете количество групповых занятий.",
+    order: 3,
+    prices: [
+      { id: 31, label: "4 занятия", price: 4800, order: 1 },
+      { id: 32, label: "6 занятий", price: 6600, order: 2 },
+      { id: 33, label: "8 занятий", price: 8000, order: 3 },
+    ],
+  },
+  {
+    id: 4,
+    title: "Бесплатный прокат инвентаря",
+    category: "service",
+    category_display: "Сервисы",
+    description: "Соберём комплект экипировки на первую тренировку.",
+    order: 4,
+    prices: [{ id: 41, label: "Прокат на первом занятии", price: 0, order: 1 }],
+  },
+];
+
 const heroSlides: HeroSlide[] = [
   {
     id: 1,
@@ -366,6 +417,7 @@ export const mockData = {
   locations,
   coaches,
   plans,
+  sessionTariffs,
   sessions: createSchedule(),
   camps,
   campsDetail,
@@ -377,6 +429,7 @@ export const mockData = {
 
 export const getMockSessions = () => createSchedule();
 export const getMockPlans = () => plans;
+export const getMockSessionTariffs = () => sessionTariffs;
 export const getMockCoaches = () => coaches;
 export const getMockDirections = () => directions;
 export const getMockLevels = () => levelTags;

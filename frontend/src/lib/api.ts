@@ -14,6 +14,7 @@ import {
   TrainingDirection,
   TrainingPlan,
   TrainingSession,
+  SessionTariff,
 } from "./types";
 
 // When the env is missing (e.g., preview/prod deployment forgot to set it),
@@ -206,6 +207,19 @@ export async function getTrainingPlans(category?: string): Promise<TrainingPlan[
   return plans.map((plan) => ({
     ...plan,
     price: typeof plan.price === "string" ? Number(plan.price) : plan.price,
+  }));
+}
+
+export async function getSessionTariffs(category?: string): Promise<SessionTariff[]> {
+  const query = category ? `?category=${category}` : "";
+  const data = await fetchFromApi<SessionTariff[]>(`/trainings/session-tariffs/${query}`);
+  const tariffs = data ?? mockData.sessionTariffs;
+  return tariffs.map((tariff) => ({
+    ...tariff,
+    prices: (tariff.prices ?? []).map((option) => ({
+      ...option,
+      price: typeof option.price === "string" ? Number(option.price) : option.price,
+    })),
   }));
 }
 

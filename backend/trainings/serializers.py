@@ -5,6 +5,8 @@ from .models import (
     LevelTag,
     Location,
     SessionAttachment,
+    SessionTariff,
+    SessionTariffPrice,
     TrainingDirection,
     TrainingPlan,
     TrainingPlanBenefit,
@@ -93,6 +95,32 @@ class TrainingPlanSerializer(serializers.ModelSerializer):
             "is_featured",
             "order",
             "benefits",
+        )
+
+
+class SessionTariffPriceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SessionTariffPrice
+        fields = ("id", "label", "price", "order")
+
+
+class SessionTariffSerializer(serializers.ModelSerializer):
+    prices = SessionTariffPriceSerializer(many=True, read_only=True)
+    category_display = serializers.CharField(
+        source="get_category_display", read_only=True
+    )
+
+    class Meta:
+        model = SessionTariff
+        fields = (
+            "id",
+            "title",
+            "category",
+            "category_display",
+            "description",
+            "is_featured",
+            "order",
+            "prices",
         )
 
 

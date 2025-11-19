@@ -45,6 +45,13 @@ class TrainingPlanCategory(models.TextChoices):
     KIDS = "kids", "Группы для детей"
 
 
+class SessionTariffCategory(models.TextChoices):
+    PERSONAL = "personal", "Индивидуальные"
+    GROUP = "group", "Групповые"
+    SUBSCRIPTION = "subscription", "Абонементы"
+    SERVICE = "service", "Сервисы и опции"
+
+
 class TrainingDirection(models.Model):
     title = models.CharField("Название направления", max_length=100)
     description = models.TextField("Описание", blank=True)
@@ -177,6 +184,47 @@ class TrainingPlanBenefit(models.Model):
 
     def __str__(self) -> str:
         return self.text
+
+
+class SessionTariff(models.Model):
+    title = models.CharField("Название", max_length=160)
+    category = models.CharField(
+        "Тип тарифа", max_length=32, choices=SessionTariffCategory.choices, blank=True
+    )
+    description = models.TextField("Описание", blank=True)
+    is_featured = models.BooleanField("Выделить", default=False)
+    order = models.PositiveIntegerField("Порядок", default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["category", "order", "id"]
+        verbose_name = "Тариф занятия"
+        verbose_name_plural = "Тарифы занятий"
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class SessionTariffPrice(models.Model):
+    tariff = models.ForeignKey(
+        SessionTariff, related_name="prices", on_delete=models.CASCADE
+    )
+    label = models.CharField(
+        "Описание стоимости",
+        max_length=180,
+        help_text="Например: занятие с конкретным тренером или количество посещений",
+    )
+    price = models.DecimalField("Стоимость", max_digits=9, decimal_places=2)
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Стоимость тарифа занятия"
+        verbose_name_plural = "Стоимость тарифа занятия"
+
+    def __str__(self) -> str:
+        return f"{self.label} — {self.price}"
 
 
 class TrainingSession(models.Model):

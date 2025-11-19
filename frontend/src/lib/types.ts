@@ -64,6 +64,30 @@ export type TrainingPlan = {
   benefits: TrainingPlanBenefit[];
 };
 
+export type SessionTariffCategory =
+  | "personal"
+  | "group"
+  | "subscription"
+  | "service";
+
+export type SessionTariffPrice = {
+  id: number;
+  label: string;
+  price: number;
+  order?: number;
+};
+
+export type SessionTariff = {
+  id: number;
+  title: string;
+  description?: string;
+  category?: SessionTariffCategory;
+  category_display?: string;
+  is_featured?: boolean;
+  order?: number;
+  prices: SessionTariffPrice[];
+};
+
 export type TrainingSession = {
   id: number;
   title?: string;

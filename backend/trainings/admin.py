@@ -5,6 +5,8 @@ from .models import (
     LevelTag,
     Location,
     SessionAttachment,
+    SessionTariff,
+    SessionTariffPrice,
     Training,
     TrainingDirection,
     TrainingPlan,
@@ -49,6 +51,36 @@ class TrainingPlanAdmin(admin.ModelAdmin):
         }),
     )
     inlines = [TrainingPlanBenefitInline]
+
+
+class SessionTariffPriceInline(admin.TabularInline):
+    model = SessionTariffPrice
+    extra = 2
+    fields = ("order", "label", "price")
+    ordering = ("order", "id")
+
+
+@admin.register(SessionTariff)
+class SessionTariffAdmin(admin.ModelAdmin):
+    list_display = ("title", "category", "is_featured", "order")
+    list_filter = ("category", "is_featured")
+    search_fields = ("title", "description")
+    ordering = ("category", "order", "title")
+    fieldsets = (
+        (
+            "Основное",
+            {
+                "fields": ("title", "category", "description"),
+            },
+        ),
+        (
+            "Публикация",
+            {
+                "fields": ("is_featured", "order"),
+            },
+        ),
+    )
+    inlines = [SessionTariffPriceInline]
 
 
 @admin.register(TrainingDirection)

@@ -13,6 +13,7 @@ from .models import (
     Coach,
     LevelTag,
     Location,
+    SessionTariff,
     TrainingDirection,
     TrainingPlan,
     TrainingSession,
@@ -21,6 +22,7 @@ from .serializers import (
     CoachSerializer,
     LevelTagSerializer,
     LocationSerializer,
+    SessionTariffSerializer,
     TrainingDirectionSerializer,
     TrainingPlanSerializer,
     TrainingSessionSerializer,
@@ -85,6 +87,15 @@ class TrainingPlanViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TrainingPlanSerializer
     queryset = TrainingPlan.objects.prefetch_related("benefits").order_by(
         "category", "order", "price"
+    )
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = {"category": ["exact"], "is_featured": ["exact"]}
+
+
+class SessionTariffViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = SessionTariffSerializer
+    queryset = SessionTariff.objects.prefetch_related("prices").order_by(
+        "category", "order", "id"
     )
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = {"category": ["exact"], "is_featured": ["exact"]}
