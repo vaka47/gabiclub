@@ -59,7 +59,7 @@ export default function CoachShowcase({ coaches, showHeading = true, className =
       <div className="space-y-8 md:mx-auto md:max-w-6xl">
         {showHeading && (
           <div className="flex flex-col gap-2 md:items-center md:text-center">
-            <h2 className="section-title section-accent">Команда тренеров</h2>
+            <h2 className="section-title section-accent coach-title">Команда тренеров</h2>
             <p className="section-subtitle">Мы подбираем тренера под вашу цель.</p>
           </div>
         )}
