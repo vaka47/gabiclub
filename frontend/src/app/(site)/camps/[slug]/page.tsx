@@ -169,7 +169,7 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
                 {highlights.map((item) => (
                   <li key={item.id} className="flex items-center gap-3">
                     <span className="h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
-                    {item.text}
+                    <span className="flex-1">{item.text}</span>
                   </li>
                 ))}
               </ul>
