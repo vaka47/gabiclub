@@ -40,7 +40,15 @@ function CampCard({ camp }: { camp: Camp }) {
       </Link>
       <div className="mt-6 flex flex-col gap-4">
         <div>
-          <h3 className="text-xl font-semibold text-gabi-dark">{camp.title}</h3>
+          <Link
+            href={`/camps/${camp.slug}`}
+            className="inline-flex items-center gap-2"
+            aria-label={`Открыть страницу кэмпа ${camp.title}`}
+          >
+            <h3 className="text-xl font-semibold text-gabi-dark transition-colors hover:text-gabi-blue">
+              {camp.title}
+            </h3>
+          </Link>
           <p className="text-sm text-slate-500">{camp.summary}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
