@@ -167,8 +167,8 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
               <h3 className="text-lg font-semibold text-gabi-dark">Что вас ждёт</h3>
               <ul className="space-y-2 text-sm text-slate-600">
                 {highlights.map((item) => (
-                  <li key={item.id} className="flex items-start gap-2">
-                    <span className="mt-1 h-2 w-2 rounded-full bg-gabi-blue" aria-hidden />
+                  <li key={item.id} className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
                     {item.text}
                   </li>
                 ))}
