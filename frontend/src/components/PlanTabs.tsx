@@ -180,9 +180,9 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                       </div>
                       <ul className="space-y-2 text-sm text-slate-600">
                         {plan.benefits.map((benefit) => (
-                          <li key={benefit.id} className="flex items-center gap-2">
+                          <li key={benefit.id} className="flex items-center gap-3">
                             <span className="h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
-                            {benefit.text}
+                            <span className="flex-1">{benefit.text}</span>
                           </li>
                         ))}
                       </ul>
@@ -294,9 +294,9 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                   </div>
                   <ul className="space-y-2 text-sm text-slate-600">
                     {plan.benefits.map((benefit) => (
-                      <li key={benefit.id} className="flex items-center gap-2">
+                      <li key={benefit.id} className="flex items-center gap-3">
                         <span className="h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
-                        {benefit.text}
+                        <span className="flex-1">{benefit.text}</span>
                       </li>
                     ))}
                   </ul>
