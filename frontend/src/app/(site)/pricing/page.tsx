@@ -31,7 +31,7 @@ export default async function PricingPage() {
         <div className="mt-10 flex flex-wrap gap-4">
           <LeadCtaButton className="btn-primary" label="Получить консультацию" source="pricing-hero" />
           <a href="tel:+79309341395" className="btn-secondary">
-            Связаться с клубом
+            Позвонить клубу
           </a>
         </div>
       </section>
