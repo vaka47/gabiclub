@@ -114,9 +114,9 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
               <h3 className="text-xl font-semibold text-gabi-dark">Что входит в стоимость</h3>
               <ul className="space-y-2 text-sm text-slate-600">
                 {inclusions.map((inc) => (
-                  <li key={inc.id} className="flex items-start gap-2">
-                    <span className="mt-1 h-2 w-2 rounded-full bg-gabi-blue" aria-hidden />
-                    {inc.text}
+                  <li key={inc.id} className="flex items-center gap-3">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
+                    <span className="flex-1">{inc.text}</span>
                   </li>
                 ))}
               </ul>
