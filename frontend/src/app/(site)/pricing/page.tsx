@@ -13,6 +13,7 @@ export default async function PricingPage() {
     getClubProfile(),
   ]);
 
+  
   return (
     <div className="space-y-16 pb-16">
       <section className="relative mt-6 overflow-hidden rounded-[32px] border border-slate-200 bg-gradient-to-r from-gabi-blue/5 via-white to-gabi-orange/5 px-8 py-16 shadow-[0_35px_120px_-45px_rgba(15,23,42,0.35)]">
