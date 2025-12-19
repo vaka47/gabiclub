@@ -45,6 +45,16 @@ const API_BASE = (() => {
   }
   return sanitized || "/api";
 })();
+
+const API_TIMEOUT_MS = (() => {
+  const raw =
+    process.env.NEXT_PUBLIC_API_TIMEOUT_MS ??
+    process.env.API_TIMEOUT_MS ??
+    "";
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 8000;
+})();
+
 const IS_BUILD = process.env.NEXT_PHASE === "phase-production-build";
 const SKIP_API_AT_BUILD = process.env.SKIP_API_AT_BUILD === "1";
 const hasApi = Boolean(API_BASE) && !(IS_BUILD && SKIP_API_AT_BUILD);
@@ -144,14 +154,22 @@ async function fetchFromApi<T>(endpoint: string, init?: RequestInit): Promise<T 
     console.log(`[api] ${init?.method ?? "GET"} ${url}`);
   }
   try {
-    const response = await fetch(url, {
-      ...init,
-      headers: {
-        "Content-Type": "application/json",
-        ...(init?.headers ?? {}),
-      },
-      next: { revalidate: 60 },
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        ...init,
+        headers: {
+          "Content-Type": "application/json",
+          ...(init?.headers ?? {}),
+        },
+        next: { revalidate: 60 },
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
     // Gracefully handle non-OK and empty responses (e.g., 204 No Content)
     if (response.status === 204) {
       return null;
