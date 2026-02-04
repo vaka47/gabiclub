@@ -231,7 +231,7 @@ export async function getTrainingPlans(category?: string): Promise<TrainingPlan[
 export async function getSessionTariffs(category?: string): Promise<SessionTariff[]> {
   const query = category ? `?category=${category}` : "";
   const data = await fetchFromApi<SessionTariff[]>(`/trainings/session-tariffs/${query}`);
-  const tariffs = data ?? mockData.sessionTariffs;
+  const tariffs = (data && Array.isArray(data) && data.length > 0) ? data : mockData.sessionTariffs;
   return tariffs.map((tariff) => ({
     ...tariff,
     prices: (tariff.prices ?? []).map((option) => ({
