@@ -147,7 +147,7 @@ class TrainingSessionSerializer(serializers.ModelSerializer):
     location = LocationSerializer(read_only=True)
     levels = LevelTagSerializer(many=True, read_only=True)
     duration = serializers.SerializerMethodField()
-    is_open = serializers.BooleanField(source="is_open", read_only=True)
+    is_open = serializers.BooleanField(read_only=True)
     attachments = SessionAttachmentSerializer(many=True, read_only=True)
 
     class Meta:
