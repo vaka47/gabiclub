@@ -1,0 +1,26 @@
+# env
+.env
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.log
+
+# venv
+.venv/
+venv/
+
+# backups
+*.bak
+*.bak.*
+*.swp
+*.swo
+
+# build/static
+backend/static/
+frontend/.next/
+frontend/node_modules/
