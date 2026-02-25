@@ -29,3 +29,18 @@ jobs:
               swapon /swapfile || true
             fi
             bash /var/www/gabi-frontend/deploy.sh
+
+            # Verify that the deployed source really contains the dark hero stats color.
+            if [ -f /var/www/gabi-frontend/frontend/src/components/HeroSection.tsx ]; then
+              echo "Checking deployed HeroSection.tsx for #334155..."
+              grep -n '#334155' /var/www/gabi-frontend/frontend/src/components/HeroSection.tsx || true
+            fi
+
+            # Force PM2 app restart from the expected frontend directory to avoid stale cwd/process config.
+            if [ -d /var/www/gabi-frontend/frontend ]; then
+              cd /var/www/gabi-frontend/frontend
+              pm2 delete frontend || true
+              pm2 start npm --name "frontend" --cwd /var/www/gabi-frontend/frontend -- run start
+              pm2 save || true
+              pm2 status || true
+            fi
