@@ -363,11 +363,11 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
             />
 
             <div className="mt-6 flex items-center gap-3 text-sm text-slate-700">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1" style={{ color: "#334155" }}>
                 <span className="h-3 w-3 rounded-full bg-emerald-300" aria-hidden />
                 Расписание обновляется ежедневно
               </div>
-              <div className="hidden items-center gap-1 md:flex">
+              <div className="hidden items-center gap-1 md:flex" style={{ color: "#334155" }}>
                 <span className="h-3 w-3 rounded-full bg-white/70" aria-hidden />
                 200+ участников клуба
               </div>
