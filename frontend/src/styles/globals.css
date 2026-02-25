@@ -135,6 +135,10 @@ a:hover {
 .hero-desc {
   line-height: 1.45;
 }
+.hero-stat-text {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
 @media (max-width: 768px) {
   .hero-desc { font-size: clamp(14px, 4.2vw, 18px); line-height: 1.35; }
 }
