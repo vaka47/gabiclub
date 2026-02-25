@@ -35,6 +35,10 @@ jobs:
               echo "Checking deployed HeroSection.tsx for #334155..."
               grep -n '#334155' /var/www/gabi-frontend/frontend/src/components/HeroSection.tsx || true
             fi
+            if [ -f /home/u3187320/gabiclub/frontend/src/components/HeroSection.tsx ]; then
+              echo "Checking ~/gabiclub/frontend HeroSection.tsx markers..."
+              grep -n 'text-white/90\|hero-stat-text\|#334155' /home/u3187320/gabiclub/frontend/src/components/HeroSection.tsx || true
+            fi
 
             # Keep only canonical PM2 app name used by deploy.sh.
             if [ -d /var/www/gabi-frontend/frontend ]; then
@@ -44,3 +48,16 @@ jobs:
               pm2 save || true
               pm2 status || true
             fi
+
+            echo "Listening ports for node-related services:"
+            ss -lntp | grep -E 'node|:3000|:3001|:3002|:80 |:443 ' || true
+
+            echo "Node process cwd/cmd:"
+            for pid in $(pgrep -f 'node|next-server|next start|npm -- run start' | sort -u); do
+              echo "--- pid=$pid cwd=$(readlink /proc/$pid/cwd || true)"
+              tr '\0' ' ' < /proc/$pid/cmdline || true
+              echo
+            done
+
+            echo "Public response marker (localhost):"
+            curl -s http://127.0.0.1/trainings | grep -o 'text-white/90\|hero-stat-text' | head -n 10 || true
