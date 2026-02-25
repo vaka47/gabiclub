@@ -49,6 +49,20 @@ jobs:
               pm2 status || true
             fi
 
+            # Fallback: if production is still served from legacy ~/gabiclub/frontend, update it too.
+            if id -u u3187320 >/dev/null 2>&1 && [ -d /home/u3187320/gabiclub/frontend ]; then
+              su - u3187320 -c '
+                cd ~/gabiclub/frontend || exit 1
+                git pull origin main
+                export PATH="$HOME/.nvm/versions/node/v20.14.0/bin:$PATH"
+                npm ci
+                npm run build
+                pm2 reload frontend || pm2 start npm --name "frontend" -- run start
+                pm2 save || true
+                pm2 status || true
+              '
+            fi
+
             echo "Listening ports for node-related services:"
             ss -lntp | grep -E 'node|:3000|:3001|:3002|:80 |:443 ' || true
 
