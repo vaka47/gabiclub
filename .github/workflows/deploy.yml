@@ -16,5 +16,16 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: root
           key: ${{ secrets.SERVER_SSH_KEY }}
+          timeout: 30s
+          command_timeout: 30m
           script: |
+            # Prevent npm install/build from being killed on low-memory VPS.
+            if ! swapon --show | grep -q '^'; then
+              if [ ! -f /swapfile ]; then
+                fallocate -l 2G /swapfile || dd if=/dev/zero of=/swapfile bs=1M count=2048
+                chmod 600 /swapfile
+                mkswap /swapfile
+              fi
+              swapon /swapfile || true
+            fi
             bash /var/www/gabi-frontend/deploy.sh
