@@ -36,11 +36,11 @@ jobs:
               grep -n '#334155' /var/www/gabi-frontend/frontend/src/components/HeroSection.tsx || true
             fi
 
-            # Force PM2 app restart from the expected frontend directory to avoid stale cwd/process config.
+            # Keep only canonical PM2 app name used by deploy.sh.
             if [ -d /var/www/gabi-frontend/frontend ]; then
               cd /var/www/gabi-frontend/frontend
               pm2 delete frontend || true
-              pm2 start npm --name "frontend" --cwd /var/www/gabi-frontend/frontend -- run start
+              pm2 restart gabi-frontend || true
               pm2 save || true
               pm2 status || true
             fi
