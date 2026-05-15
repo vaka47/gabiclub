@@ -1,4 +1,4 @@
-name: Deploy Backend
+name: Backend Production Smoke Check
 
 on:
   workflow_dispatch: {}
@@ -8,34 +8,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  smoke-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: root
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          script_stop: true
-          command_timeout: 20m
-          script: |
-            set -euo pipefail
-            if [ ! -d /srv/gabiclub/backend ]; then
-              echo "ERROR: /srv/gabiclub/backend not found on server" >&2
-              exit 1
-            fi
-            cd /srv/gabiclub/backend
-            git fetch --all --prune
-            git reset --hard origin/main
+      - name: Explain production deploy path
+        run: |
+          echo 'Production deploy is now pull-based from the server timer gabiclub-autodeploy.timer.'
+          echo 'This manual workflow only performs a public smoke check.'
 
-            TG_TOKEN='${{ secrets.TELEGRAM_BOT_TOKEN }}'
-            TG_CHATS='${{ secrets.TELEGRAM_CHAT_IDS }}'
-            if [ -n "${TG_TOKEN}" ] && [ -n "${TG_CHATS}" ]; then
-              mkdir -p /etc/systemd/system/gunicorn-gabiclub.service.d
-              printf '[Service]\nEnvironment=TELEGRAM_BOT_TOKEN=%s\nEnvironment=TELEGRAM_CHAT_IDS=%s\n' "${TG_TOKEN}" "${TG_CHATS}" >/etc/systemd/system/gunicorn-gabiclub.service.d/override.conf
-              systemctl daemon-reload
-            fi
+      - name: Check public API
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --retry-delay 5 --retry-all-errors --max-time 20 \
+            -o /dev/null -w 'api code=%{http_code} time=%{time_total}\n' \
+            https://api.gabiclub.ru/api/trainings/meta/
 
-            bash scripts/deploy-backend.sh
+      - name: Check public frontend
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --retry-delay 5 --retry-all-errors --max-time 20 \
+            -o /dev/null -w 'frontend code=%{http_code} time=%{time_total}\n' \
+            https://gabiclub.ru/trainings
