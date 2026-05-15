@@ -1,4 +1,3 @@
-
 name: Deploy Backend
 
 on:
@@ -20,8 +19,8 @@ jobs:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script_stop: true
@@ -40,11 +39,7 @@ jobs:
             TG_CHATS='${{ secrets.TELEGRAM_CHAT_IDS }}'
             if [ -n "${TG_TOKEN}" ] && [ -n "${TG_CHATS}" ]; then
               mkdir -p /etc/systemd/system/gunicorn-gabiclub.service.d
-              cat >/etc/systemd/system/gunicorn-gabiclub.service.d/override.conf <<'EOF'
-            [Service]
-            Environment=TELEGRAM_BOT_TOKEN=${TG_TOKEN}
-            Environment=TELEGRAM_CHAT_IDS=${TG_CHATS}
-            EOF
+              printf '[Service]\nEnvironment=TELEGRAM_BOT_TOKEN=%s\nEnvironment=TELEGRAM_CHAT_IDS=%s\n' "${TG_TOKEN}" "${TG_CHATS}" >/etc/systemd/system/gunicorn-gabiclub.service.d/override.conf
               systemctl daemon-reload
             fi
 

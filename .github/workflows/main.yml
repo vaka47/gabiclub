@@ -1,0 +1,51 @@
+name: Legacy Deploy Frontend to REG.RU (disabled)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: 🔄 Deploy via SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: u3187320
+          key: ${{ secrets.REG_RU_DEPLOY_KEY }}
+          port: 22
+          script: |
+            echo "📡 Подключение по SSH..."
+            echo "✅ Успешное подключение!"
+
+            cd ~/gabiclub/frontend
+
+            echo "🔄 Git Pull..."
+            git pull origin main
+
+            echo "📦 Добавление Node 20 в PATH..."
+            export PATH="$HOME/.nvm/versions/node/v20.14.0/bin:$PATH"
+
+            echo "🧪 Проверка Node и NPM..."
+            node -v || nvm use 20
+            npm -v
+
+            echo "🔐 Исправление прав доступа..."
+            chmod -R u+rwX,g+rwX,o+rX node_modules || true
+
+            echo "📦 Установка зависимостей..."
+            npm install
+
+            echo "📥 Установка PM2..."
+            npm install -g pm2
+
+            echo "🛠 Сборка проекта..."
+            npm run build
+
+            echo "♻️ Перезапуск PM2..."
+            pm2 reload frontend || pm2 start npm --name "frontend" -- run start
