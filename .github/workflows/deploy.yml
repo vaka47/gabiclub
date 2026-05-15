@@ -1,99 +1,28 @@
-name: Deploy Frontend
+name: Frontend Production Smoke Check
 
 on:
   workflow_dispatch: {}
 
 jobs:
-  deploy:
+  smoke-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - name: Explain production deploy path
+        run: |
+          echo 'Production deploy is now pull-based from the server timer gabiclub-autodeploy.timer.'
+          echo 'This manual workflow only performs a public smoke check.'
 
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: root
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          timeout: 30s
-          command_timeout: 30m
-          script: |
-            set -euo pipefail
-            echo "=== HOST SNAPSHOT BEGIN ==="
-            hostname
-            date
-            uptime || true
-            df -h || true
-            free -m || true
-            swapon --show || true
-            echo "=== HOST SNAPSHOT END ==="
+      - name: Check public frontend
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --retry-delay 5 --retry-all-errors --max-time 20 \
+            -o /dev/null -w 'frontend code=%{http_code} time=%{time_total}\n' \
+            https://gabiclub.ru/trainings
 
-            # Prevent npm install/build from being killed on low-memory VPS.
-            if ! swapon --show | grep -q '^'; then
-              if [ ! -f /swapfile ]; then
-                fallocate -l 2G /swapfile || dd if=/dev/zero of=/swapfile bs=1M count=2048
-                chmod 600 /swapfile
-                mkswap /swapfile
-              fi
-              swapon /swapfile || true
-            fi
-
-            echo "=== NGINX routing (gabiclub.ru) ==="
-            nginx -T 2>/dev/null | grep -nE 'server_name|proxy_pass|listen' | grep -E 'gabiclub\\.ru|:80|:443|proxy_pass' || true
-
-            echo "=== Deploy canonical instance (/srv/gabiclub/backend/frontend) ==="
-            if [ ! -d /srv/gabiclub/backend/frontend ]; then
-              echo "ERROR: /srv/gabiclub/backend/frontend not found on server" >&2
-              exit 1
-            fi
-
-            cd /srv/gabiclub/backend
-            git fetch --all --prune
-            git checkout main
-            git reset --hard origin/main
-
-            chown -R app:app /srv/gabiclub/backend
-            su - app -c 'cd /srv/gabiclub/backend/frontend && npm ci'
-            su - app -c 'cd /srv/gabiclub/backend/frontend && SKIP_API_AT_BUILD=1 npm run build'
-            su - app -c 'pm2 restart gabiclub-frontend --update-env && pm2 save'
-
-            echo "Listening ports for node-related services:"
-            ss -lntp | grep -E 'node|:3000|:3001|:3002|:80 |:443 ' || true
-
-            echo "Node process cwd/cmd:"
-            for pid in $(pgrep -f 'node|next-server|next start|npm -- run start' | sort -u); do
-              echo "--- pid=$pid cwd=$(readlink /proc/$pid/cwd || true)"
-              tr '\0' ' ' < /proc/$pid/cmdline || true
-              echo
-            done
-
-            echo "Public response marker (localhost + public host):"
-            curl -s 'http://127.0.0.1/trainings?deploy_check=1' | grep -o 'text-white/90\|hero-stat-text' | head -n 10 || true
-            curl -s 'https://gabiclub.ru/trainings?deploy_check=1' | grep -o 'text-white/90\|hero-stat-text' | head -n 10 || true
-
-            # Hard gate: deployment is considered successful only if site and API are reachable.
-            if ! curl -fsS --retry 6 --retry-delay 3 --retry-all-errors --max-time 15 'https://gabiclub.ru/trainings?deploy_check=1' >/dev/null; then
-              echo "ERROR: public gabiclub.ru is not reachable after deploy." >&2
-              echo "PM2 list (root):"
-              su - app -c 'pm2 list' || true
-              echo "Recent nginx error log:"
-              tail -n 200 /var/log/nginx/error.log || true
-              echo "Recent nginx access log:"
-              tail -n 120 /var/log/nginx/access.log || true
-              echo "Recent OOM/kernel messages:"
-              dmesg -T | grep -Ei 'killed process|out of memory|oom' | tail -n 80 || true
-              echo "Recent PM2 logs:"
-              su - app -c 'pm2 logs --lines 120 --nostream' || true
-              exit 1
-            fi
-            if ! curl -fsS --retry 6 --retry-delay 3 --retry-all-errors --max-time 15 'https://api.gabiclub.ru/api/trainings/meta/' >/dev/null; then
-              echo "ERROR: public api.gabiclub.ru is not reachable after deploy." >&2
-              tail -n 200 /var/log/nginx/error.log || true
-              exit 1
-            fi
-
-            echo "=== FINAL HEALTH CHECKS ==="
-            curl -sS -o /dev/null -w 'gabiclub.ru/trainings code=%{http_code} time=%{time_total}\n' --max-time 15 https://gabiclub.ru/trainings || true
-            curl -sS -o /dev/null -w 'api.gabiclub.ru/trainings/meta code=%{http_code} time=%{time_total}\n' --max-time 15 https://api.gabiclub.ru/api/trainings/meta/ || true
-            echo "=== FINAL PM2 STATUS ==="
-            su - app -c 'pm2 status' || true
+      - name: Check public API
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 3 --retry-delay 5 --retry-all-errors --max-time 20 \
+            -o /dev/null -w 'api code=%{http_code} time=%{time_total}\n' \
+            https://api.gabiclub.ru/api/trainings/meta/
