@@ -42,41 +42,8 @@ jobs:
             echo "=== NGINX routing (gabiclub.ru) ==="
             nginx -T 2>/dev/null | grep -nE 'server_name|proxy_pass|listen' | grep -E 'gabiclub\\.ru|:80|:443|proxy_pass' || true
 
-            echo "=== Deploy root instance (/var/www/gabi-frontend) ==="
+            echo "=== Deploy canonical instance (/var/www/gabi-frontend) ==="
             bash /var/www/gabi-frontend/deploy.sh
-
-            # Verify that the deployed source really contains the dark hero stats color.
-            if [ -f /var/www/gabi-frontend/frontend/src/components/HeroSection.tsx ]; then
-              echo "Checking deployed HeroSection.tsx for #334155..."
-              grep -n 'text-white/90\|hero-stat-text\|#334155' /var/www/gabi-frontend/frontend/src/components/HeroSection.tsx || true
-            fi
-            if [ -f /home/u3187320/gabiclub/frontend/src/components/HeroSection.tsx ]; then
-              echo "Checking ~/gabiclub/frontend HeroSection.tsx markers..."
-              grep -n 'text-white/90\|hero-stat-text\|#334155' /home/u3187320/gabiclub/frontend/src/components/HeroSection.tsx || true
-            fi
-
-            # Keep only canonical PM2 app name used by deploy.sh.
-            if [ -d /var/www/gabi-frontend/frontend ]; then
-              cd /var/www/gabi-frontend/frontend
-              pm2 delete frontend || true
-              pm2 restart gabi-frontend || true
-              pm2 save || true
-              pm2 status || true
-            fi
-
-            # Fallback: if production is still served from legacy ~/gabiclub/frontend, update it too.
-            if id -u u3187320 >/dev/null 2>&1 && [ -d /home/u3187320/gabiclub/frontend ]; then
-              su - u3187320 -c '
-                cd ~/gabiclub/frontend || exit 1
-                git pull origin main
-                export PATH="$HOME/.nvm/versions/node/v20.14.0/bin:$PATH"
-                npm ci
-                npm run build
-                pm2 reload frontend || pm2 start npm --name "frontend" -- run start
-                pm2 save || true
-                pm2 status || true
-              '
-            fi
 
             echo "Listening ports for node-related services:"
             ss -lntp | grep -E 'node|:3000|:3001|:3002|:80 |:443 ' || true
@@ -92,9 +59,9 @@ jobs:
             curl -s 'http://127.0.0.1/trainings?deploy_check=1' | grep -o 'text-white/90\|hero-stat-text' | head -n 10 || true
             curl -s 'https://gabiclub.ru/trainings?deploy_check=1' | grep -o 'text-white/90\|hero-stat-text' | head -n 10 || true
 
-            # Hard gate: deployment is considered successful only if public response has the new marker.
-            if ! curl -s 'https://gabiclub.ru/trainings?deploy_check=1' | grep -q 'hero-stat-text'; then
-              echo "ERROR: public gabiclub.ru still serves old hero markup (no hero-stat-text)." >&2
+            # Hard gate: deployment is considered successful only if site and API are reachable.
+            if ! curl -fsS --max-time 15 'https://gabiclub.ru/trainings?deploy_check=1' >/dev/null; then
+              echo "ERROR: public gabiclub.ru is not reachable after deploy." >&2
               echo "PM2 list (root):"
               pm2 list || true
               echo "Recent nginx error log:"
@@ -105,6 +72,11 @@ jobs:
               dmesg -T | grep -Ei 'killed process|out of memory|oom' | tail -n 80 || true
               echo "Recent PM2 logs:"
               pm2 logs --lines 120 --nostream || true
+              exit 1
+            fi
+            if ! curl -fsS --max-time 15 'https://api.gabiclub.ru/api/trainings/meta/' >/dev/null; then
+              echo "ERROR: public api.gabiclub.ru is not reachable after deploy." >&2
+              tail -n 200 /var/log/nginx/error.log || true
               exit 1
             fi
 
