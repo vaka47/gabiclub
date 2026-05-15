@@ -19,6 +19,16 @@ jobs:
           timeout: 30s
           command_timeout: 30m
           script: |
+            set -euo pipefail
+            echo "=== HOST SNAPSHOT BEGIN ==="
+            hostname
+            date
+            uptime || true
+            df -h || true
+            free -m || true
+            swapon --show || true
+            echo "=== HOST SNAPSHOT END ==="
+
             # Prevent npm install/build from being killed on low-memory VPS.
             if ! swapon --show | grep -q '^'; then
               if [ ! -f /swapfile ]; then
@@ -28,12 +38,17 @@ jobs:
               fi
               swapon /swapfile || true
             fi
+
+            echo "=== NGINX routing (gabiclub.ru) ==="
+            nginx -T 2>/dev/null | grep -nE 'server_name|proxy_pass|listen' | grep -E 'gabiclub\\.ru|:80|:443|proxy_pass' || true
+
+            echo "=== Deploy root instance (/var/www/gabi-frontend) ==="
             bash /var/www/gabi-frontend/deploy.sh
 
             # Verify that the deployed source really contains the dark hero stats color.
             if [ -f /var/www/gabi-frontend/frontend/src/components/HeroSection.tsx ]; then
               echo "Checking deployed HeroSection.tsx for #334155..."
-              grep -n '#334155' /var/www/gabi-frontend/frontend/src/components/HeroSection.tsx || true
+              grep -n 'text-white/90\|hero-stat-text\|#334155' /var/www/gabi-frontend/frontend/src/components/HeroSection.tsx || true
             fi
             if [ -f /home/u3187320/gabiclub/frontend/src/components/HeroSection.tsx ]; then
               echo "Checking ~/gabiclub/frontend HeroSection.tsx markers..."
@@ -73,5 +88,28 @@ jobs:
               echo
             done
 
-            echo "Public response marker (localhost):"
-            curl -s http://127.0.0.1/trainings | grep -o 'text-white/90\|hero-stat-text' | head -n 10 || true
+            echo "Public response marker (localhost + public host):"
+            curl -s 'http://127.0.0.1/trainings?deploy_check=1' | grep -o 'text-white/90\|hero-stat-text' | head -n 10 || true
+            curl -s 'https://gabiclub.ru/trainings?deploy_check=1' | grep -o 'text-white/90\|hero-stat-text' | head -n 10 || true
+
+            # Hard gate: deployment is considered successful only if public response has the new marker.
+            if ! curl -s 'https://gabiclub.ru/trainings?deploy_check=1' | grep -q 'hero-stat-text'; then
+              echo "ERROR: public gabiclub.ru still serves old hero markup (no hero-stat-text)." >&2
+              echo "PM2 list (root):"
+              pm2 list || true
+              echo "Recent nginx error log:"
+              tail -n 200 /var/log/nginx/error.log || true
+              echo "Recent nginx access log:"
+              tail -n 120 /var/log/nginx/access.log || true
+              echo "Recent OOM/kernel messages:"
+              dmesg -T | grep -Ei 'killed process|out of memory|oom' | tail -n 80 || true
+              echo "Recent PM2 logs:"
+              pm2 logs --lines 120 --nostream || true
+              exit 1
+            fi
+
+            echo "=== FINAL HEALTH CHECKS ==="
+            curl -sS -o /dev/null -w 'gabiclub.ru/trainings code=%{http_code} time=%{time_total}\n' --max-time 15 https://gabiclub.ru/trainings || true
+            curl -sS -o /dev/null -w 'api.gabiclub.ru/trainings/meta code=%{http_code} time=%{time_total}\n' --max-time 15 https://api.gabiclub.ru/api/trainings/meta/ || true
+            echo "=== FINAL PM2 STATUS ==="
+            pm2 status || true
