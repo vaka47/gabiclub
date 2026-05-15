@@ -1,11 +1,6 @@
 name: Deploy Backend
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'backend/**'
-      - 'scripts/deploy-backend.sh'
   workflow_dispatch: {}
 
 concurrency:
