@@ -84,6 +84,10 @@ const DEBUG_MEDIA = process.env.NEXT_PUBLIC_DEBUG_MEDIA === "1";
 let cachedContactInfo: ContactInfo | null = null;
 let cachedClubProfile: ClubProfile | null = null;
 
+function asArray<T>(value: T[] | null | undefined): T[] {
+  return Array.isArray(value) ? value : [];
+}
+
 const toNumber = (value: unknown, fallback = 0): number => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   const parsed = Number(value);
@@ -221,8 +225,9 @@ export async function getTrainingSessions(params?: URLSearchParams): Promise<Tra
 export async function getTrainingPlans(category?: string): Promise<TrainingPlan[]> {
   const query = category ? `?category=${category}` : "";
   const data = await fetchFromApi<TrainingPlan[]>(`/trainings/plans/${query}`);
-  const plans = data ?? mockData.plans;
-  return plans.map((plan) => ({
+  const plans = asArray(data);
+  const source = plans.length > 0 ? plans : mockData.plans;
+  return source.map((plan) => ({
     ...plan,
     price: typeof plan.price === "string" ? Number(plan.price) : plan.price,
   }));
@@ -231,8 +236,9 @@ export async function getTrainingPlans(category?: string): Promise<TrainingPlan[
 export async function getSessionTariffs(category?: string): Promise<SessionTariff[]> {
   const query = category ? `?category=${category}` : "";
   const data = await fetchFromApi<SessionTariff[]>(`/trainings/session-tariffs/${query}`);
-  const tariffs = (data && Array.isArray(data) && data.length > 0) ? data : mockData.sessionTariffs;
-  return tariffs.map((tariff) => ({
+  const tariffs = asArray(data);
+  const source = tariffs.length > 0 ? tariffs : mockData.sessionTariffs;
+  return source.map((tariff) => ({
     ...tariff,
     prices: (tariff.prices ?? []).map((option) => ({
       ...option,
@@ -255,13 +261,14 @@ export async function getTrainingMeta(): Promise<TrainingMeta> {
 
 export async function getCoaches(): Promise<Coach[]> {
   const data = await fetchFromApi<Coach[]>(`/trainings/coaches/`);
-  return data ?? mockData.coaches;
+  const coaches = asArray(data);
+  return coaches.length > 0 ? coaches : mockData.coaches;
 }
 
 export async function getCamps(params?: URLSearchParams): Promise<Camp[]> {
   const query = params ? `?${params.toString()}` : "";
   const data = await fetchFromApi<Camp[]>(`/camps/${query}`);
-  return (data ?? []).map((camp) => normalizeCamp(camp));
+  return asArray(data).map((camp) => normalizeCamp(camp));
 }
 
 export async function getCampBySlug(slug: string): Promise<CampDetail | null> {
@@ -278,7 +285,8 @@ export async function getArticles(tagOrParams?: string | URLSearchParams): Promi
     query = s ? `?${s}` : "";
   }
   const data = await fetchFromApi<Article[]>(`/blog/articles/${query}`);
-  return data ?? mockData.articles;
+  const articles = asArray(data);
+  return articles.length > 0 ? articles : mockData.articles;
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
@@ -288,7 +296,8 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 
 export async function getTags(): Promise<ArticleTag[]> {
   const data = await fetchFromApi<ArticleTag[]>(`/blog/tags/`);
-  return data ?? mockData.tags;
+  const tags = asArray(data);
+  return tags.length > 0 ? tags : mockData.tags;
 }
 
 export async function getContactInfo(): Promise<ContactInfo> {

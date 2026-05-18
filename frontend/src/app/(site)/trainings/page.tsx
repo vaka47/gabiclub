@@ -19,9 +19,12 @@ export default async function TrainingsPage() {
     getArticles(new URLSearchParams("is_featured=1")),
   ]);
 
-  const featuredCoaches = coaches.filter((coach) => coach.is_featured);
+  const safeCoaches = Array.isArray(coaches) ? coaches : [];
+  const safeCamps = Array.isArray(camps) ? camps : [];
+  const safeArticles = Array.isArray(articles) ? articles : [];
+  const featuredCoaches = safeCoaches.filter((coach) => coach.is_featured);
   if (process.env.NEXT_PUBLIC_DEBUG_MEDIA === "1") {
-    for (const camp of camps ?? []) {
+    for (const camp of safeCamps) {
       const raw = camp.hero_image || camp.header_image || null;
       const resolved = raw ? resolveMediaUrl(raw) ?? raw : null;
       console.log("[media] trainings hero promo camp", {
@@ -31,7 +34,7 @@ export default async function TrainingsPage() {
         resolved,
       });
     }
-    for (const article of articles ?? []) {
+    for (const article of safeArticles) {
       const raw = article.cover_image || null;
       const resolved = raw ? resolveMediaUrl(raw) ?? raw : null;
       console.log("[media] trainings hero promo article", {
@@ -52,7 +55,7 @@ export default async function TrainingsPage() {
         tagline={"Тренировки\nВдохновение\nВовлеченность"}
         description={club.hero_description}
         promos={[
-          ...([...(camps ?? [])].sort(
+          ...([...safeCamps].sort(
             (a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime(),
           )).map((c) => ({
             id: `camp-${c.id}`,
@@ -62,7 +65,7 @@ export default async function TrainingsPage() {
             href: `/camps/${c.slug}`,
             startDate: c.start_date,
           })),
-          ...(articles ?? []).slice(0, 3).map((a) => ({
+          ...safeArticles.slice(0, 3).map((a) => ({
             id: `article-${a.id}`,
             title: a.title,
             subtitle: a.excerpt,
