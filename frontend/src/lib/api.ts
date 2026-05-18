@@ -285,19 +285,17 @@ export async function getArticles(tagOrParams?: string | URLSearchParams): Promi
     query = s ? `?${s}` : "";
   }
   const data = await fetchFromApi<Article[]>(`/blog/articles/${query}`);
-  const articles = asArray(data);
-  return articles.length > 0 ? articles : mockData.articles;
+  return asArray(data);
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   const data = await fetchFromApi<Article>(`/blog/articles/${slug}/`);
-  return data ?? mockData.articles.find((article) => article.slug === slug) ?? null;
+  return data ?? null;
 }
 
 export async function getTags(): Promise<ArticleTag[]> {
   const data = await fetchFromApi<ArticleTag[]>(`/blog/tags/`);
-  const tags = asArray(data);
-  return tags.length > 0 ? tags : mockData.tags;
+  return asArray(data);
 }
 
 export async function getContactInfo(): Promise<ContactInfo> {
