@@ -37,6 +37,7 @@ Backend staging env:
 
 Frontend staging env:
 - `NEXT_PUBLIC_API_URL=https://test.api.gabiclub.ru/api`
+- `API_BASE_URL=http://127.0.0.1:8001/api`
 - `NEXT_PUBLIC_MEDIA_ORIGIN=https://test.api.gabiclub.ru`
 - `NEXT_PUBLIC_DISABLE_PROD_API_FALLBACK=1`
 - `NEXT_PUBLIC_SITE_NOINDEX=1`

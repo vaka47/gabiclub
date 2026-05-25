@@ -20,7 +20,10 @@ import {
 // When the env is missing (e.g., preview/prod deployment forgot to set it),
 // fall back to the public API host so schedule data is still fetched.
 const PROD_FALLBACK_API = "https://api.gabiclub.ru/api";
-const rawEnvApiBase = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
+const publicEnvApiBase = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
+const serverEnvApiBase = process.env.API_BASE_URL?.trim() ?? "";
+const rawEnvApiBase =
+  typeof window === "undefined" && serverEnvApiBase ? serverEnvApiBase : publicEnvApiBase;
 const disableProdFallback =
   process.env.NEXT_PUBLIC_DISABLE_PROD_API_FALLBACK === "1" ||
   process.env.DISABLE_PROD_API_FALLBACK === "1";
