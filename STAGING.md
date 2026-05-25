@@ -26,12 +26,14 @@ Safe topology:
 
 Backend staging env:
 - `DJANGO_DEBUG=0`
+- `GABI_DB_PATH=/srv/gabiclub/staging-data/db.sqlite3`
 - `GABI_ALLOWED_HOSTS=test.api.gabiclub.ru`
 - `GABI_CORS_ALLOWED_ORIGINS=https://test.gabiclub.ru`
 - `GABI_CSRF_TRUSTED_ORIGINS=https://test.gabiclub.ru,https://test.api.gabiclub.ru`
 - `GABI_ADMIN_SITE_URL=https://test.gabiclub.ru`
 - `GABI_NO_INDEX=1`
 - `GABI_MEDIA_ROOT=/srv/gabiclub/staging/media`
+- `GABI_STATIC_ROOT=/srv/gabiclub/staging-data/static`
 
 Frontend staging env:
 - `NEXT_PUBLIC_API_URL=https://test.api.gabiclub.ru/api`
