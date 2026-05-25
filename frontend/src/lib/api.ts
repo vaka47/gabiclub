@@ -21,8 +21,11 @@ import {
 // fall back to the public API host so schedule data is still fetched.
 const PROD_FALLBACK_API = "https://api.gabiclub.ru/api";
 const rawEnvApiBase = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
+const disableProdFallback =
+  process.env.NEXT_PUBLIC_DISABLE_PROD_API_FALLBACK === "1" ||
+  process.env.DISABLE_PROD_API_FALLBACK === "1";
 const preferApiBase =
-  rawEnvApiBase || (process.env.NODE_ENV === "production" ? PROD_FALLBACK_API : "");
+  rawEnvApiBase || (process.env.NODE_ENV === "production" && !disableProdFallback ? PROD_FALLBACK_API : "");
 
 const API_BASE = (() => {
   if (!preferApiBase) {

@@ -21,7 +21,7 @@ from django.views.decorators.cache import never_cache
 from django.views.static import serve as django_static_serve
 
 # Make the Django admin "View site" button always open the public website.
-admin.site.site_url = "https://gabiclub.ru"
+admin.site.site_url = settings.GABI_ADMIN_SITE_URL
 
 urlpatterns = [
     path('admin/', admin.site.urls),

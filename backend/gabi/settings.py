@@ -7,6 +7,20 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def env_flag(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name: str, default: list[str]) -> list[str]:
+    raw = os.getenv(name, "")
+    if not raw.strip():
+        return default
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -14,15 +28,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY") or "dev-secret"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.getenv("DJANGO_DEBUG", "1")))
+DEBUG = env_flag("DJANGO_DEBUG", True)
 
-ALLOWED_HOSTS = [
+DEFAULT_ALLOWED_HOSTS = [
     "gabiclub.ru",
     "admin.gabiclub.ru",
     "api.gabiclub.ru",
     "localhost",
     "127.0.0.1",
 ]
+ALLOWED_HOSTS = env_list("GABI_ALLOWED_HOSTS", DEFAULT_ALLOWED_HOSTS)
+GABI_ADMIN_SITE_URL = os.getenv("GABI_ADMIN_SITE_URL", "https://gabiclub.ru").strip() or "https://gabiclub.ru"
+GABI_NO_INDEX = env_flag("GABI_NO_INDEX", False)
 
 
 # Application definition
@@ -46,6 +63,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'gabi.middleware.XRobotsTagMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -120,18 +138,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_URL = os.getenv("GABI_STATIC_URL", "static/")
+STATIC_ROOT = Path(os.getenv("GABI_STATIC_ROOT", str(BASE_DIR / 'static')))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = os.getenv("GABI_MEDIA_URL", "/media/")
+MEDIA_ROOT = os.getenv("GABI_MEDIA_ROOT", os.path.join(BASE_DIR, 'media'))
 
-CORS_ALLOWED_ORIGINS = [
+DEFAULT_CORS_ALLOWED_ORIGINS = [
     'https://gabiclub.ru',
     'https://www.gabiclub.ru',
     'https://admin.gabiclub.ru',
@@ -139,9 +157,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ]
-CORS_ALLOW_CREDENTIALS = True
-
-CSRF_TRUSTED_ORIGINS = [
+DEFAULT_CSRF_TRUSTED_ORIGINS = [
     'https://gabiclub.ru',
     'https://www.gabiclub.ru',
     'https://admin.gabiclub.ru',
@@ -150,6 +166,10 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ]
+CORS_ALLOWED_ORIGINS = env_list("GABI_CORS_ALLOWED_ORIGINS", DEFAULT_CORS_ALLOWED_ORIGINS)
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = env_list("GABI_CSRF_TRUSTED_ORIGINS", DEFAULT_CSRF_TRUSTED_ORIGINS)
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

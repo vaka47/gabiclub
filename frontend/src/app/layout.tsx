@@ -14,10 +14,13 @@ import Header from "@/components/Header";
 import LeadModalProvider from "@/components/providers/LeadModalProvider";
 import NetworkDebugProbe from "@/components/NetworkDebugProbe";
 import { getClubProfile, getContactInfo, getTheme, getCamps, resolveMediaUrl } from "@/lib/api";
+
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 // Use Russo One for display headings (supports Cyrillic, strong geometric look)
 const bebas = Russo_One({ weight: "400", subsets: ["latin", "cyrillic"], variable: "--font-bebas" });
 const siteIcon = process.env.NEXT_PUBLIC_LOGO || "/gabi-logo.png";
+const siteNoIndex =
+  process.env.NEXT_PUBLIC_SITE_NOINDEX === "1" || process.env.SITE_NOINDEX === "1";
 
 export const metadata: Metadata = {
   title: "Gabi Club — тренировки, кэмпы и блог",
@@ -28,6 +31,12 @@ export const metadata: Metadata = {
     shortcut: siteIcon,
     apple: siteIcon,
   },
+  robots: siteNoIndex
+    ? {
+        index: false,
+        follow: false,
+      }
+    : undefined,
 };
 
 const DEFAULT_BG_COLOR = "#E9E9E9";
