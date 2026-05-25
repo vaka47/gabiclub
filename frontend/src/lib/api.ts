@@ -83,7 +83,15 @@ const PROD_FALLBACK_ORIGIN = (() => {
     return "";
   }
 })();
-const MEDIA_ORIGIN = (process.env.NEXT_PUBLIC_MEDIA_ORIGIN?.trim() || "") || API_ORIGIN || PROD_FALLBACK_ORIGIN;
+const PUBLIC_MEDIA_ORIGIN = process.env.NEXT_PUBLIC_MEDIA_ORIGIN?.trim() || "";
+const SERVER_API_ORIGIN = (() => {
+  try {
+    return serverEnvApiBase ? new URL(serverEnvApiBase).origin : "";
+  } catch {
+    return "";
+  }
+})();
+const MEDIA_ORIGIN = PUBLIC_MEDIA_ORIGIN || API_ORIGIN || PROD_FALLBACK_ORIGIN;
 
 const DEBUG_MEDIA = process.env.NEXT_PUBLIC_DEBUG_MEDIA === "1";
 
@@ -119,6 +127,15 @@ const normalizeCampDetail = (camp: CampDetail): CampDetail => ({
 export function resolveMediaUrl(src?: string | null): string | undefined {
   if (!src) return undefined;
   if (/^https?:\/\//i.test(src)) {
+    try {
+      const parsed = new URL(src);
+      const isDjangoAsset = parsed.pathname.startsWith("/media/") || parsed.pathname.startsWith("/static/");
+      if (PUBLIC_MEDIA_ORIGIN && isDjangoAsset && SERVER_API_ORIGIN && parsed.origin === SERVER_API_ORIGIN) {
+        return `${PUBLIC_MEDIA_ORIGIN}${parsed.pathname}${parsed.search}`;
+      }
+    } catch {
+      // Fall through to using the original absolute URL.
+    }
     if (DEBUG_MEDIA && /\/media\//.test(src)) {
       // Server logs (and client logs if compiled to client) to trace original absolute media URLs
       console.log(`[media] absolute URL used as-is`, { in: src });
