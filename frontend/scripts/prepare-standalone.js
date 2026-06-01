@@ -10,9 +10,34 @@ const path = require("path");
 const rootDir = process.cwd();
 const standaloneDir = path.join(rootDir, ".next", "standalone");
 const staticSrc = path.join(rootDir, ".next", "static");
-const staticDest = path.join(standaloneDir, ".next", "static");
 const publicSrc = path.join(rootDir, "public");
-const publicDest = path.join(standaloneDir, "public");
+
+function findServerDir(dir) {
+  const directServer = path.join(dir, "server.js");
+  if (fs.existsSync(directServer)) {
+    return dir;
+  }
+
+  const queue = [dir];
+  while (queue.length > 0) {
+    const current = queue.shift();
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      if (entry.name === "node_modules") {
+        continue;
+      }
+      const fullPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        queue.push(fullPath);
+        continue;
+      }
+      if (entry.isFile() && entry.name === "server.js") {
+        return current;
+      }
+    }
+  }
+
+  return standaloneDir;
+}
 
 function copyDir(src, dest) {
   if (!fs.existsSync(src)) {
@@ -30,5 +55,21 @@ if (!fs.existsSync(standaloneDir)) {
   process.exit(0);
 }
 
+const serverDir = findServerDir(standaloneDir);
+const staticDest = path.join(serverDir, ".next", "static");
+const publicDest = path.join(serverDir, "public");
+
 copyDir(staticSrc, staticDest);
 copyDir(publicSrc, publicDest);
+
+if (serverDir !== standaloneDir) {
+  const shimPath = path.join(standaloneDir, "server.js");
+  const relativeTarget = path.relative(standaloneDir, path.join(serverDir, "server.js")).replace(/\\/g, "/");
+  fs.writeFileSync(
+    shimPath,
+    `#!/usr/bin/env node\nrequire("./${relativeTarget}");\n`,
+    "utf8",
+  );
+  fs.chmodSync(shimPath, 0o755);
+  console.log(`[standalone] wrote server shim -> ${relativeTarget}`);
+}
