@@ -14,7 +14,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY") or "dev-secret"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.getenv("DJANGO_DEBUG", "1")))
+# Default to False so a missing env var does not silently expose debug mode.
+DEBUG = bool(int(os.getenv("DJANGO_DEBUG", "0")))
 
 ALLOWED_HOSTS = [
     "gabiclub.ru",
@@ -130,6 +131,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+FILE_UPLOAD_PERMISSIONS = 0o640
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o750
 
 CORS_ALLOWED_ORIGINS = [
     'https://gabiclub.ru',
