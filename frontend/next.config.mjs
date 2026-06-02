@@ -19,8 +19,10 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'gabiclub.ru' },
       { protocol: 'https', hostname: 'www.gabiclub.ru' },
+      { protocol: 'https', hostname: 'test.gabiclub.ru' },
       { protocol: 'https', hostname: 'api.gabiclub.ru' },
       { protocol: 'https', hostname: 'admin.gabiclub.ru' },
+      { protocol: 'https', hostname: 'test.api.gabiclub.ru' },
       // Allow dev media from local Django
       { protocol: 'http', hostname: 'localhost', port: '8000' },
       { protocol: 'http', hostname: '127.0.0.1', port: '8000' },

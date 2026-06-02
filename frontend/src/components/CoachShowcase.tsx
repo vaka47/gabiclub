@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 
 import type { Coach } from "@/lib/types";
@@ -9,12 +8,14 @@ import LeadCtaButton from "./LeadCtaButton";
 import { useLeadModal } from "./providers/LeadModalProvider";
 import { useEffect, useRef, useState } from "react";
 import CoachModal from "./CoachModal";
+import DebugImage from "./DebugImage";
 
 function CoachAvatar({ coach }: { coach: Coach }) {
   const photoUrl = resolveMediaUrl(coach.photo ?? undefined);
   if (photoUrl) {
     return (
-      <Image
+      <DebugImage
+        debugName={`coach-avatar:${coach.id}`}
         src={photoUrl}
         alt={coach.full_name}
         width={72}

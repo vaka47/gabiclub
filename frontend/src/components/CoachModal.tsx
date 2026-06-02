@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
 import type { Coach } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
 import { FaInstagram, FaTelegramPlane } from "react-icons/fa";
+import DebugImage from "./DebugImage";
 
 type CoachModalProps = {
   open: boolean;
@@ -49,7 +49,7 @@ export default function CoachModal({ open, coach, onClose }: CoachModalProps) {
         <div className="flex flex-col md:flex-row">
           {/* Left: vertical photo (desktop only) */}
           <div className="relative hidden bg-slate-100 md:block md:h-[520px] md:w-[42%]">
-            {photo ? <Image src={photo} alt={coach.full_name} fill className="object-cover" /> : (
+            {photo ? <DebugImage debugName={`coach-modal:${coach.id}`} src={photo} alt={coach.full_name} fill className="object-cover" /> : (
               <div className="flex h-full w-full items-center justify-center text-slate-400">Нет фото</div>
             )}
           </div>
