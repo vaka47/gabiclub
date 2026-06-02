@@ -351,7 +351,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
                 {l3 && (<><br />{l3}</>)}
               </h1>
 
-              <p className="hero-desc max-w-2xl rounded-[22px] bg-white/72 px-5 py-4 text-base font-medium text-slate-800 shadow-[0_18px_48px_-28px_rgba(15,23,42,0.45)] backdrop-blur-[10px] md:text-lg">
+              <p className="hero-desc max-w-2xl rounded-[22px] bg-white/72 px-5 py-4 text-base text-slate-800 shadow-[0_18px_48px_-28px_rgba(15,23,42,0.45)] backdrop-blur-[10px] md:text-lg">
                 {descNode}
               </p>
             </div>
