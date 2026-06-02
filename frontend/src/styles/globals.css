@@ -135,12 +135,72 @@ a:hover {
 .hero-desc {
   line-height: 1.45;
 }
+.hero-chat-shell {
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+.hero-chat-bubble {
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.58);
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.72) 100%);
+  padding: 1rem 1.25rem;
+  box-shadow: 0 18px 48px -28px rgba(15,23,42,0.45);
+  backdrop-filter: blur(12px);
+  animation: hero-chat-rise 520ms cubic-bezier(.2,.7,.2,1) both;
+}
+.hero-chat-tail {
+  position: absolute;
+  left: 1.25rem;
+  bottom: 1.2rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 0 0 8px 0;
+  background: rgba(255,255,255,0.76);
+  border-right: 1px solid rgba(255,255,255,0.58);
+  border-bottom: 1px solid rgba(255,255,255,0.58);
+  transform: rotate(38deg);
+  box-shadow: 0 10px 24px -20px rgba(15,23,42,0.35);
+  animation: hero-chat-rise 520ms cubic-bezier(.2,.7,.2,1) both;
+}
+.hero-chat-typing {
+  position: absolute;
+  left: 2.75rem;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.78);
+  padding: 0.38rem 0.7rem;
+  box-shadow: 0 14px 30px -24px rgba(15,23,42,0.4);
+  backdrop-filter: blur(10px);
+  animation: hero-chat-rise 620ms cubic-bezier(.2,.7,.2,1) both;
+}
+.hero-chat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(20,80,170,0.85);
+  animation: hero-chat-dot-bounce 1.15s ease-in-out infinite;
+}
+.hero-chat-dot:nth-child(2) {
+  animation-delay: 0.14s;
+}
+.hero-chat-dot:nth-child(3) {
+  animation-delay: 0.28s;
+}
 .hero-stat-text {
   color: #334155 !important;
   -webkit-text-fill-color: #334155 !important;
 }
 @media (max-width: 768px) {
   .hero-desc { font-size: clamp(14px, 4.2vw, 18px); line-height: 1.35; }
+  .hero-chat-shell { padding-bottom: 1.35rem; }
+  .hero-chat-bubble { padding: 0.95rem 1rem; border-radius: 22px; }
+  .hero-chat-tail { left: 1rem; width: 18px; height: 18px; }
+  .hero-chat-typing { left: 2.3rem; }
 }
 
 /* Mobile camp ticker (appears under fixed header on mobile) */
@@ -232,6 +292,26 @@ a:hover {
 @keyframes hero-fade-out {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+@keyframes hero-chat-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes hero-chat-dot-bounce {
+  0%, 80%, 100% {
+    opacity: 0.35;
+    transform: translateY(0) scale(0.92);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1);
+  }
 }
 
 /* Brand chips (pills) colored by theme vars */

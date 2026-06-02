@@ -351,9 +351,17 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
                 {l3 && (<><br />{l3}</>)}
               </h1>
 
-              <p className="hero-desc max-w-2xl rounded-[22px] bg-white/72 px-5 py-4 text-base text-slate-800 shadow-[0_18px_48px_-28px_rgba(15,23,42,0.45)] backdrop-blur-[10px] md:text-lg">
-                {descNode}
-              </p>
+              <div key={`hero-chat-${bgIndex}`} className="hero-chat-shell md:-ml-4 lg:-ml-6">
+                <div className="hero-chat-bubble max-w-full md:max-w-[46rem] lg:max-w-[48rem]">
+                  <p className="hero-desc text-[15px] text-slate-800 md:text-[16px] lg:text-[17px]">{descNode}</p>
+                </div>
+                <div className="hero-chat-tail" aria-hidden />
+                <div className="hero-chat-typing" aria-hidden>
+                  <span className="hero-chat-dot" />
+                  <span className="hero-chat-dot" />
+                  <span className="hero-chat-dot" />
+                </div>
+              </div>
             </div>
 
             {/* Primary CTA */}
