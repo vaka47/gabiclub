@@ -4,7 +4,7 @@ import { clsx } from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { FiMenu, FiX } from "react-icons/fi";
+import { FiChevronDown, FiMenu, FiX } from "react-icons/fi";
 import { FaInstagram, FaPhoneAlt, FaTelegramPlane, FaVk } from "react-icons/fa";
 
 import type { ContactInfo, SocialLink } from "@/lib/types";
@@ -21,10 +21,23 @@ type NavLink = {
   label: string;
 };
 
-const links: NavLink[] = [
+const desktopLinks: NavLink[] = [
   { href: "/trainings", label: "Тренировки" },
   { href: "/pricing", label: "Тарифы" },
   { href: "/camps", label: "Кэмпы" },
+  { href: "/shop", label: "Магазин" },
+];
+
+const aboutMenuLinks: NavLink[] = [
+  { href: "/about", label: "О нас" },
+  { href: "/blog", label: "Блог" },
+];
+
+const mobileLinks: NavLink[] = [
+  { href: "/trainings", label: "Тренировки" },
+  { href: "/pricing", label: "Тарифы" },
+  { href: "/camps", label: "Кэмпы" },
+  { href: "/shop", label: "Магазин" },
   { href: "/blog", label: "Блог" },
   { href: "/about", label: "О клубе" },
 ];
@@ -52,22 +65,75 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
+  const isPathActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const isClubMenuActive = isPathActive("/about") || isPathActive("/blog");
 
-  const renderLinks = (mode: "desktop" | "mobile") => (
-    <nav
-      className={clsx("flex flex-col gap-6", {
-        "md:flex-row md:items-center md:gap-10": mode === "desktop",
+  const renderDesktopLinks = () => (
+    <nav className="flex flex-col gap-6 md:flex-row md:items-center md:gap-10">
+      {desktopLinks.map((link) => {
+        const isActive = isPathActive(link.href);
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={clsx(
+              "text-lg font-medium transition md:text-sm",
+              isActive ? "text-gabi-blue" : "text-slate-600 hover:text-gabi-blue",
+            )}
+          >
+            {link.label}
+          </Link>
+        );
       })}
-    >
-      {links.map((link) => {
-        const isActive = pathname.startsWith(link.href);
+      <div className="group relative">
+        <button
+          type="button"
+          className={clsx(
+            "inline-flex items-center gap-1 text-lg font-medium transition md:text-sm",
+            isClubMenuActive ? "text-gabi-blue" : "text-slate-600 hover:text-gabi-blue group-hover:text-gabi-blue",
+          )}
+          aria-haspopup="true"
+        >
+          О клубе
+          <FiChevronDown
+            size={14}
+            className="transition duration-200 group-hover:rotate-180 group-focus-within:rotate-180"
+          />
+        </button>
+        <div className="pointer-events-none absolute left-0 top-full z-20 pt-3 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+          <div className="min-w-[11rem] rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.25)]">
+            {aboutMenuLinks.map((link) => {
+              const isActive = isPathActive(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={clsx(
+                    "block rounded-xl px-4 py-3 text-sm font-medium transition",
+                    isActive ? "bg-gabi-blue/10 text-gabi-blue" : "text-slate-600 hover:bg-slate-50 hover:text-gabi-blue",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+
+  const renderMobileLinks = () => (
+    <nav className="flex flex-col gap-6">
+      {mobileLinks.map((link) => {
+        const isActive = isPathActive(link.href);
         return (
           <Link
             key={link.href}
             href={link.href}
             onClick={closeMenu}
             className={clsx(
-              "text-lg font-medium transition md:text-sm",
+              "text-lg font-medium transition",
               isActive ? "text-gabi-blue" : "text-slate-600 hover:text-gabi-blue",
             )}
           >
@@ -141,7 +207,7 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
         </div>
 
         <div className="hidden items-center gap-6 md:flex">
-          {renderLinks("desktop")}
+          {renderDesktopLinks()}
           <button
             className="btn-primary"
             onClick={() => openLeadModal({ source: "header" })}
@@ -169,7 +235,7 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
       {menuOpen && (
         <div className="md:hidden">
           <div className="mx-4 mb-4 rounded-3xl border border-white/60 bg-white/95 p-6 shadow-xl">
-            {renderLinks("mobile")}
+            {renderMobileLinks()}
             <button
               className="btn-primary mt-6 w-full"
               onClick={() => {
