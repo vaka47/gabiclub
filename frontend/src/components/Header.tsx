@@ -80,6 +80,15 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
 
   const renderSocialLinks = (mode: "desktop" | "mobile") => (
     <>
+      {mode === "mobile" && phoneHref && (
+        <a
+          href={phoneHref}
+          className="shrink-0 text-slate-500 transition hover:text-gabi-blue"
+          aria-label={`Позвонить: ${phoneNumber}`}
+        >
+          <FaPhoneAlt size={16} />
+        </a>
+      )}
       {socialLinks?.map((link) => {
         const Icon = resolveSocialIcon(link.title || "");
         if (!Icon) return null;
@@ -99,15 +108,6 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
           </a>
         );
       })}
-      {mode === "mobile" && phoneHref && (
-        <a
-          href={phoneHref}
-          className="shrink-0 text-slate-500 transition hover:text-gabi-blue"
-          aria-label={`Позвонить: ${phoneNumber}`}
-        >
-          <FaPhoneAlt size={16} />
-        </a>
-      )}
     </>
   );
 
@@ -128,7 +128,6 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
 
         {/* Center: desktop social icons */}
         <div className="hidden items-center justify-center gap-8 md:flex">
-          {renderSocialLinks("desktop")}
           {phoneHref && (
             <a
               href={phoneHref}
@@ -138,6 +137,7 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
               {phoneNumber}
             </a>
           )}
+          {renderSocialLinks("desktop")}
         </div>
 
         <div className="hidden items-center gap-6 md:flex">
