@@ -351,7 +351,9 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
                 {l3 && (<><br />{l3}</>)}
               </h1>
 
-              <p className="hero-desc max-w-2xl text-base text-slate-700 md:text-lg">{descNode}</p>
+              <p className="hero-desc max-w-2xl rounded-[22px] bg-white/72 px-5 py-4 text-base font-medium text-slate-800 shadow-[0_18px_48px_-28px_rgba(15,23,42,0.45)] backdrop-blur-[10px] md:text-lg">
+                {descNode}
+              </p>
             </div>
 
             {/* Primary CTA */}
@@ -362,7 +364,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
               style={{ backgroundColor: "rgb(20, 80, 170)", borderRadius: 14, padding: "16px 28px" }}
             />
 
-            <div className="mt-6 flex items-center gap-3 text-sm">
+            <div className="mt-6 inline-flex flex-wrap items-center gap-3 rounded-2xl bg-white/68 px-4 py-3 text-sm shadow-[0_16px_40px_-26px_rgba(15,23,42,0.45)] backdrop-blur-[10px]">
               <div className="flex items-center gap-1">
                 <span className="h-3 w-3 rounded-full bg-emerald-300" aria-hidden />
                 <span className="hero-stat-text">Расписание обновляется ежедневно</span>
