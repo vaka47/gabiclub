@@ -362,17 +362,27 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
               </h1>
 
               <div className="hero-chat-shell md:-ml-5 lg:-ml-7">
-                {showHeroMessage ? (
-                  <div key={`hero-chat-${bgIndex}`} className="hero-chat-bubble max-w-full md:max-w-[47rem] lg:max-w-[49rem]">
-                    <p className="hero-desc text-[14px] text-slate-800 md:text-[15px] lg:text-[16px]">{descNode}</p>
-                  </div>
-                ) : (
-                  <div key={`hero-typing-${bgIndex}`} className="hero-chat-typing-bubble" aria-hidden>
-                    <span className="hero-chat-dot" />
-                    <span className="hero-chat-dot" />
-                    <span className="hero-chat-dot" />
-                  </div>
-                )}
+                <div
+                  key={`hero-chat-${bgIndex}`}
+                  className={clsx("hero-chat-bubble max-w-full md:max-w-[48rem] lg:max-w-[50rem]", {
+                    "hero-chat-bubble-visible": showHeroMessage,
+                    "hero-chat-bubble-hidden": !showHeroMessage,
+                  })}
+                >
+                  <p className="hero-desc text-base text-slate-800 md:text-lg">{descNode}</p>
+                </div>
+                <div
+                  key={`hero-typing-${bgIndex}`}
+                  className={clsx("hero-chat-typing-bubble", {
+                    "hero-chat-typing-visible": !showHeroMessage,
+                    "hero-chat-typing-hidden": showHeroMessage,
+                  })}
+                  aria-hidden
+                >
+                  <span className="hero-chat-dot" />
+                  <span className="hero-chat-dot" />
+                  <span className="hero-chat-dot" />
+                </div>
               </div>
             </div>
 

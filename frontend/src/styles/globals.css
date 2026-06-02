@@ -137,18 +137,18 @@ a:hover {
 }
 .hero-chat-shell {
   position: relative;
-  display: flex;
-  align-items: flex-end;
-  min-height: 8.25rem;
-  padding-bottom: 0.4rem;
+  display: inline-block;
+  width: 100%;
 }
 .hero-chat-bubble,
 .hero-chat-typing-bubble {
   position: relative;
   isolation: isolate;
-  backdrop-filter: blur(10px);
+  display: inline-flex;
+  align-items: center;
   -webkit-backdrop-filter: blur(10px);
-  filter: drop-shadow(0 18px 36px rgba(15,23,42,0.18));
+  backdrop-filter: blur(10px);
+  filter: drop-shadow(0 14px 26px rgba(15,23,42,0.14));
 }
 .hero-chat-bubble::before,
 .hero-chat-typing-bubble::before {
@@ -156,7 +156,7 @@ a:hover {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: rgba(255,255,255,0.68);
+  background: rgba(255,255,255,0.60);
   -webkit-mask-image: url("/hero-chat-bubble.png");
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-position: center;
@@ -167,18 +167,44 @@ a:hover {
   mask-size: 100% 100%;
 }
 .hero-chat-bubble {
-  padding: 1rem 1rem 1.5rem 1rem;
-  backdrop-filter: blur(12px);
-  animation: hero-chat-rise 520ms cubic-bezier(.2,.7,.2,1) both;
+  padding: 0.72rem 0.98rem 1rem 0.98rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity 260ms ease, transform 320ms ease, visibility 320ms ease;
+}
+.hero-chat-bubble-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.hero-chat-bubble-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
 }
 .hero-chat-typing-bubble {
-  width: 7.4rem;
-  height: 4.65rem;
-  display: inline-flex;
-  align-items: center;
+  position: absolute;
+  left: 0.2rem;
+  bottom: 0.15rem;
+  width: 6.1rem;
+  height: 3.85rem;
   justify-content: center;
   gap: 0.32rem;
-  animation: hero-chat-rise 620ms cubic-bezier(.2,.7,.2,1) both;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 220ms ease, transform 260ms ease, visibility 260ms ease;
+}
+.hero-chat-typing-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.hero-chat-typing-hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
 }
 .hero-chat-dot {
   width: 6px;
@@ -199,9 +225,13 @@ a:hover {
 }
 @media (max-width: 768px) {
   .hero-desc { font-size: clamp(14px, 4.2vw, 18px); line-height: 1.35; }
-  .hero-chat-shell { min-height: 7.4rem; padding-bottom: 0.3rem; }
-  .hero-chat-bubble { padding: 0.95rem 0.9rem 1.4rem 0.9rem; }
-  .hero-chat-typing-bubble { width: 6.4rem; height: 4rem; }
+  .hero-chat-bubble { padding: 0.82rem 0.88rem 0.98rem 0.88rem; }
+  .hero-chat-typing-bubble {
+    left: 0.1rem;
+    bottom: 0.05rem;
+    width: 5.4rem;
+    height: 3.45rem;
+  }
 }
 
 /* Mobile camp ticker (appears under fixed header on mobile) */
