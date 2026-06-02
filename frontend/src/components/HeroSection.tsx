@@ -24,6 +24,7 @@ type HeroSectionProps = { slides: HeroSlide[]; clubName: string; tagline?: strin
 const AUTO_SWITCH = 6000;
 const PROMO_SWITCH = 4500;
 const FADE_MS = 900;
+const CHAT_TYPING_MS = 850;
 const EDGE_SAMPLE_SIZE = 48;
 const EDGE_BAND = 8;
 const EDGE_ALPHA = 0.82;
@@ -153,10 +154,19 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
   const [prevBg, setPrevBg] = useState<string | null>(null);
   const [promoIndex, setPromoIndex] = useState(initialPromoIndex);
   const [loadedPromos, setLoadedPromos] = useState<Record<string, boolean>>({});
+  const [showHeroMessage, setShowHeroMessage] = useState(false);
 
   useEffect(() => {
     setPromoIndex(initialPromoIndex);
   }, [initialPromoIndex]);
+
+  useEffect(() => {
+    setShowHeroMessage(false);
+    const timer = setTimeout(() => {
+      setShowHeroMessage(true);
+    }, CHAT_TYPING_MS);
+    return () => clearTimeout(timer);
+  }, [bgIndex]);
 
   useEffect(() => {
     if (bgSlides.length < 2) return;
@@ -351,16 +361,18 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
                 {l3 && (<><br />{l3}</>)}
               </h1>
 
-              <div key={`hero-chat-${bgIndex}`} className="hero-chat-shell md:-ml-4 lg:-ml-6">
-                <div className="hero-chat-bubble max-w-full md:max-w-[46rem] lg:max-w-[48rem]">
-                  <p className="hero-desc text-[15px] text-slate-800 md:text-[16px] lg:text-[17px]">{descNode}</p>
-                </div>
-                <div className="hero-chat-tail" aria-hidden />
-                <div className="hero-chat-typing" aria-hidden>
-                  <span className="hero-chat-dot" />
-                  <span className="hero-chat-dot" />
-                  <span className="hero-chat-dot" />
-                </div>
+              <div className="hero-chat-shell md:-ml-5 lg:-ml-7">
+                {showHeroMessage ? (
+                  <div key={`hero-chat-${bgIndex}`} className="hero-chat-bubble max-w-full md:max-w-[47rem] lg:max-w-[49rem]">
+                    <p className="hero-desc text-[14px] text-slate-800 md:text-[15px] lg:text-[16px]">{descNode}</p>
+                  </div>
+                ) : (
+                  <div key={`hero-typing-${bgIndex}`} className="hero-chat-typing-bubble" aria-hidden>
+                    <span className="hero-chat-dot" />
+                    <span className="hero-chat-dot" />
+                    <span className="hero-chat-dot" />
+                  </div>
+                )}
               </div>
             </div>
 
