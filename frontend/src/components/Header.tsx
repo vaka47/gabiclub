@@ -193,7 +193,7 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
         </Link>
 
         {/* Center: desktop social icons */}
-        <div className="hidden items-center justify-center gap-8 md:flex">
+        <div className="hidden items-center justify-center md:flex">
           {phoneHref && (
             <a
               href={phoneHref}
@@ -203,7 +203,9 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
               {phoneNumber}
             </a>
           )}
-          {renderSocialLinks("desktop")}
+          <div className="ml-5 flex items-center gap-8">
+            {renderSocialLinks("desktop")}
+          </div>
         </div>
 
         <div className="hidden items-center gap-6 md:flex">
