@@ -5,12 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
-import { FaInstagram, FaTelegramPlane, FaVk } from "react-icons/fa";
+import { FaInstagram, FaPhoneAlt, FaTelegramPlane, FaVk } from "react-icons/fa";
 
-import type { SocialLink } from "@/lib/types";
+import type { ContactInfo, SocialLink } from "@/lib/types";
 import { useLeadModal } from "./providers/LeadModalProvider";
 
 type HeaderProps = {
+  contact?: ContactInfo;
   socialLinks?: SocialLink[];
   logoSrc?: string;
 };
@@ -28,11 +29,26 @@ const links: NavLink[] = [
   { href: "/about", label: "О клубе" },
 ];
 
-export default function Header({ socialLinks, logoSrc }: HeaderProps) {
+const resolveSocialIcon = (title: string) => {
+  const normalizedTitle = title.toLowerCase();
+
+  if (normalizedTitle.includes("telegram")) return FaTelegramPlane;
+  if (normalizedTitle.includes("instagram")) return FaInstagram;
+  if (normalizedTitle.includes("vk")) return FaVk;
+
+  return null;
+};
+
+const toTelHref = (value?: string | null) =>
+  value ? `tel:${String(value).replace(/[^+\d]/g, "")}` : undefined;
+
+export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const { openLeadModal } = useLeadModal();
   const resolvedLogo = logoSrc?.trim();
+  const phoneNumber = contact?.phone_primary ?? contact?.phone_secondary;
+  const phoneHref = toTelHref(phoneNumber);
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
@@ -62,6 +78,39 @@ export default function Header({ socialLinks, logoSrc }: HeaderProps) {
     </nav>
   );
 
+  const renderSocialLinks = (mode: "desktop" | "mobile") => (
+    <>
+      {socialLinks?.map((link) => {
+        const Icon = resolveSocialIcon(link.title || "");
+        if (!Icon) return null;
+
+        return (
+          <a
+            key={link.id ?? link.title}
+            href={link.url}
+            target="_blank"
+            rel="noreferrer"
+            className={clsx("shrink-0 text-slate-500 transition hover:text-gabi-blue", {
+              "text-slate-500": mode === "desktop",
+            })}
+            aria-label={link.title}
+          >
+            <Icon size={mode === "desktop" ? 18 : 16} />
+          </a>
+        );
+      })}
+      {mode === "mobile" && phoneHref && (
+        <a
+          href={phoneHref}
+          className="shrink-0 text-slate-500 transition hover:text-gabi-blue"
+          aria-label={`Позвонить: ${phoneNumber}`}
+        >
+          <FaPhoneAlt size={16} />
+        </a>
+      )}
+    </>
+  );
+
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-lg">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 md:py-5">
@@ -79,30 +128,17 @@ export default function Header({ socialLinks, logoSrc }: HeaderProps) {
 
         {/* Center: desktop social icons */}
         <div className="hidden items-center justify-center gap-8 md:flex">
-            {socialLinks?.map((link) => {
-              const title = (link.title || "").toLowerCase();
-              const Icon = title.includes("telegram")
-                ? FaTelegramPlane
-                : title.includes("instagram")
-                ? FaInstagram
-                : title.includes("vk")
-                ? FaVk
-                : null;
-              if (!Icon) return null;
-              return (
-                <a
-                  key={link.id ?? link.title}
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-slate-500 transition hover:text-gabi-blue"
-                  aria-label={link.title}
-                >
-                  <Icon size={18} />
-                </a>
-              );
-            })}
-          </div>
+          {renderSocialLinks("desktop")}
+          {phoneHref && (
+            <a
+              href={phoneHref}
+              className="whitespace-nowrap text-sm font-medium text-slate-600 transition hover:text-gabi-blue"
+              aria-label={`Позвонить: ${phoneNumber}`}
+            >
+              {phoneNumber}
+            </a>
+          )}
+        </div>
 
         <div className="hidden items-center gap-6 md:flex">
           {renderLinks("desktop")}
@@ -117,30 +153,8 @@ export default function Header({ socialLinks, logoSrc }: HeaderProps) {
 
         {/* Mobile social icons to the left of burger */}
         <div className="mr-2 flex shrink-0 items-center gap-6 md:hidden">
-            {socialLinks?.map((link) => {
-              const title = (link.title || "").toLowerCase();
-              const Icon = title.includes("telegram")
-                ? FaTelegramPlane
-                : title.includes("instagram")
-                ? FaInstagram
-                : title.includes("vk")
-                ? FaVk
-                : null;
-              if (!Icon) return null;
-              return (
-                <a
-                  key={link.id ?? link.title}
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="shrink-0 text-slate-500 transition hover:text-gabi-blue"
-                  aria-label={link.title}
-                >
-                  <Icon size={16} />
-                </a>
-              );
-            })}
-          </div>
+          {renderSocialLinks("mobile")}
+        </div>
 
         <button
           onClick={toggleMenu}

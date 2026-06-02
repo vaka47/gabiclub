@@ -14,6 +14,7 @@ import Header from "@/components/Header";
 import LeadModalProvider from "@/components/providers/LeadModalProvider";
 import NetworkDebugProbe from "@/components/NetworkDebugProbe";
 import { getClubProfile, getContactInfo, getTheme, getCamps, resolveMediaUrl } from "@/lib/api";
+import type { SocialLink } from "@/lib/types";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"], variable: "--font-inter" });
 // Use Russo One for display headings (supports Cyrillic, strong geometric look)
@@ -21,6 +22,8 @@ const bebas = Russo_One({ weight: "400", subsets: ["latin", "cyrillic"], variabl
 const siteIcon = process.env.NEXT_PUBLIC_LOGO || "/gabi-logo.png";
 const siteNoIndex =
   process.env.NEXT_PUBLIC_SITE_NOINDEX === "1" || process.env.SITE_NOINDEX === "1";
+type ThemeVars = React.CSSProperties &
+  Record<"--brand-primary" | "--brand-secondary" | "--brand-grad-start" | "--brand-grad-end" | "--brand-bg", string>;
 
 export const metadata: Metadata = {
   title: "Gabi Club — тренировки, кэмпы и блог",
@@ -51,26 +54,26 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const themedLogo = theme?.club_photo ? resolveMediaUrl(theme.club_photo) : "";
   const logoSrc = envLogo || themedLogo || "/gabi-logo.png";
   const brandBg = theme?.background_color || DEFAULT_BG_COLOR;
-  const themeVars: React.CSSProperties = {
-    ["--brand-primary" as any]: theme?.primary_color || "#1A5ACB",
-    ["--brand-secondary" as any]: theme?.secondary_color || "#FF6A00",
-    ["--brand-grad-start" as any]: theme?.gradient_start || "#1A5ACB",
-    ["--brand-grad-end" as any]: theme?.gradient_end || "#FF6A00",
-    ["--brand-bg" as any]: brandBg,
+  const themeVars: ThemeVars = {
+    "--brand-primary": theme?.primary_color || "#1A5ACB",
+    "--brand-secondary": theme?.secondary_color || "#FF6A00",
+    "--brand-grad-start": theme?.gradient_start || "#1A5ACB",
+    "--brand-grad-end": theme?.gradient_end || "#FF6A00",
+    "--brand-bg": brandBg,
   };
   // Build header social links from contact block; add basic ones if missing
   const baseLinks = contact.social_links ?? [];
-  const ensure = (title: string, url?: string) =>
-    url ? ({ id: `${title.toLowerCase()}-auto`, title, url }) : null;
+  const ensure = (id: number, title: string, url?: string): SocialLink | null =>
+    url ? { id, title, url } : null;
   const extras = [
-    ensure("Telegram", contact.telegram),
-    ensure("Instagram", contact.instagram),
-    ensure("VK", contact.vk),
-  ].filter(Boolean) as any[];
+    ensure(-1, "Telegram", contact.telegram),
+    ensure(-2, "Instagram", contact.instagram),
+    ensure(-3, "VK", contact.vk),
+  ].filter((link): link is SocialLink => Boolean(link));
   const names = new Set(baseLinks.map((l) => (l.title || "").toLowerCase()));
   const headerLinks = baseLinks.slice();
   extras.forEach((e) => {
-    if (!names.has((e.title || "").toLowerCase())) headerLinks.push(e as any);
+    if (!names.has((e.title || "").toLowerCase())) headerLinks.push(e);
   });
 
   return (
@@ -81,7 +84,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <LeadModalProvider>
             {process.env.NEXT_PUBLIC_DEBUG_NETWORK === "1" && <NetworkDebugProbe />}
             <CursorTrail />
-            <Header socialLinks={headerLinks} logoSrc={logoSrc} />
+            <Header contact={contact} socialLinks={headerLinks} logoSrc={logoSrc} />
             {/* Mobile-only camp ticker overlay across the site */}
             <MobileCampTicker camps={featuredCamps ?? []} />
             <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-32 md:pt-40 pb-20 md:px-6 lg:px-8">
