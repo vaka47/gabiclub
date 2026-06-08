@@ -230,7 +230,9 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
       (
         <>
           <span className="hidden md:inline">
-            Лыжи, лыжероллеры и ОФП. Технично и с удовольствием<br />под руководством Габриеллы Калугер и Андрея Краснова.
+            Лыжи, лыжероллеры и ОФП. Технично и с удовольствием под
+            <br />
+            руководством Габриеллы Калугер и Андрея{"\u00A0"}Краснова.
           </span>
           <span className="md:hidden inline">
             <span>Лыжи, лыжероллеры и ОФП.</span>
@@ -343,7 +345,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
 
       <div className="relative z-20 px-6 py-10 md:px-12 lg:px-16 md:py-12 lg:py-14">
         <div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
-          <div className="max-w-3xl">
+          <div className="max-w-3xl md:max-w-[50rem] lg:max-w-[52rem]">
             <div className="space-y-4">
               {/* Wordmark as text (Halenoir) */}
               <div
@@ -364,7 +366,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
               <div className="hero-chat-shell md:-ml-5 lg:-ml-7">
                 <div
                   key={`hero-chat-${bgIndex}`}
-                  className={clsx("hero-chat-bubble max-w-full md:max-w-[48rem] lg:max-w-[50rem]", {
+                  className={clsx("hero-chat-bubble max-w-full md:max-w-[50rem] lg:max-w-[52rem]", {
                     "hero-chat-bubble-visible": showHeroMessage,
                     "hero-chat-bubble-hidden": !showHeroMessage,
                   })}
