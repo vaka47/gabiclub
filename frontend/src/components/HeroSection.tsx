@@ -363,15 +363,17 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
                 {l3 && (<><br />{l3}</>)}
               </h1>
 
-              <div className="hero-chat-shell md:-ml-5 md:w-[42rem] lg:-ml-7 lg:w-[44rem]">
+              <div className="hero-chat-shell md:-ml-5 lg:-ml-7">
                 <div
                   key={`hero-chat-${bgIndex}`}
-                  className={clsx("hero-chat-bubble max-w-full", {
+                  className={clsx("hero-chat-bubble", {
                     "hero-chat-bubble-visible": showHeroMessage,
                     "hero-chat-bubble-hidden": !showHeroMessage,
                   })}
                 >
-                  <p className="hero-desc text-base text-slate-800 md:text-lg">{descNode}</p>
+                  <div className="hero-chat-content">
+                    <p className="hero-desc text-base text-slate-800 md:text-lg">{descNode}</p>
+                  </div>
                 </div>
                 <div
                   key={`hero-typing-${bgIndex}`}
