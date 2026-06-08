@@ -1,0 +1,49 @@
+name: Deploy Staging Frontend
+
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy-staging-frontend.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-staging-frontend
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        run: |
+          set -euo pipefail
+          chmod 600 frontend/gabiclub_ci
+
+      - name: Deploy frontend to staging
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=no -i frontend/gabiclub_ci root@83.166.246.226 '
+            set -euo pipefail
+            cd /srv/gabiclub/staging/frontend
+            git fetch origin
+            git pull --ff-only origin staging
+            npm run build
+            systemctl restart gabiclub-frontend-staging
+            systemctl is-active gabiclub-frontend-staging
+            git rev-parse --short HEAD
+          '
+
+      - name: Smoke check staging frontend
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors --max-time 20 \
+            -o /dev/null -w 'frontend code=%{http_code} time=%{time_total}\n' \
+            https://test.gabiclub.ru/trainings
