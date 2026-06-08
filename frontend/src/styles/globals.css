@@ -138,27 +138,23 @@ a:hover {
 }
 .hero-chat-shell {
   position: relative;
-  display: inline-block;
+  display: block;
   width: 100%;
+  max-width: 44rem;
 }
 .hero-chat-bubble,
 .hero-chat-typing-bubble {
+  --hero-chat-clip: polygon(6% 12%, 10% 7%, 22% 5%, 78% 5%, 90% 7%, 95% 11%, 97% 20%, 97% 68%, 95% 77%, 90% 82%, 58% 82%, 43% 82%, 37% 98%, 34% 82%, 10% 82%, 5% 77%, 3% 68%, 3% 20%);
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   isolation: isolate;
   overflow: hidden;
   background: rgba(255,255,255,0.14);
   -webkit-backdrop-filter: blur(18px) saturate(1.08);
   backdrop-filter: blur(18px) saturate(1.08);
-  -webkit-mask-image: url("/hero-chat-bubble.png");
-  mask-image: url("/hero-chat-bubble.png");
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
+  -webkit-clip-path: var(--hero-chat-clip);
+  clip-path: var(--hero-chat-clip);
   filter: drop-shadow(0 14px 26px rgba(15,23,42,0.14));
 }
 .hero-chat-bubble::after,
@@ -166,10 +162,9 @@ a:hover {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("/hero-chat-bubble-outline.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
+  border: 1.6px solid rgba(255,255,255,0.95);
+  -webkit-clip-path: var(--hero-chat-clip);
+  clip-path: var(--hero-chat-clip);
   z-index: 2;
   pointer-events: none;
 }
@@ -179,7 +174,8 @@ a:hover {
   z-index: 1;
 }
 .hero-chat-bubble {
-  padding: 0.96rem 0.94rem 1.34rem 0.94rem;
+  width: 100%;
+  padding: 0.92rem 1.28rem 1.18rem 1.32rem;
   opacity: 0;
   visibility: hidden;
   transform: translateY(12px);
@@ -197,10 +193,10 @@ a:hover {
 }
 .hero-chat-typing-bubble {
   position: absolute;
-  left: 0.2rem;
-  bottom: 0.15rem;
-  width: 6.1rem;
-  height: 3.85rem;
+  left: 0.45rem;
+  bottom: 0.22rem;
+  width: 6rem;
+  height: 2.95rem;
   justify-content: center;
   gap: 0.32rem;
   opacity: 0;
@@ -237,12 +233,13 @@ a:hover {
 }
 @media (max-width: 768px) {
   .hero-desc { font-size: clamp(14px, 4.2vw, 18px); line-height: 1.35; }
-  .hero-chat-bubble { padding: 0.78rem 0.96rem 1.02rem 0.94rem; }
+  .hero-chat-shell { max-width: 100%; }
+  .hero-chat-bubble { padding: 0.78rem 0.96rem 0.98rem 0.94rem; }
   .hero-chat-typing-bubble {
     left: 0.1rem;
     bottom: 0.05rem;
     width: 5.4rem;
-    height: 3.45rem;
+    height: 2.7rem;
   }
 }
 @media (min-width: 769px) {
