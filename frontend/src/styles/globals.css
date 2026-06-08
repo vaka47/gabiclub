@@ -253,6 +253,7 @@ a:hover {
 @media (max-width: 768px) {
   .hero-desc { font-size: clamp(14px, 4.2vw, 18px); line-height: 1.35; }
   .hero-chat-shell { max-width: 100%; }
+  .hero-chat-bubble { height: auto; }
   .hero-chat-content { padding: 0.78rem 0.98rem 1rem 0.94rem; }
   .hero-chat-typing-bubble {
     left: 0.1rem;
@@ -263,10 +264,16 @@ a:hover {
 }
 @media (min-width: 769px) {
   .hero-chat-shell {
-    width: min(45rem, calc(100% + 3rem));
+    width: min(46rem, calc(100% + 3.5rem));
+  }
+  .hero-chat-bubble {
+    height: 7rem;
   }
   .hero-chat-content {
-    padding: 1rem 1.95rem 1.38rem 1.8rem;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0.9rem 1.85rem 1.06rem 1.75rem;
   }
   .hero-desc {
     letter-spacing: -0.012em;
