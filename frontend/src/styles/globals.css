@@ -140,27 +140,14 @@ a:hover {
 .hero-chat-line {
   display: inline-block;
 }
-.hero-desc-panel {
-  display: inline-flex;
-  width: fit-content;
-  max-width: min(100%, 44rem);
-  border-radius: 1rem;
-  background: rgba(255,255,255,0.68);
-  padding: 0.75rem 1rem;
-  box-shadow: 0 16px 40px -26px rgba(15,23,42,0.45);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-}
 .hero-stat-text {
   color: #334155 !important;
   -webkit-text-fill-color: #334155 !important;
 }
 @media (max-width: 768px) {
   .hero-desc { font-size: clamp(14px, 4.2vw, 18px); line-height: 1.35; }
-  .hero-desc-panel { max-width: 100%; }
 }
 @media (min-width: 769px) {
-  .hero-desc-panel { max-width: 44rem; }
   .hero-desc {
     letter-spacing: -0.012em;
   }
