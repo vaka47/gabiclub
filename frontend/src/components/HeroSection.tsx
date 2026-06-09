@@ -359,7 +359,7 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
 
               <div
                 key={`hero-desc-${bgIndex}`}
-                className="fade-in inline-flex max-w-full rounded-2xl bg-white/68 px-4 py-3 shadow-[0_16px_40px_-26px_rgba(15,23,42,0.45)] backdrop-blur-[10px] md:-ml-5 md:max-w-[44rem] lg:-ml-7"
+                className="fade-in inline-flex max-w-full rounded-2xl bg-white/68 px-4 py-3 shadow-[0_16px_40px_-26px_rgba(15,23,42,0.45)] backdrop-blur-[10px] md:-ml-4 md:max-w-[44rem]"
               >
                 <p className="hero-desc text-base text-slate-800 md:text-lg">{descNode}</p>
               </div>
