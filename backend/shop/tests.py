@@ -7,7 +7,11 @@ from tempfile import TemporaryDirectory
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.http import HttpResponse
+from django.test import RequestFactory
 from django.test import TestCase, override_settings
+
+from gabi.middleware import XRobotsTagMiddleware
 
 from .models import Product, ProductCtaMode, ProductImage, ProductSize
 
@@ -88,7 +92,7 @@ class ProductApiTests(TestCase):
         response = self.client.get("/api/shop/")
 
         self.assertEqual(response.status_code, 200)
-        payload = response.json()["results"]
+        payload = response.json()
         self.assertEqual(len(payload), 1)
         self.assertEqual(payload[0]["name"], "Куртка Race Shell")
         self.assertEqual(payload[0]["images"][0]["caption"], "Side")
@@ -120,3 +124,14 @@ class StagingProductSeedTests(TestCase):
         migration.seed_staging_products(apps, None)
 
         self.assertEqual(Product.objects.count(), 0)
+
+
+class XRobotsTagMiddlewareTests(TestCase):
+    def test_invalid_host_does_not_break_response(self):
+        request = RequestFactory().get("/api/shop/", HTTP_HOST="badhost.invalid")
+        middleware = XRobotsTagMiddleware(lambda req: HttpResponse("ok"))
+
+        response = middleware(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.get("X-Robots-Tag"))

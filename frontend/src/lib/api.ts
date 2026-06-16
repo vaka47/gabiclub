@@ -423,9 +423,10 @@ export async function getTags(): Promise<ArticleTag[]> {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const data = await fetchFromApi<Product[]>(`/shop/`);
+  const data = await fetchFromApi<Product[] | { results?: Product[] }>(`/shop/`);
+  const products = Array.isArray(data) ? data : asArray(data?.results);
   const source =
-    data && (data.length > 0 || !SITE_NOINDEX) ? data : mockData.products;
+    products.length > 0 || !SITE_NOINDEX ? products : mockData.products;
   return asArray(source).map(normalizeProduct);
 }
 

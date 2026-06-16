@@ -35,6 +35,8 @@ DEFAULT_ALLOWED_HOSTS = [
     "gabiclub.ru",
     "admin.gabiclub.ru",
     "api.gabiclub.ru",
+    "test.gabiclub.ru",
+    "test.api.gabiclub.ru",
     "localhost",
     "127.0.0.1",
 ]

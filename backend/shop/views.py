@@ -9,6 +9,7 @@ from .serializers import ProductSerializer
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProductSerializer
     lookup_field = "slug"
+    pagination_class = None
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = {"cta_mode": ["exact"]}
 
@@ -23,4 +24,3 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             )
             .order_by("order", "id")
         )
-
