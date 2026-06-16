@@ -6,6 +6,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.files import File
 from django.db import migrations
+from django.utils.text import slugify
 
 
 PRODUCTS = (
@@ -86,6 +87,21 @@ def _resolve_public_dir() -> Path | None:
     return None
 
 
+def _build_unique_slug(Product, value: str, instance_pk: int | None = None) -> str:
+    base_slug = slugify(value, allow_unicode=True) or "product"
+    slug = base_slug
+    suffix = 2
+    queryset = Product.objects.all()
+    if instance_pk is not None:
+        queryset = queryset.exclude(pk=instance_pk)
+
+    while queryset.filter(slug=slug).exists():
+        slug = f"{base_slug}-{suffix}"
+        suffix += 1
+
+    return slug
+
+
 def seed_staging_products(apps, schema_editor):
     if not getattr(settings, "GABI_NO_INDEX", False):
         return
@@ -104,6 +120,8 @@ def seed_staging_products(apps, schema_editor):
             product = Product(name=item["name"])
 
         product.description = item["description"]
+        if not getattr(product, "slug", ""):
+            product.slug = _build_unique_slug(Product, item["name"], getattr(product, "pk", None))
         product.price = item["price"]
         product.sale_price = item["sale_price"]
         product.cta_mode = item["cta_mode"]

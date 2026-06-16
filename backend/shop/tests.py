@@ -115,6 +115,7 @@ class StagingProductSeedTests(TestCase):
         self.assertGreaterEqual(Product.objects.count(), 2)
         product = Product.objects.get(name="Race Shell Jacket")
         self.assertEqual(product.cta_mode, ProductCtaMode.ORDER)
+        self.assertTrue(product.slug)
         self.assertGreaterEqual(product.sizes.count(), 3)
 
     @override_settings(GABI_NO_INDEX=False)
