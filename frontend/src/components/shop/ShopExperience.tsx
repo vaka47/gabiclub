@@ -4,6 +4,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { clsx } from "clsx";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { FiArrowLeft, FiArrowRight, FiX } from "react-icons/fi";
 
 import LeadCtaButton from "@/components/LeadCtaButton";
@@ -245,9 +246,13 @@ function ProductModal({ product, onClose }: ProductModalProps) {
     scrollToImage(nextIndex);
   };
 
-  return (
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(
     <motion.div
-      className="fixed inset-0 z-[140] bg-slate-950/50 p-3 backdrop-blur-md md:p-6"
+      className="fixed inset-0 z-[220] bg-slate-950/60 p-3 backdrop-blur-md md:p-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -458,21 +463,15 @@ function ProductModal({ product, onClose }: ProductModalProps) {
                   </section>
                 )}
 
-                <section className="grid gap-3 rounded-[28px] bg-[#f7f4ee] p-5 sm:grid-cols-2">
-                  <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                      Доставка
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Уточним наличие, размер и предложим удобный способ получения в ответ на заявку.
-                    </p>
-                  </div>
+                <section className="rounded-[28px] bg-[#f7f4ee] p-5">
                   <div>
                     <div className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
                       Поддержка
                     </div>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Подскажем по посадке, совместимости со слоями экипировки и сезонности вещи.
+                      Подскажем по посадке, совместимости со слоями экипировки и сезонности товара.
+                      <br />
+                      Уточним наличие, размер и предложим удобный способ получения в ответ на заявку.
                     </p>
                   </div>
                 </section>
@@ -500,7 +499,8 @@ function ProductModal({ product, onClose }: ProductModalProps) {
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }
 
@@ -511,47 +511,47 @@ export default function ShopExperience({ products }: ShopExperienceProps) {
 
   return (
     <div className="space-y-8 pb-8 md:space-y-10 md:pb-12">
-      <header className="space-y-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-full bg-white/85 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-700 shadow-sm">
-            Gabi Essentials
-          </span>
-          <span className="text-xs font-medium uppercase tracking-[0.24em] text-slate-500">
-            Minimal gear for training days
-          </span>
-        </div>
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
-          <div className="space-y-4">
-            <h1 className="font-display text-4xl uppercase leading-none tracking-[0.08em] text-slate-950 md:text-6xl">
-              Магазин
-            </h1>
-            <p className="max-w-3xl text-base leading-7 text-slate-600 md:text-lg">
-              Чистая витрина без визуального шума: экипировка, аксессуары и клубные вещи, которые
-              хочется рассматривать так же долго, как и носить.
-            </p>
-          </div>
-          <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-3 lg:grid-cols-1">
-            <div className="rounded-[24px] bg-white/75 px-4 py-4 shadow-[0_20px_50px_-30px_rgba(15,23,42,0.28)]">
-              Аккуратная витрина с быстрым просмотром товара
-            </div>
-            <div className="rounded-[24px] bg-white/75 px-4 py-4 shadow-[0_20px_50px_-30px_rgba(15,23,42,0.28)]">
-              Фото-карусель в карточках и детальный product view
-            </div>
-            <div className="rounded-[24px] bg-white/75 px-4 py-4 shadow-[0_20px_50px_-30px_rgba(15,23,42,0.28)]">
-              Заявка на заказ или уточнение наличия без отдельного checkout
-            </div>
-          </div>
-        </div>
-      </header>
-
       {featuredProduct && (
-        <section className="overflow-hidden rounded-[38px] bg-[#111111] text-white shadow-[0_40px_120px_-50px_rgba(15,23,42,0.9)]">
-          <div className="grid gap-8 px-5 py-5 md:px-8 md:py-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-10 lg:py-10">
+        <section className="overflow-hidden rounded-[38px] text-white shadow-[0_40px_120px_-50px_rgba(15,23,42,0.9)]">
+          <div className="relative md:hidden">
+            <div className="absolute inset-0">
+              <Image
+                src={featuredGallery[0]?.image ?? "/site-bg.jpg"}
+                alt={featuredGallery[0]?.caption || featuredProduct.name}
+                fill
+                className="object-cover"
+                sizes="100vw"
+                priority
+              />
+            </div>
+            <div className="relative bg-black/58 px-5 py-6 backdrop-blur-[2px]">
+              <div className="flex flex-col gap-6">
+                <div className="space-y-4">
+                  <h2 className="font-display text-3xl uppercase leading-none tracking-[0.08em] md:text-5xl">
+                    {featuredProduct.name}
+                  </h2>
+                  <p className="max-w-2xl text-sm leading-7 text-white/78 md:text-base">
+                    {featuredProduct.description}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-end justify-between gap-5">
+                  <ProductPrice product={featuredProduct} inverse />
+                  <button
+                    type="button"
+                    onClick={() => setActiveProduct(featuredProduct)}
+                    className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-slate-950 transition hover:scale-[1.02]"
+                  >
+                    Открыть товар
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="hidden bg-[#111111] md:grid md:gap-8 md:px-8 md:py-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-10 lg:py-10">
             <div className="flex flex-col justify-between gap-8">
-              <div className="space-y-5">
-                <span className="inline-flex rounded-full border border-white/15 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-white/80">
-                  Featured Drop
-                </span>
+              <div className="space-y-4">
                 <div className="space-y-4">
                   <h2 className="font-display text-3xl uppercase leading-none tracking-[0.08em] md:text-5xl">
                     {featuredProduct.name}
