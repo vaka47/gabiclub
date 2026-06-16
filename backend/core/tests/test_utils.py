@@ -3,7 +3,7 @@ from __future__ import annotations
 import urllib.parse
 from unittest import TestCase, mock
 
-from backend.core.utils import send_telegram_message
+from core.utils import send_telegram_message
 
 
 class SendTelegramMessageTests(TestCase):
@@ -44,8 +44,8 @@ class SendTelegramMessageTests(TestCase):
         mock_response.__enter__.return_value = mock_response
         mock_response.read.return_value = b"{}"
 
-        with mock.patch("backend.core.utils.urllib.request.urlopen", return_value=mock_response) as mock_urlopen:
-            with mock.patch("backend.core.utils.urllib.parse.urlencode", side_effect=ascii_only_urlencode):
+        with mock.patch("core.utils.urllib.request.urlopen", return_value=mock_response) as mock_urlopen:
+            with mock.patch("core.utils.urllib.parse.urlencode", side_effect=ascii_only_urlencode):
                 send_telegram_message("123:abc", "-100", "Имя: Тест")
 
         self.assertTrue(mock_urlopen.called)

@@ -86,8 +86,8 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
         );
       })}
       <div className="group relative">
-        <button
-          type="button"
+        <Link
+          href="/about"
           className={clsx(
             "inline-flex items-center gap-1 text-lg font-medium transition md:text-sm",
             isClubMenuActive ? "text-gabi-blue" : "text-slate-600 hover:text-gabi-blue group-hover:text-gabi-blue",
@@ -99,7 +99,7 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
             size={14}
             className="transition duration-200 group-hover:rotate-180 group-focus-within:rotate-180"
           />
-        </button>
+        </Link>
         <div className="pointer-events-none absolute left-0 top-full z-20 pt-3 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
           <div className="min-w-[11rem] rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_20px_60px_-25px_rgba(15,23,42,0.25)]">
             {aboutMenuLinks.map((link) => {

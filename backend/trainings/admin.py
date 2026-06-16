@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 
 from .models import (
@@ -9,6 +10,9 @@ from .models import (
     SessionTariffPrice,
     Training,
     TrainingDirection,
+    TrainingDirectionLocation,
+    TrainingDirectionPhoto,
+    TrainingDirectionTariff,
     TrainingPlan,
     TrainingPlanBenefit,
     TrainingSession,
@@ -83,15 +87,86 @@ class SessionTariffAdmin(admin.ModelAdmin):
     inlines = [SessionTariffPriceInline]
 
 
+class TrainingDirectionLocationInline(admin.TabularInline):
+    model = TrainingDirectionLocation
+    extra = 1
+    fields = ("order", "location")
+    autocomplete_fields = ("location",)
+    ordering = ("order", "id")
+    show_change_link = True
+
+
+class TrainingDirectionTariffInline(admin.TabularInline):
+    model = TrainingDirectionTariff
+    extra = 1
+    fields = ("order", "tariff")
+    autocomplete_fields = ("tariff",)
+    ordering = ("order", "id")
+    show_change_link = True
+
+
+class TrainingDirectionPhotoInline(admin.TabularInline):
+    model = TrainingDirectionPhoto
+    extra = 1
+    fields = ("order", "image", "caption")
+    ordering = ("order", "id")
+
+
+class TrainingDirectionAdminForm(forms.ModelForm):
+    class Meta:
+        model = TrainingDirection
+        fields = "__all__"
+        help_texts = {
+            "benefits": "Указывайте по одному пункту с новой строки.",
+            "first_session_details": "Указывайте по одному пункту с новой строки.",
+        }
+        widgets = {
+            "benefits": forms.Textarea(attrs={"rows": 6}),
+            "first_session_details": forms.Textarea(attrs={"rows": 6}),
+        }
+
+
 @admin.register(TrainingDirection)
 class TrainingDirectionAdmin(admin.ModelAdmin):
-    list_display = ("title", "icon")
+    form = TrainingDirectionAdminForm
+    list_display = ("title", "slug", "is_active", "order", "icon")
+    list_editable = ("is_active", "order")
     search_fields = ("title",)
+    ordering = ("order", "title")
+    fieldsets = (
+        (
+            "Основное",
+            {
+                "fields": ("title", "slug", "icon"),
+            },
+        ),
+        (
+            "Контент",
+            {
+                "fields": (
+                    "description",
+                    "benefits",
+                    "first_session_details",
+                ),
+            },
+        ),
+        (
+            "Публикация",
+            {
+                "fields": ("is_active", "order"),
+            },
+        ),
+    )
+    inlines = [
+        TrainingDirectionLocationInline,
+        TrainingDirectionTariffInline,
+        TrainingDirectionPhotoInline,
+    ]
 
 
 @admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ("title", "address")
+    list_display = ("title", "address", "latitude", "longitude")
     search_fields = ("title", "address")
 
 

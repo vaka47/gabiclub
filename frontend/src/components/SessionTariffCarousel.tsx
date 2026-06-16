@@ -9,6 +9,7 @@ import { useLeadModal } from "./providers/LeadModalProvider";
 
 type SessionTariffCarouselProps = {
   tariffs: SessionTariff[];
+  subtitle?: string | null;
 };
 
 const formatPrice = (value: number) => {
@@ -17,7 +18,10 @@ const formatPrice = (value: number) => {
   return `${value.toLocaleString("ru-RU")} ₽`;
 };
 
-export default function SessionTariffCarousel({ tariffs }: SessionTariffCarouselProps) {
+export default function SessionTariffCarousel({
+  tariffs,
+  subtitle = "Индивидуальные, групповые форматы и абонементы в одном блоке.",
+}: SessionTariffCarouselProps) {
   const { openLeadModal } = useLeadModal();
 
   const items = (Array.isArray(tariffs) ? tariffs : []).filter(
@@ -123,9 +127,7 @@ export default function SessionTariffCarousel({ tariffs }: SessionTariffCarousel
     >
       <div className="flex flex-col gap-2">
         <h2 className="section-title section-accent">Тарифы занятий</h2>
-        <p className="section-subtitle">
-          Индивидуальные, групповые форматы и абонементы в одном блоке.
-        </p>
+        {subtitle ? <p className="section-subtitle">{subtitle}</p> : null}
       </div>
 
       <div className="md:hidden">

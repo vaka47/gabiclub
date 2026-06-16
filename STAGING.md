@@ -46,6 +46,16 @@ Data copy:
 1. Clone production database into a new staging database.
 2. Clone production media into the staging media directory.
 3. Run backend migrations only against the staging database.
+4. After the first staging migrate with `GABI_NO_INDEX=1`, demo hero slides, session tariffs and demo shop products will seed automatically if the corresponding tables are empty.
+
+Shop-specific checks:
+- API: `https://test.api.gabiclub.ru/api/shop/`
+- Frontend: `https://test.gabiclub.ru/shop`
+- Admin: section `Магазин` in Django admin, with inline photo and size sorting.
+
+GitHub Actions:
+- `Deploy Staging Backend` deploys `backend/**` and runs migrations/collectstatic on `/srv/gabiclub/staging/backend`.
+- `Deploy Staging Frontend` deploys `frontend/**` and smoke-checks `/shop`.
 
 DNS note:
 - Public staging cannot be completed until `test.gabiclub.ru` and `test.api.gabiclub.ru` resolve in DNS.

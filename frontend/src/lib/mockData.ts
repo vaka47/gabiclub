@@ -11,6 +11,7 @@ import type {
   HeroSlide,
   LevelTag,
   Location,
+  Product,
   SessionTariff,
   TrainingDirection,
   TrainingPlan,
@@ -257,29 +258,96 @@ const sessionTariffs: SessionTariff[] = [
   },
 ];
 
+const products: Product[] = [
+  {
+    id: 1,
+    name: "Race Shell Jacket",
+    slug: "race-shell-jacket",
+    description:
+      "Лёгкая куртка для прохладных стартов и межсезонных тренировок: защищает от ветра, не перегревает и сохраняет спортивную посадку.",
+    price: 12990,
+    sale_price: 9990,
+    current_price: 9990,
+    has_discount: true,
+    cta_mode: "order",
+    cta_label: "Заказать",
+    size_chart_note: "Рекомендуем обычный размер: посадка спортивная, ближе к телу.",
+    order: 1,
+    images: [
+      { id: 11, image: "/main-1.jpg", caption: "Главный ракурс", order: 1 },
+      { id: 12, image: "/hero-1.jpg", caption: "Посадка", order: 2 },
+      { id: 13, image: "/hero-2.jpg", caption: "Деталь ткани", order: 3 },
+    ],
+    sizes: [
+      { id: 101, label: "S", details: "84-90 см по груди", order: 1 },
+      { id: 102, label: "M", details: "90-96 см по груди", order: 2 },
+      { id: 103, label: "L", details: "96-102 см по груди", order: 3 },
+    ],
+  },
+  {
+    id: 2,
+    name: "Club Gilet",
+    slug: "club-gilet",
+    description:
+      "Минималистичный жилет для разминки и длинных аэробных сессий: утеплённый фронт, чистый силуэт и эластичная спинка.",
+    price: 8990,
+    sale_price: null,
+    current_price: 8990,
+    has_discount: false,
+    cta_mode: "availability",
+    cta_label: "Узнать о наличии",
+    size_chart_note: "Если планируете носить поверх толстого слоя, берите на размер больше.",
+    order: 2,
+    images: [
+      { id: 21, image: "/main-2.jpg", caption: "Вид спереди", order: 1 },
+      { id: 22, image: "/gabigroup-main.jpg", caption: "На спортсмене", order: 2 },
+      { id: 23, image: "/hero-2-min.jpg", caption: "Деталь спины", order: 3 },
+    ],
+    sizes: [
+      { id: 201, label: "XS", details: "80-84 см по груди", order: 1 },
+      { id: 202, label: "S", details: "84-90 см по груди", order: 2 },
+      { id: 203, label: "M", details: "90-96 см по груди", order: 3 },
+    ],
+  },
+  {
+    id: 3,
+    name: "Trail Cap",
+    slug: "trail-cap",
+    description:
+      "Лёгкая беговая кепка с дышащей сеткой и гибким козырьком для летних сборов, роллеров и трейла.",
+    price: 3490,
+    sale_price: 2790,
+    current_price: 2790,
+    has_discount: true,
+    cta_mode: "order",
+    cta_label: "Заказать",
+    size_chart_note: "Единый размер с регулировкой по объёму головы.",
+    order: 3,
+    images: [
+      { id: 31, image: "/main-3.jpg", caption: "Общий вид", order: 1 },
+      { id: 32, image: "/hero-1-min.jpg", caption: "В движении", order: 2 },
+    ],
+    sizes: [{ id: 301, label: "One size", details: "54-60 см", order: 1 }],
+  },
+];
+
 const heroSlides: HeroSlide[] = [
   {
     id: 1,
-    title: "Зимние сборы в Архызе",
-    subtitle: "Снег, высота и команда мечты",
-    image:
-      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1400&q=80",
+    title: "Фото 1",
+    image: "/gabigroup-main.jpg",
     order: 1,
   },
   {
     id: 2,
-    title: "Летний трейл-кэмп",
-    subtitle: "Бежим по самым живописным тропам Кавказа",
-    image:
-      "https://images.unsplash.com/photo-1526481280695-3c4697e2ed83?auto=format&fit=crop&w=1400&q=80",
+    title: "Фото 2",
+    image: "/hero-1-min.jpg",
     order: 2,
   },
   {
     id: 3,
-    title: "Семейные выходные",
-    subtitle: "Активности для родителей и детей",
-    image:
-      "https://images.unsplash.com/photo-1516571137133-1be29e37143b?auto=format&fit=crop&w=1400&q=80",
+    title: "Фото 3",
+    image: "/hero-2-min.jpg",
     order: 3,
   },
 ];
@@ -430,6 +498,7 @@ export const mockData = {
   coaches,
   plans,
   sessionTariffs,
+  products,
   sessions: createSchedule(),
   camps,
   campsDetail,
@@ -443,6 +512,7 @@ export const getMockSessions = () => createSchedule();
 export const getMockPlans = () => plans;
 export const getMockSessionTariffs = () => sessionTariffs;
 export const getMockCoaches = () => coaches;
+export const getMockProducts = () => products;
 export const getMockDirections = () => directions;
 export const getMockLevels = () => levelTags;
 export const getMockLocations = () => locations;

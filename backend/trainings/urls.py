@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     CoachViewSet,
     SessionTariffViewSet,
+    TrainingDirectionViewSet,
     TrainingMetaView,
     TrainingPlanViewSet,
     TrainingSessionSimpleView,
@@ -15,6 +16,7 @@ router.register(r'schedule', TrainingSessionViewSet, basename='schedule')
 router.register(r'coaches', CoachViewSet, basename='coaches')
 router.register(r'plans', TrainingPlanViewSet, basename='plans')
 router.register(r'session-tariffs', SessionTariffViewSet, basename='session-tariffs')
+router.register(r'directions', TrainingDirectionViewSet, basename='directions')
 
 urlpatterns = [
     path('', include(router.urls)),

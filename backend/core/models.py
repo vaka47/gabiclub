@@ -81,6 +81,31 @@ class HeroSlide(models.Model):
         verbose_name = "Слайд героя"
         verbose_name_plural = "Слайды героя"
 
+    def save(self, *args, **kwargs):
+        old_image_name = None
+        if self.pk:
+            old_image_name = (
+                self.__class__.objects.filter(pk=self.pk).values_list("image", flat=True).first()
+                or None
+            )
+
+        super().save(*args, **kwargs)
+
+        current_image_name = self.image.name or None
+        if old_image_name and old_image_name != current_image_name:
+            storage = self.image.storage
+            if storage.exists(old_image_name):
+                storage.delete(old_image_name)
+
+    def delete(self, *args, **kwargs):
+        image_name = self.image.name or None
+        storage = self.image.storage if self.image else None
+
+        super().delete(*args, **kwargs)
+
+        if image_name and storage and storage.exists(image_name):
+            storage.delete(image_name)
+
     def __str__(self) -> str:
         return self.title or f"Слайд {self.pk}"
 

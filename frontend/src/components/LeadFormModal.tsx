@@ -36,6 +36,8 @@ const modalVariants = {
 
 export default function LeadFormModal({ open, onClose, initialData }: LeadFormModalProps) {
   const [formState, setFormState] = useState<FormState>(initialFormState);
+  const contextTitle = initialData?.contextTitle?.trim();
+  const isProductRequest = Boolean(contextTitle);
 
   useEffect(() => {
     if (open) {
@@ -133,10 +135,14 @@ export default function LeadFormModal({ open, onClose, initialData }: LeadFormMo
                 </button>
 
                 <div className="mb-6 flex flex-col gap-2 pr-8">
-                  <span className="badge w-fit">Запишитесь в клуб</span>
-                  <h3 className="text-2xl font-semibold text-gabi-dark">Заявка на тренировку</h3>
+                  <span className="badge w-fit">{isProductRequest ? "Магазин Gabi" : "Запишитесь в клуб"}</span>
+                  <h3 className="text-2xl font-semibold text-gabi-dark">
+                    {isProductRequest ? "Заявка по товару" : "Заявка на тренировку"}
+                  </h3>
                   <p className="text-sm text-gray-500">
-                    Оставьте контакты — тренер ответит в течение рабочего дня.
+                    {isProductRequest
+                      ? `Оставьте контакты — подскажем по наличию и поможем оформить ${contextTitle}.`
+                      : "Оставьте контакты — тренер ответит в течение рабочего дня."}
                   </p>
                 </div>
 
@@ -164,12 +170,16 @@ export default function LeadFormModal({ open, onClose, initialData }: LeadFormMo
                     </label>
                   </div>
                   <label className="flex flex-col gap-2 text-sm font-medium text-gray-600">
-                    Направление / цель
+                    {isProductRequest ? "Товар / размер" : "Направление / цель"}
                     <input
                       value={formState.preferred_direction}
                       onChange={handleChange("preferred_direction")}
                       className="rounded-xl border border-slate-200 px-4 py-3 text-base shadow-sm focus:border-gabi-blue focus:outline-none focus:ring-2 focus:ring-gabi-blue/40"
-                    placeholder="Например: Подготовка к трейлу"
+                      placeholder={
+                        isProductRequest
+                          ? "Например: размер M или нужен совет по посадке"
+                          : "Например: Подготовка к трейлу"
+                      }
                     />
                   </label>
                   <label className="flex flex-col gap-2 text-sm font-medium text-gray-600">

@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/camps/', include('camps.urls')),
     path('api/blog/', include('blog.urls')),
     path('api/core/', include('core.urls')),
+    path('api/shop/', include('shop.urls')),
 ]
 
 # Serve uploaded media even when DEBUG=0 so images added via the admin stay reachable.

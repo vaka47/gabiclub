@@ -8,6 +8,8 @@ from .models import (
     SessionTariff,
     SessionTariffPrice,
     TrainingDirection,
+    TrainingDirectionLocation,
+    TrainingDirectionPhoto,
     TrainingPlan,
     TrainingPlanBenefit,
     TrainingSession,
@@ -25,10 +27,41 @@ class LevelTagSerializer(serializers.ModelSerializer):
 class TrainingDirectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrainingDirection
-        fields = ("id", "title", "description", "icon")
+        fields = (
+            "id",
+            "title",
+            "slug",
+            "description",
+            "icon",
+            "is_active",
+            "order",
+        )
+
+
+class TrainingDirectionPublicSerializer(TrainingDirectionSerializer):
+    cover_image = serializers.SerializerMethodField()
+
+    class Meta(TrainingDirectionSerializer.Meta):
+        fields = TrainingDirectionSerializer.Meta.fields + (
+            "benefits",
+            "first_session_details",
+            "cover_image",
+        )
+
+    def get_cover_image(self, obj: TrainingDirection):
+        first_photo = next(iter(obj.photos.all()), None)
+        if not first_photo or not getattr(first_photo, "image", None):
+            return None
+        try:
+            return first_photo.image.url
+        except Exception:
+            return None
 
 
 class LocationSerializer(serializers.ModelSerializer):
+    latitude = serializers.FloatField(read_only=True)
+    longitude = serializers.FloatField(read_only=True)
+
     class Meta:
         model = Location
         fields = ("id", "title", "address", "latitude", "longitude")
@@ -122,6 +155,54 @@ class SessionTariffSerializer(serializers.ModelSerializer):
             "order",
             "prices",
         )
+
+
+class TrainingDirectionPhotoSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TrainingDirectionPhoto
+        fields = ("id", "image", "caption", "order")
+
+    def get_image(self, obj: TrainingDirectionPhoto):
+        image = getattr(obj, "image", None)
+        if not image:
+            return None
+        try:
+            return image.url
+        except Exception:
+            return None
+
+
+class TrainingDirectionLocationSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source="location.title", read_only=True)
+    address = serializers.CharField(source="location.address", read_only=True)
+    latitude = serializers.FloatField(source="location.latitude", read_only=True)
+    longitude = serializers.FloatField(source="location.longitude", read_only=True)
+
+    class Meta:
+        model = TrainingDirectionLocation
+        fields = ("id", "order", "title", "address", "latitude", "longitude")
+
+
+class TrainingDirectionDetailSerializer(TrainingDirectionPublicSerializer):
+    locations = TrainingDirectionLocationSerializer(
+        many=True, read_only=True, source="direction_locations"
+    )
+    photos = TrainingDirectionPhotoSerializer(many=True, read_only=True)
+    session_tariffs = serializers.SerializerMethodField()
+
+    class Meta(TrainingDirectionPublicSerializer.Meta):
+        fields = TrainingDirectionPublicSerializer.Meta.fields + (
+            "locations",
+            "photos",
+            "session_tariffs",
+        )
+
+    def get_session_tariffs(self, obj: TrainingDirection):
+        direction_tariffs = obj.direction_tariffs.all()
+        tariffs = [link.tariff for link in direction_tariffs if getattr(link, "tariff", None)]
+        return SessionTariffSerializer(tariffs, many=True).data
 
 
 class SessionAttachmentSerializer(serializers.ModelSerializer):

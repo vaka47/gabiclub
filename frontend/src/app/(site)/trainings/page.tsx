@@ -6,13 +6,22 @@ import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
 import ActivityTabs from "@/components/ActivityTabs";
-import { getArticles, getCamps, getClubProfile, getCoaches, getTrainingMeta, resolveMediaUrl } from "@/lib/api";
+import {
+  getArticles,
+  getCamps,
+  getClubProfile,
+  getCoaches,
+  getTrainingDirections,
+  getTrainingMeta,
+  resolveMediaUrl,
+} from "@/lib/api";
 // (animations handled inside client components)
 
 
 export default async function TrainingsPage() {
-  const [meta, coaches, club, camps, articles] = await Promise.all([
+  const [meta, directions, coaches, club, camps, articles] = await Promise.all([
     getTrainingMeta(),
+    getTrainingDirections(),
     getCoaches(),
     getClubProfile(),
     getCamps(new URLSearchParams("is_featured=1")),
@@ -76,7 +85,7 @@ export default async function TrainingsPage() {
         ]}
       />
 
-      <ActivityTabs />
+      <ActivityTabs directions={directions} />
 
       <CoachShowcase coaches={featuredCoaches} />
 

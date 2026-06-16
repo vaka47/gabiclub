@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Configuration
-REPO_DIR="/srv/gabiclub/backend"
+REPO_DIR="${REPO_DIR:-/srv/gabiclub/backend}"
 APP_DIR="$REPO_DIR/backend"
-SERVICE_NAME="gunicorn-gabiclub"
+SERVICE_NAME="${SERVICE_NAME:-gunicorn-gabiclub}"
+GIT_REMOTE="${GIT_REMOTE:-origin}"
+GIT_BRANCH="${GIT_BRANCH:-main}"
 
 echo "[deploy] Starting backend deploy on $(hostname)"
+echo "[deploy] Repo: $REPO_DIR | Branch: $GIT_REMOTE/$GIT_BRANCH | Service: $SERVICE_NAME"
 
 # Ensure repo exists
 if [ ! -d "$REPO_DIR/.git" ]; then
@@ -17,7 +19,7 @@ fi
 cd "$REPO_DIR"
 echo "[deploy] Updating git repo in $REPO_DIR"
 git fetch --all --prune
-git reset --hard origin/main
+git reset --hard "$GIT_REMOTE/$GIT_BRANCH"
 
 cd "$APP_DIR"
 
@@ -51,4 +53,3 @@ systemctl is-active --quiet "$SERVICE_NAME"
 echo "[deploy] Service is active"
 
 echo "[deploy] Backend deploy completed"
-

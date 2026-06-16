@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from django.db.models import Prefetch
 from django.utils.dateparse import parse_date
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
@@ -15,6 +16,9 @@ from .models import (
     Location,
     SessionTariff,
     TrainingDirection,
+    TrainingDirectionLocation,
+    TrainingDirectionPhoto,
+    TrainingDirectionTariff,
     TrainingPlan,
     TrainingSession,
 )
@@ -22,6 +26,8 @@ from .serializers import (
     CoachSerializer,
     LevelTagSerializer,
     LocationSerializer,
+    TrainingDirectionDetailSerializer,
+    TrainingDirectionPublicSerializer,
     SessionTariffSerializer,
     TrainingDirectionSerializer,
     TrainingPlanSerializer,
@@ -45,6 +51,7 @@ class TrainingSessionViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = (
             TrainingSession.objects.select_related("direction", "coach", "location")
             .prefetch_related("levels", "attachments")
+            .filter(direction__is_active=True)
             .order_by("date", "start_time")
         )
 
@@ -68,7 +75,7 @@ class TrainingSessionViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="filters")
     def filters(self, request, *args, **kwargs):
-        directions = TrainingDirection.objects.all()
+        directions = TrainingDirection.objects.filter(is_active=True)
         coaches = Coach.objects.all()
         locations = Location.objects.all()
         levels = LevelTag.objects.all()
@@ -101,6 +108,35 @@ class SessionTariffViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_fields = {"category": ["exact"], "is_featured": ["exact"]}
 
 
+class TrainingDirectionViewSet(viewsets.ReadOnlyModelViewSet):
+    lookup_field = "slug"
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = {"is_active": ["exact"]}
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return TrainingDirectionDetailSerializer
+        return TrainingDirectionPublicSerializer
+
+    def get_queryset(self):
+        photo_queryset = TrainingDirectionPhoto.objects.order_by("order", "id")
+        location_queryset = TrainingDirectionLocation.objects.select_related(
+            "location"
+        ).order_by("order", "id")
+        tariff_queryset = TrainingDirectionTariff.objects.select_related(
+            "tariff"
+        ).prefetch_related("tariff__prices").order_by("order", "id")
+        return (
+            TrainingDirection.objects.filter(is_active=True)
+            .prefetch_related(
+                Prefetch("photos", queryset=photo_queryset),
+                Prefetch("direction_locations", queryset=location_queryset),
+                Prefetch("direction_tariffs", queryset=tariff_queryset),
+            )
+            .order_by("order", "title")
+        )
+
+
 class CoachViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = CoachSerializer
     queryset = Coach.objects.prefetch_related("directions").order_by("full_name")
@@ -111,7 +147,8 @@ class CoachViewSet(viewsets.ReadOnlyModelViewSet):
 class TrainingMetaView(APIView):
     def get(self, request, *args, **kwargs):
         directions = TrainingDirectionSerializer(
-            TrainingDirection.objects.all(), many=True
+            TrainingDirection.objects.filter(is_active=True).order_by("order", "title"),
+            many=True,
         ).data
         locations = LocationSerializer(Location.objects.all(), many=True).data
         levels = LevelTagSerializer(LevelTag.objects.all(), many=True).data
@@ -132,6 +169,7 @@ class TrainingSessionSimpleView(APIView):
         qs = (
             TrainingSession.objects.select_related("direction", "coach", "location")
             .prefetch_related("levels")
+            .filter(direction__is_active=True)
             .order_by("date", "start_time")
         )
 

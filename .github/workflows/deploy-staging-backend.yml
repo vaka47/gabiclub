@@ -1,0 +1,56 @@
+name: Deploy Staging Backend
+
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - "backend/**"
+      - "scripts/deploy-backend.sh"
+      - ".github/workflows/deploy-staging-backend.yml"
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-staging-backend
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key
+        run: |
+          set -euo pipefail
+          chmod 600 frontend/gabiclub_ci
+
+      - name: Deploy backend to staging
+        run: |
+          set -euo pipefail
+          ssh -o StrictHostKeyChecking=no -i frontend/gabiclub_ci root@83.166.246.226 '
+            set -euo pipefail
+            cd /srv/gabiclub/staging/backend
+            REPO_DIR=/srv/gabiclub/staging/backend \
+            SERVICE_NAME=gunicorn-gabiclub-staging \
+            GIT_BRANCH=staging \
+            bash scripts/deploy-backend.sh
+            git rev-parse --short HEAD
+          '
+
+      - name: Smoke check staging API
+        run: |
+          set -euo pipefail
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors --max-time 20 \
+            -o /dev/null -w 'api shop code=%{http_code} time=%{time_total}\n' \
+            https://test.api.gabiclub.ru/api/shop/
+
+      - name: Smoke check staging admin
+        run: |
+          set -euo pipefail
+          curl -fsSI --retry 5 --retry-delay 5 --retry-all-errors --max-time 20 \
+            -o /dev/null -w 'admin code=%{http_code} time=%{time_total}\n' \
+            https://test.api.gabiclub.ru/admin/

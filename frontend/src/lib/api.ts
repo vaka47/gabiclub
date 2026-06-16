@@ -10,6 +10,7 @@ import {
   LeadFormData,
   LevelTag,
   Location,
+  Product,
   ThemeConfig,
   TrainingDirection,
   TrainingPlan,
@@ -64,6 +65,8 @@ const API_TIMEOUT_MS = (() => {
 const IS_BUILD = process.env.NEXT_PHASE === "phase-production-build";
 const SKIP_API_AT_BUILD = process.env.SKIP_API_AT_BUILD === "1";
 const hasApi = Boolean(API_BASE) && !(IS_BUILD && SKIP_API_AT_BUILD);
+const SITE_NOINDEX =
+  process.env.NEXT_PUBLIC_SITE_NOINDEX === "1" || process.env.SITE_NOINDEX === "1";
 const DEBUG_API_FETCH =
   process.env.NEXT_PUBLIC_DEBUG_API_FETCH === "1" || process.env.DEBUG_API_FETCH === "1";
 
@@ -122,6 +125,74 @@ const normalizeCampDetail = (camp: CampDetail): CampDetail => ({
   program: ensureArray(camp.program),
   gallery: ensureArray(camp.gallery),
   trainers: ensureArray(camp.trainers),
+});
+
+const fallbackDirectionSlug = (direction: Pick<TrainingDirection, "id" | "title" | "slug">) => {
+  const raw =
+    (direction.slug ?? "").trim() ||
+    direction.title
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\p{L}\p{N}-]+/gu, "")
+      .replace(/-{2,}/g, "-")
+      .replace(/^-+|-+$/g, "");
+  return raw || String(direction.id);
+};
+
+const normalizeLocation = <T extends Location>(location: T): T => ({
+  ...location,
+  latitude:
+    location.latitude == null ? null : toNumber(location.latitude, 0),
+  longitude:
+    location.longitude == null ? null : toNumber(location.longitude, 0),
+});
+
+const normalizeSessionTariff = (tariff: SessionTariff): SessionTariff => ({
+  ...tariff,
+  prices: (tariff.prices ?? []).map((option) => ({
+    ...option,
+    price: typeof option.price === "string" ? Number(option.price) : option.price,
+  })),
+});
+
+const normalizeProduct = (product: Product): Product => {
+  const price = toNumber(product.price, 0);
+  const salePrice =
+    product.sale_price == null ? null : toNumber(product.sale_price, 0);
+  const currentPrice = toNumber(
+    product.current_price ?? salePrice ?? price,
+    salePrice ?? price,
+  );
+
+  return {
+    ...product,
+    price,
+    sale_price: salePrice,
+    current_price: currentPrice,
+    has_discount: Boolean(product.has_discount ?? salePrice),
+    images: ensureArray(product.images).map((image) => ({
+      ...image,
+      image: resolveMediaUrl(image.image) ?? image.image,
+    })),
+    sizes: ensureArray(product.sizes),
+  };
+};
+
+const normalizeDirection = (direction: TrainingDirection): TrainingDirection => ({
+  ...direction,
+  slug: fallbackDirectionSlug(direction),
+  cover_image: resolveMediaUrl(direction.cover_image) ?? direction.cover_image,
+  locations: ensureArray(direction.locations).map((location) =>
+    normalizeLocation(location),
+  ),
+  photos: ensureArray(direction.photos).map((photo) => ({
+    ...photo,
+    image: resolveMediaUrl(photo.image) ?? photo.image,
+  })),
+  session_tariffs: ensureArray(direction.session_tariffs).map((tariff) =>
+    normalizeSessionTariff(tariff),
+  ),
 });
 
 export function resolveMediaUrl(src?: string | null): string | undefined {
@@ -261,25 +332,55 @@ export async function getSessionTariffs(category?: string): Promise<SessionTarif
   const data = await fetchFromApi<SessionTariff[]>(`/trainings/session-tariffs/${query}`);
   const tariffs = asArray(data);
   const source = tariffs.length > 0 ? tariffs : mockData.sessionTariffs;
-  return source.map((tariff) => ({
-    ...tariff,
-    prices: (tariff.prices ?? []).map((option) => ({
-      ...option,
-      price: typeof option.price === "string" ? Number(option.price) : option.price,
-    })),
-  }));
+  return source.map(normalizeSessionTariff);
+}
+
+export async function getTrainingDirections(): Promise<TrainingDirection[]> {
+  const data = await fetchFromApi<TrainingDirection[]>(`/trainings/directions/`);
+  const directions = asArray(data);
+  const source = directions.length > 0 ? directions : mockData.directions;
+  return source.map(normalizeDirection);
+}
+
+export async function getTrainingDirectionBySlug(
+  slug: string,
+): Promise<TrainingDirection | null> {
+  const normalizedSlug = (() => {
+    try {
+      return decodeURIComponent(slug);
+    } catch {
+      return slug;
+    }
+  })();
+  const data = await fetchFromApi<TrainingDirection>(
+    `/trainings/directions/${encodeURIComponent(normalizedSlug)}/`,
+  );
+  if (data) {
+    return normalizeDirection(data);
+  }
+
+  const fallback = mockData.directions.find(
+    (direction) => fallbackDirectionSlug(direction) === normalizedSlug,
+  );
+  return fallback ? normalizeDirection(fallback) : null;
 }
 
 export async function getTrainingMeta(): Promise<TrainingMeta> {
   const data = await fetchFromApi<TrainingMeta>(`/trainings/meta/`);
-  return (
+  const source =
     data ?? {
       directions: mockData.directions,
       locations: mockData.locations,
       levels: mockData.levelTags,
       coaches: mockData.coaches,
-    }
-  );
+    };
+  return {
+    ...source,
+    directions: ensureArray(source.directions).map(normalizeDirection),
+    locations: ensureArray(source.locations).map((location) =>
+      normalizeLocation(location),
+    ),
+  };
 }
 
 export async function getCoaches(): Promise<Coach[]> {
@@ -319,6 +420,13 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 export async function getTags(): Promise<ArticleTag[]> {
   const data = await fetchFromApi<ArticleTag[]>(`/blog/tags/`);
   return asArray(data);
+}
+
+export async function getProducts(): Promise<Product[]> {
+  const data = await fetchFromApi<Product[]>(`/shop/`);
+  const source =
+    data && (data.length > 0 || !SITE_NOINDEX) ? data : mockData.products;
+  return asArray(source).map(normalizeProduct);
 }
 
 export async function getContactInfo(): Promise<ContactInfo> {

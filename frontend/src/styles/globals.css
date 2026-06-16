@@ -45,6 +45,13 @@ a:hover {
   @apply text-base md:text-lg text-gray-500 max-w-2xl;
 }
 
+@media (min-width: 768px) {
+  .coach-title::after {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 .badge {
   @apply inline-flex items-center gap-2 rounded-full bg-gabi-blue/10 px-3 py-1 text-sm font-medium text-gabi-blue;
   color: var(--brand-primary);
@@ -231,20 +238,32 @@ a:hover {
 
 /* CSS-only crossfade helpers for hero background */
 .fade-in {
-  animation: hero-fade-in 900ms ease forwards;
-  will-change: opacity;
+  animation: hero-fade-in 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: opacity, transform;
 }
 .fade-out {
-  animation: hero-fade-out 900ms ease forwards;
-  will-change: opacity;
+  animation: hero-fade-out 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: opacity, transform;
+}
+.hero-bg-crossfade {
+  opacity: 0;
+  transform: scale(1.018);
+  transition:
+    opacity 1400ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.hero-bg-crossfade-visible {
+  opacity: 1;
+  transform: scale(1);
 }
 @keyframes hero-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: scale(1.018); }
+  to { opacity: 1; transform: scale(1); }
 }
 @keyframes hero-fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.012); }
 }
 /* Brand chips (pills) colored by theme vars */
 .brand-chip {
@@ -260,8 +279,7 @@ a:hover {
   --tab-px: clamp(8px, 2.6vw, 20px);
   /* Match hero tagline color */
   --hero-tagline-color: rgb(58, 52, 71);
-  /* Match hero primary CTA color (see HeroSection inline style) */
-  --hero-cta-color: rgb(36, 70, 95);
+  --activity-tab-flash-color: var(--brand-primary);
 }
 .activity-tabs .tab-btn {
   font-size: var(--tab-fs);
@@ -270,15 +288,203 @@ a:hover {
   flex: 1 1 0;
   min-width: 0;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  will-change: transform, color;
+}
+.activity-tabs .tab-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.992);
+  background:
+    radial-gradient(120% 140% at 22% 18%, color-mix(in srgb, white 36%, transparent) 0%, transparent 38%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--activity-tab-flash-color) 94%, white) 0%,
+      color-mix(in srgb, var(--activity-tab-flash-color) 84%, white 16%) 48%,
+      color-mix(in srgb, #9ed2ff 18%, var(--activity-tab-flash-color) 82%) 100%
+    );
+}
+.activity-tabs .tab-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0),
+    inset 0 1px 0 rgba(255, 255, 255, 0),
+    inset 0 -1px 0 rgba(255, 255, 255, 0),
+    0 0 0 rgba(255, 255, 255, 0),
+    0 0 0 rgba(158, 210, 255, 0);
+}
+.activity-tabs .tab-btn-label {
+  position: relative;
+  z-index: 2;
 }
 .activity-tabs .tab-active {
   /* Softer variant of the hero tagline color */
   background-color: color-mix(in srgb, var(--hero-tagline-color) 70%, white);
   color: #fff;
 }
+.activity-tabs .activity-tab-intro {
+  animation: activity-tab-click-hint 1760ms linear both;
+}
+.activity-tabs .activity-tab-intro::before {
+  animation: activity-tab-fill 1760ms linear both;
+}
+.activity-tabs .activity-tab-intro::after {
+  animation: activity-tab-spark 1760ms linear both;
+}
 /* Ensure single row on mobile without wrapping */
 .activity-tabs .tabs-row {
   flex-wrap: nowrap;
+}
+@keyframes activity-tab-click-hint {
+  0% {
+    transform: scale(1);
+    color: var(--tab-base-fg, var(--hero-tagline-color));
+  }
+  46% {
+    transform: scale(1);
+    color: var(--tab-base-fg, var(--hero-tagline-color));
+  }
+  58% {
+    transform: scale(1.004);
+    color: color-mix(in srgb, #ffffff 18%, var(--tab-base-fg, var(--hero-tagline-color)));
+  }
+  70% {
+    transform: scale(1.011);
+    color: color-mix(in srgb, #ffffff 60%, var(--tab-base-fg, var(--hero-tagline-color)));
+  }
+  78% {
+    transform: scale(1.015);
+    color: color-mix(in srgb, #ffffff 82%, var(--tab-base-fg, var(--hero-tagline-color)));
+  }
+  86% {
+    transform: scale(1.011);
+    color: color-mix(in srgb, #ffffff 58%, var(--tab-base-fg, var(--hero-tagline-color)));
+  }
+  94% {
+    transform: scale(1.004);
+    color: color-mix(in srgb, #ffffff 18%, var(--tab-base-fg, var(--hero-tagline-color)));
+  }
+  100% {
+    transform: scale(1);
+    color: var(--tab-base-fg, var(--hero-tagline-color));
+  }
+}
+@keyframes activity-tab-fill {
+  0%, 46% {
+    opacity: 0;
+    transform: scale(0.992);
+  }
+  58% {
+    opacity: 0.12;
+    transform: scale(0.996);
+  }
+  70% {
+    opacity: 0.34;
+    transform: scale(1);
+  }
+  78% {
+    opacity: 0.56;
+    transform: scale(1.004);
+  }
+  86% {
+    opacity: 0.32;
+    transform: scale(1.002);
+  }
+  94% {
+    opacity: 0.1;
+    transform: scale(0.996);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.992);
+  }
+}
+@keyframes activity-tab-spark {
+  0%, 46% {
+    opacity: 0;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0),
+      inset 0 1px 0 rgba(255, 255, 255, 0),
+      inset 0 -1px 0 rgba(255, 255, 255, 0),
+      0 0 0 rgba(255, 255, 255, 0),
+      0 0 0 rgba(158, 210, 255, 0);
+  }
+  58% {
+    opacity: 0.28;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.74),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.14),
+      0 0 6px rgba(255, 255, 255, 0.12),
+      0 0 10px rgba(158, 210, 255, 0.06);
+  }
+  70% {
+    opacity: 0.66;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.56),
+      inset 0 1px 0 rgba(255, 255, 255, 0.92),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.24),
+      0 0 9px rgba(255, 255, 255, 0.24),
+      0 0 16px rgba(158, 210, 255, 0.12);
+  }
+  78% {
+    opacity: 0.92;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.72),
+      inset 0 1px 0 rgba(255, 255, 255, 0.98),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.32),
+      0 0 10px rgba(255, 255, 255, 0.32),
+      0 0 18px rgba(158, 210, 255, 0.16);
+  }
+  86% {
+    opacity: 0.6;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.52),
+      inset 0 1px 0 rgba(255, 255, 255, 0.88),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.24),
+      0 0 8px rgba(255, 255, 255, 0.24),
+      0 0 14px rgba(158, 210, 255, 0.12);
+  }
+  94% {
+    opacity: 0.24;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.14),
+      0 0 5px rgba(255, 255, 255, 0.12),
+      0 0 8px rgba(158, 210, 255, 0.06);
+  }
+  100% {
+    opacity: 0;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0),
+      inset 0 1px 0 rgba(255, 255, 255, 0),
+      inset 0 -1px 0 rgba(255, 255, 255, 0),
+      0 0 0 rgba(255, 255, 255, 0),
+      0 0 0 rgba(158, 210, 255, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-tabs .activity-tab-intro,
+  .activity-tabs .activity-tab-intro::before,
+  .activity-tabs .activity-tab-intro::after {
+    animation: none;
+  }
 }
 @media (min-width: 768px) {
   .activity-tabs {

@@ -23,7 +23,7 @@ type HeroSectionProps = { slides: HeroSlide[]; clubName: string; tagline?: strin
 
 const AUTO_SWITCH = 6000;
 const PROMO_SWITCH = 4500;
-const FADE_MS = 900;
+const FADE_MS = 1400;
 const EDGE_SAMPLE_SIZE = 48;
 const EDGE_BAND = 8;
 const EDGE_ALPHA = 0.82;
@@ -108,14 +108,29 @@ function sampleEdgeColor(src: string): Promise<string | null> {
   });
 }
 
-export default function HeroSection({ slides: _slides, clubName, tagline, description, promos = [] }: HeroSectionProps) {
-  const bgSlides = useMemo(() => {
-    // Fixed order backgrounds for hero: primary group photo first, then two alternates.
+export default function HeroSection({ slides, clubName, tagline, description, promos = [] }: HeroSectionProps) {
+  const fallbackBgSlides = useMemo(() => {
     // Importing the assets ensures they are bundled into the standalone build and
     // remain accessible even if the `public` folder is not copied during deploys.
     const ordered = [heroPrimaryBg.src, heroAltOne.src, heroAltTwo.src];
     return ordered.map((src) => resolveMediaUrl(src) ?? src).filter(Boolean) as string[];
   }, []);
+
+  const bgSlides = useMemo(() => {
+    const dynamicSlides = [...(slides ?? [])]
+      .sort((left, right) => {
+        const leftOrder = left.order ?? 0;
+        const rightOrder = right.order ?? 0;
+        if (leftOrder !== rightOrder) {
+          return leftOrder - rightOrder;
+        }
+        return left.id - right.id;
+      })
+      .map((slide) => resolveMediaUrl(slide.image) ?? slide.image)
+      .filter(Boolean) as string[];
+
+    return dynamicSlides.length ? dynamicSlides : fallbackBgSlides;
+  }, [fallbackBgSlides, slides]);
 
   const promoSlides = useMemo(
     () =>
@@ -150,24 +165,61 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
   }, [promos]);
 
   const [bgIndex, setBgIndex] = useState(0);
-  const [prevBg, setPrevBg] = useState<string | null>(null);
+  const [transitionBg, setTransitionBg] = useState<string | null>(null);
+  const [transitionTargetIndex, setTransitionTargetIndex] = useState<number | null>(null);
+  const [isBgTransitionVisible, setIsBgTransitionVisible] = useState(false);
   const [promoIndex, setPromoIndex] = useState(initialPromoIndex);
+  const [loadedBackgrounds, setLoadedBackgrounds] = useState<Record<string, boolean>>({});
+  const [failedBackgrounds, setFailedBackgrounds] = useState<Record<string, boolean>>({});
   const [loadedPromos, setLoadedPromos] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!bgSlides.length) {
+      setBgIndex(0);
+      setTransitionBg(null);
+      setTransitionTargetIndex(null);
+      setIsBgTransitionVisible(false);
+      return;
+    }
+    setBgIndex((current) => current % bgSlides.length);
+  }, [bgSlides.length]);
 
   useEffect(() => {
     setPromoIndex(initialPromoIndex);
   }, [initialPromoIndex]);
 
   useEffect(() => {
-    if (bgSlides.length < 2) return;
-    const timer = setInterval(() => {
-      setBgIndex((p) => {
-        setPrevBg(bgSlides[p] ?? null);
-        return (p + 1) % bgSlides.length;
-      });
+    if (transitionTargetIndex === null || !transitionBg || typeof window === "undefined") return;
+    const rafId = window.requestAnimationFrame(() => {
+      setIsBgTransitionVisible(true);
+    });
+    const timer = window.setTimeout(() => {
+      setBgIndex(transitionTargetIndex);
+      setTransitionBg(null);
+      setTransitionTargetIndex(null);
+      setIsBgTransitionVisible(false);
+    }, FADE_MS);
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.clearTimeout(timer);
+    };
+  }, [transitionBg, transitionTargetIndex]);
+
+  useEffect(() => {
+    if (bgSlides.length < 2 || transitionTargetIndex !== null) return;
+    const nextIndex = (bgIndex + 1) % bgSlides.length;
+    const nextBg = bgSlides[nextIndex];
+    const nextReady = !!nextBg && !!loadedBackgrounds[nextBg];
+    if (!nextReady) return;
+    const timer = setTimeout(() => {
+      const targetBg = bgSlides[nextIndex];
+      if (!targetBg || !loadedBackgrounds[targetBg] || nextIndex === bgIndex) return;
+      setIsBgTransitionVisible(false);
+      setTransitionTargetIndex(nextIndex);
+      setTransitionBg(targetBg);
     }, AUTO_SWITCH);
-    return () => clearInterval(timer);
-  }, [bgSlides.length]);
+    return () => clearTimeout(timer);
+  }, [bgIndex, bgSlides, loadedBackgrounds, transitionTargetIndex]);
 
   useEffect(() => {
     if (typeof window === "undefined" || promoSlides.length === 0) return;
@@ -276,22 +328,35 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
     ? heroDescriptionVariants[bgIndex % heroDescriptionVariants.length]
     : fallbackDescription;
 
-  useEffect(() => {
-    if (!prevBg) return;
-    const t = setTimeout(() => setPrevBg(null), FADE_MS);
-    return () => clearTimeout(t);
-  }, [prevBg]);
-
   // Preload all backgrounds once on mount to make crossfade smooth
   useEffect(() => {
     if (typeof window === "undefined") return;
     bgSlides.forEach((src) => {
+      if (!src || loadedBackgrounds[src] || failedBackgrounds[src]) return;
       const img = new window.Image();
-      img.src = src;
-      (img as any).decoding = "async";
+      img.decoding = "async";
       (img as any).fetchPriority = "high";
+      img.src = src;
+      if (img.complete && img.naturalWidth > 0) {
+        img.decode?.()
+          .catch(() => undefined)
+          .finally(() => {
+            setLoadedBackgrounds((prev) => (prev[src] ? prev : { ...prev, [src]: true }));
+          });
+        return;
+      }
+      img.onload = () => {
+        img.decode?.()
+          .catch(() => undefined)
+          .finally(() => {
+            setLoadedBackgrounds((prev) => (prev[src] ? prev : { ...prev, [src]: true }));
+          });
+      };
+      img.onerror = () => {
+        setFailedBackgrounds((prev) => (prev[src] ? prev : { ...prev, [src]: true }));
+      };
     });
-  }, [bgSlides]);
+  }, [bgSlides, failedBackgrounds, loadedBackgrounds]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -317,19 +382,24 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
   return (
     <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow" style={edgeStyle}>
       <div className="absolute inset-0 z-0" aria-hidden>
-        {prevBg && (
+        {currentBg && (
           <img
-            src={prevBg}
-            alt=""
-            className="hero-bg-image absolute inset-0 h-full w-full object-cover pointer-events-none fade-out"
+            key={`hero-current-${currentBg}`}
+            src={currentBg}
+            alt="Hero background"
+            className="hero-bg-image absolute inset-0 h-full w-full object-cover pointer-events-none"
             loading="eager"
           />
         )}
-        {currentBg && (
+        {transitionBg && (
           <img
-            src={currentBg}
-            alt="Hero background"
-            className="hero-bg-image absolute inset-0 h-full w-full object-cover pointer-events-none fade-in"
+            key={`hero-transition-${transitionBg}`}
+            src={transitionBg}
+            alt=""
+            className={clsx(
+              "hero-bg-image hero-bg-crossfade absolute inset-0 h-full w-full object-cover pointer-events-none",
+              isBgTransitionVisible && "hero-bg-crossfade-visible",
+            )}
             loading="eager"
           />
         )}
@@ -390,12 +460,19 @@ export default function HeroSection({ slides: _slides, clubName, tagline, descri
                   <button
                     key={src + String(idx)}
                     onClick={() => {
-                      setPrevBg(currentBg);
-                      setBgIndex(idx);
+                      if (!loadedBackgrounds[src] || idx === bgIndex || transitionTargetIndex !== null) return;
+                      setIsBgTransitionVisible(false);
+                      setTransitionTargetIndex(idx);
+                      setTransitionBg(src);
                     }}
-                    className={clsx("h-2.5 w-6 rounded-full transition", idx === bgIndex ? "bg-white" : "bg-white/40 hover:bg-white/70")}
+                    className={clsx(
+                      "h-2.5 w-6 rounded-full transition",
+                      idx === bgIndex ? "bg-white" : "bg-white/40 hover:bg-white/70",
+                      !loadedBackgrounds[src] && "cursor-not-allowed opacity-50 hover:bg-white/40",
+                    )}
                     aria-label={`Слайд ${idx + 1}`}
                     type="button"
+                    disabled={!loadedBackgrounds[src] || transitionTargetIndex !== null}
                   />
                 ))}
               </div>

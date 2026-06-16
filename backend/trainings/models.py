@@ -2,8 +2,28 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.text import slugify
+
+
+def build_unique_slug(
+    model_class: type[models.Model],
+    value: str,
+    instance_id: int | None = None,
+    fallback: str = "item",
+) -> str:
+    base_slug = slugify(value, allow_unicode=True) or fallback
+    slug = base_slug
+    suffix = 2
+    queryset = model_class.objects.all()
+    if instance_id is not None:
+        queryset = queryset.exclude(pk=instance_id)
+
+    while queryset.filter(slug=slug).exists():
+        slug = f"{base_slug}-{suffix}"
+        suffix += 1
+    return slug
 
 
 class Training(models.Model):
@@ -54,22 +74,41 @@ class SessionTariffCategory(models.TextChoices):
 
 class TrainingDirection(models.Model):
     title = models.CharField("Название направления", max_length=100)
+    slug = models.SlugField(
+        "Слаг",
+        max_length=140,
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="Используется в адресе страницы направления",
+    )
     description = models.TextField("Описание", blank=True)
+    benefits = models.TextField("Польза от тренировок", blank=True)
+    first_session_details = models.TextField("Что будет на первом занятии", blank=True)
     icon = models.CharField(
         "Иконка", max_length=120, blank=True, help_text="CSS-класс или emoji"
     )
+    is_active = models.BooleanField("Показывать на сайте", default=True)
+    order = models.PositiveIntegerField("Порядок", default=0)
 
     class Meta:
-        ordering = ["title"]
+        ordering = ["order", "title"]
         verbose_name = "Направление"
         verbose_name_plural = "Направления"
 
     def __str__(self) -> str:
         return self.title
 
+    def save(self, *args, **kwargs) -> None:
+        if not self.slug:
+            self.slug = build_unique_slug(
+                TrainingDirection, self.title, self.pk, fallback="direction"
+            )
+        super().save(*args, **kwargs)
+
 
 class Location(models.Model):
-    title = models.CharField("Название локации", max_length=100)
+    title = models.CharField("Название локации", max_length=100, blank=True, default="")
     address = models.CharField("Адрес", max_length=255, blank=True)
     latitude = models.DecimalField(
         "Широта", max_digits=9, decimal_places=6, null=True, blank=True
@@ -84,7 +123,31 @@ class Location(models.Model):
         verbose_name_plural = "Локации"
 
     def __str__(self) -> str:
-        return self.title
+        if self.title:
+            return self.title
+        if self.address:
+            return self.address
+        if self.latitude is not None and self.longitude is not None:
+            return f"{self.latitude}, {self.longitude}"
+        return "Локация"
+
+    def clean(self) -> None:
+        super().clean()
+        has_coordinates = self.latitude is not None or self.longitude is not None
+        if has_coordinates and (
+            self.latitude is None or self.longitude is None
+        ):
+            raise ValidationError("Для координат нужно указать и широту, и долготу.")
+        if not self.title and not self.address and not has_coordinates:
+            raise ValidationError("Укажите адрес, координаты или название локации.")
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.title:
+            if self.address:
+                self.title = self.address
+            elif self.latitude is not None and self.longitude is not None:
+                self.title = f"{self.latitude}, {self.longitude}"
+        super().save(*args, **kwargs)
 
 
 class LevelTag(models.Model):
@@ -225,6 +288,81 @@ class SessionTariffPrice(models.Model):
 
     def __str__(self) -> str:
         return f"{self.label} — {self.price}"
+
+
+class TrainingDirectionLocation(models.Model):
+    direction = models.ForeignKey(
+        TrainingDirection,
+        related_name="direction_locations",
+        on_delete=models.CASCADE,
+    )
+    location = models.ForeignKey(
+        Location,
+        related_name="direction_links",
+        on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Локация направления"
+        verbose_name_plural = "Локации направлений"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("direction", "location"),
+                name="unique_training_direction_location",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.direction} — {self.location}"
+
+
+class TrainingDirectionTariff(models.Model):
+    direction = models.ForeignKey(
+        TrainingDirection,
+        related_name="direction_tariffs",
+        on_delete=models.CASCADE,
+    )
+    tariff = models.ForeignKey(
+        SessionTariff,
+        related_name="direction_links",
+        on_delete=models.CASCADE,
+    )
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Тариф направления"
+        verbose_name_plural = "Тарифы направлений"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("direction", "tariff"),
+                name="unique_training_direction_tariff",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.direction} — {self.tariff}"
+
+
+class TrainingDirectionPhoto(models.Model):
+    direction = models.ForeignKey(
+        TrainingDirection,
+        related_name="photos",
+        on_delete=models.CASCADE,
+    )
+    image = models.ImageField("Фотография", upload_to="trainings/directions/")
+    caption = models.CharField("Подпись", max_length=180, blank=True)
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Фотография направления"
+        verbose_name_plural = "Фотографии направлений"
+
+    def __str__(self) -> str:
+        return self.caption or self.image.name
 
 
 class TrainingSession(models.Model):

@@ -1,169 +1,119 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { motion } from "framer-motion";
 import { clsx } from "clsx";
-import { useLeadModal } from "./providers/LeadModalProvider";
+import type { TrainingDirection } from "@/lib/types";
 
-type ActivityKey = "ski" | "rollers" | "functional";
+const TAB_INTRO_START_DELAY_MS = 2600;
+const TAB_INTRO_STAGGER_MS = 1880;
+const TAB_INTRO_DURATION_MS = 1760;
 
-type Activity = {
-  key: ActivityKey;
-  title: string;
-  lines: string[];
-  shortTitle?: string; // used on mobile
-  locations?: string[];
+type TabButtonStyle = CSSProperties & {
+  "--tab-base-bg": string;
+  "--tab-base-fg": string;
+  "--tab-base-shadow": string;
 };
 
-const ACTIVITIES: Activity[] = [
-  {
-    key: "ski",
-    title: "Лыжи",
-    lines: [
-      "Техника классического и конькового хода",
-      "Подготовка к сезонам и стартам",
-      "Анализ видео и индивидуальные правки",
-    ],
-    locations: [
-      'п. Токсово, ул. Лесгафта — УТЦ "Кавголово"',
-      'просп. Луначарского — "Муринский парк"',
-      'Крестовский остров',
-    ],
-  },
-  {
-    key: "rollers",
-    title: "Лыжероллеры",
-    shortTitle: "Роллеры",
-    lines: [
-      "Безопасная база летом",
-      "Силовая выносливость и баланс",
-      "Подбор инвентаря и трасс",
-    ],
-    locations: [
-      'п. Токсово, ул. Лесгафта, 35 — УТЦ "Кавголово"',
-      'просп. Луначарского — "Муринский парк"',
-      'ул. Парашютная — завод "Ниссан"',
-    ],
-  },
-  {
-    key: "functional",
-    title: "Функциональный треннинг",
-    shortTitle: "ОФП",
-    lines: [
-      "Силовые комплексы и ОФП",
-      "Стабилизация корпуса и мобильность",
-      "Работа с пульсом и прогрессией",
-    ],
-    locations: [
-      'п. Токсово, ул. Лесгафта, 35 — УТЦ "Кавголово"',
-      'просп. Луначарского — "Муринский парк"',
-      'просп. Светлановский — парк "Сосновка"',
-      'Пулковский парк',
-    ],
-  },
-];
+type ActivityTabsProps = {
+  directions: TrainingDirection[];
+};
 
-export default function ActivityTabs() {
-  const [active, setActive] = useState<ActivityKey | null>(null);
-  const { openLeadModal } = useLeadModal();
+const shortenTitle = (title: string) => {
+  const compactMap: Record<string, string> = {
+    "Лыжероллеры": "Роллеры",
+    "Функциональный треннинг": "ОФП",
+    "Функциональный тренинг": "ОФП",
+  };
+  return compactMap[title] ?? title;
+};
 
-  const activeActivity = useMemo(
-    () => ACTIVITIES.find((a) => a.key === active) ?? null,
-    [active],
+export default function ActivityTabs({ directions }: ActivityTabsProps) {
+  const [isIntroActive, setIsIntroActive] = useState(false);
+  const [hasPlayedIntro, setHasPlayedIntro] = useState(false);
+  const introStartTimerRef = useRef<number | null>(null);
+
+  const items = useMemo(
+    () =>
+      (Array.isArray(directions) ? directions : []).filter(
+        (direction): direction is TrainingDirection =>
+          Boolean(direction?.id) && Boolean(direction?.title) && Boolean(direction?.slug),
+      ),
+    [directions],
   );
 
-  const scrollToSchedule = () => {
-    const el = document.getElementById("schedule");
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  useEffect(() => {
+    if (!isIntroActive) return;
+    const totalDuration =
+      TAB_INTRO_DURATION_MS + TAB_INTRO_STAGGER_MS * Math.max(items.length - 1, 0) + 80;
+    const timer = window.setTimeout(() => {
+      setIsIntroActive(false);
+    }, totalDuration);
+    return () => window.clearTimeout(timer);
+  }, [isIntroActive, items.length]);
+
+  useEffect(() => {
+    return () => {
+      if (introStartTimerRef.current !== null) {
+        window.clearTimeout(introStartTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleViewportEnter = () => {
+    if (hasPlayedIntro || introStartTimerRef.current !== null) return;
+    setHasPlayedIntro(true);
+    introStartTimerRef.current = window.setTimeout(() => {
+      setIsIntroActive(true);
+      introStartTimerRef.current = null;
+    }, TAB_INTRO_START_DELAY_MS);
   };
+
+  const getTabButtonStyle = (index: number): TabButtonStyle => ({
+    "--tab-base-bg": "#ffffff",
+    "--tab-base-fg": "var(--hero-tagline-color)",
+    "--tab-base-shadow": "0 1px 2px rgba(15, 23, 42, 0.08)",
+    animationDelay: `${index * TAB_INTRO_STAGGER_MS}ms`,
+  });
+
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <motion.section
       className="activity-tabs mt-10 space-y-4"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
+      onViewportEnter={handleViewportEnter}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <div className="tabs-row flex flex-nowrap gap-2 justify-start md:justify-center">
-        {ACTIVITIES.map((a) => (
-          <button
-            key={a.key}
-            type="button"
-            className={clsx(
-              "tab-btn rounded-full font-semibold transition",
-              active === a.key
-                ? "tab-active text-white shadow-glow"
-                : "bg-white shadow-sm hover:bg-slate-100",
-            )}
-            onClick={() => setActive((prev) => (prev === a.key ? null : a.key))}
+        {items.map((direction, index) => (
+          <motion.div
+            key={direction.id}
+            className={clsx(isIntroActive && "activity-tab-intro")}
+            style={getTabButtonStyle(index)}
           >
-            {a.shortTitle ? (
-              <>
-                <span className="md:hidden">{a.shortTitle}</span>
-                <span className="hidden md:inline">{a.title}</span>
-              </>
-            ) : (
-              a.title
-            )}
-          </button>
+            <Link
+              href={`/trainings/${encodeURIComponent(direction.slug ?? String(direction.id))}`}
+              className={clsx(
+                "tab-btn rounded-full font-semibold transition transform-gpu",
+                "bg-white shadow-sm hover:bg-slate-100 hover:text-gabi-blue",
+              )}
+            >
+              <span className="tab-btn-label">
+                <>
+                  <span className="md:hidden">{shortenTitle(direction.title)}</span>
+                  <span className="hidden md:inline">{direction.title}</span>
+                </>
+              </span>
+            </Link>
+          </motion.div>
         ))}
       </div>
-
-      <AnimatePresence initial={false}>
-        {activeActivity && (
-          <motion.div
-            key={activeActivity.key}
-            initial={{ opacity: 0, y: 12, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: -8, height: 0 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="overflow-hidden rounded-3xl"
-          >
-            <div className="card-surface mt-1 space-y-4">
-              <ul className="space-y-2 text-sm text-slate-600">
-                {activeActivity.lines.map((l, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gabi-blue/80" aria-hidden />
-                    {l}
-                  </li>
-                ))}
-              </ul>
-              {activeActivity.locations && (
-                <div>
-                  <div className="text-sm font-semibold text-gabi-dark">Локации</div>
-                  <ul className="mt-1 space-y-1 text-sm text-slate-600">
-                    {activeActivity.locations.map((l, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-gabi-blue/60" aria-hidden />
-                        {l}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <div className="flex flex-wrap gap-3 pt-2">
-                <button
-                  className="btn-primary"
-                  type="button"
-                  onClick={() =>
-                    openLeadModal({
-                      source: `activity-${activeActivity.key}`,
-                      preferred_direction: activeActivity.title,
-                      message: `Хочу начать: ${activeActivity.title}`,
-                    })
-                  }
-                >
-                  Записаться
-                </button>
-                <button className="btn-secondary" type="button" onClick={scrollToSchedule}>
-                  Перейти к расписанию
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.section>
   );
 }

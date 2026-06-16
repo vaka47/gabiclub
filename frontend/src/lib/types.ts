@@ -7,8 +7,17 @@ export type LevelTag = {
 export type TrainingDirection = {
   id: number;
   title: string;
+  slug?: string | null;
   description?: string;
+  benefits?: string;
+  first_session_details?: string;
   icon?: string;
+  is_active?: boolean;
+  order?: number;
+  cover_image?: string | null;
+  locations?: DirectionLocation[];
+  photos?: DirectionPhoto[];
+  session_tariffs?: SessionTariff[];
 };
 
 export type Location = {
@@ -17,6 +26,17 @@ export type Location = {
   address?: string;
   latitude?: number | null;
   longitude?: number | null;
+};
+
+export type DirectionLocation = Location & {
+  order?: number;
+};
+
+export type DirectionPhoto = {
+  id: number;
+  image: string;
+  caption?: string;
+  order?: number;
 };
 
 export type Coach = {
@@ -237,6 +257,39 @@ export type ThemeConfig = {
   club_photo?: string;
   snow_bg?: string;
   updated_at?: string;
+};
+
+export type ProductCtaMode = "order" | "availability";
+
+export type ProductImage = {
+  id: number;
+  image: string;
+  caption?: string;
+  order?: number;
+};
+
+export type ProductSize = {
+  id: number;
+  label: string;
+  details?: string;
+  order?: number;
+};
+
+export type Product = {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  price: number;
+  sale_price?: number | null;
+  current_price: number;
+  has_discount?: boolean;
+  cta_mode: ProductCtaMode;
+  cta_label: string;
+  size_chart_note?: string;
+  order?: number;
+  images: ProductImage[];
+  sizes: ProductSize[];
 };
 
 export type LeadFormData = {
