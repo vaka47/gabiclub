@@ -62,6 +62,13 @@ export type TrainingPlanBenefit = {
   order?: number;
 };
 
+export type TariffPhoto = {
+  id: number;
+  image: string;
+  caption?: string;
+  order?: number;
+};
+
 export type TrainingPlanCategory =
   | "personal"
   | "mini_group"
@@ -71,10 +78,13 @@ export type TrainingPlanCategory =
 export type TrainingPlan = {
   id: number;
   title: string;
+  slug?: string | null;
   icon?: string;
   category: TrainingPlanCategory;
   category_display: string;
   description?: string;
+  video_file?: string | null;
+  video_vk_embed_url?: string | null;
   price: number;
   period: string;
   buy_link?: string;
@@ -82,6 +92,7 @@ export type TrainingPlan = {
   is_featured?: boolean;
   order?: number;
   benefits: TrainingPlanBenefit[];
+  photos?: TariffPhoto[];
 };
 
 export type SessionTariffCategory =
@@ -97,15 +108,26 @@ export type SessionTariffPrice = {
   order?: number;
 };
 
+export type SessionTariffBenefit = {
+  id: number;
+  text: string;
+  order?: number;
+};
+
 export type SessionTariff = {
   id: number;
   title: string;
+  slug?: string | null;
   description?: string;
   category?: SessionTariffCategory;
   category_display?: string;
+  video_file?: string | null;
+  video_vk_embed_url?: string | null;
   is_featured?: boolean;
   order?: number;
   prices: SessionTariffPrice[];
+  benefits?: SessionTariffBenefit[];
+  photos?: TariffPhoto[];
 };
 
 export type TrainingSession = {

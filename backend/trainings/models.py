@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils.text import slugify
 
@@ -207,6 +208,14 @@ class Coach(models.Model):
 
 class TrainingPlan(models.Model):
     title = models.CharField("Название тарифа", max_length=160)
+    slug = models.SlugField(
+        "Слаг",
+        max_length=180,
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="Используется в адресе страницы тарифа",
+    )
     category = models.CharField(
         "Категория", max_length=32, choices=TrainingPlanCategory.choices, blank=True
     )
@@ -214,6 +223,23 @@ class TrainingPlan(models.Model):
         "Иконка", max_length=120, blank=True, help_text="CSS-класс или emoji"
     )
     description = models.TextField("Описание", blank=True)
+    video_file = models.FileField(
+        "Видео файл",
+        upload_to="trainings/plans/videos/",
+        blank=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=["mp4", "webm", "mov", "m4v"])
+        ],
+        help_text="Необязательно. Поддерживаются MP4, WebM, MOV и M4V.",
+    )
+    video_vk_embed_url = models.URLField(
+        "Ссылка на VK Видео",
+        blank=True,
+        help_text=(
+            "Необязательно. Вставьте embed-ссылку VK Видео. "
+            "Если заполнены и ссылка, и файл, на сайте будет показано VK-видео."
+        ),
+    )
     price = models.DecimalField("Стоимость", max_digits=9, decimal_places=2)
     period = models.CharField("Периодичность", max_length=80)
     buy_link = models.URLField("Ссылка на покупку", blank=True)
@@ -232,6 +258,13 @@ class TrainingPlan(models.Model):
     def __str__(self) -> str:
         return f"{self.title} ({self.get_category_display()})"
 
+    def save(self, *args, **kwargs) -> None:
+        if not self.slug:
+            self.slug = build_unique_slug(
+                TrainingPlan, self.title, self.pk, fallback="training-plan"
+            )
+        super().save(*args, **kwargs)
+
 
 class TrainingPlanBenefit(models.Model):
     plan = models.ForeignKey(
@@ -249,12 +282,54 @@ class TrainingPlanBenefit(models.Model):
         return self.text
 
 
+class TrainingPlanPhoto(models.Model):
+    plan = models.ForeignKey(
+        TrainingPlan, related_name="photos", on_delete=models.CASCADE
+    )
+    image = models.ImageField("Фотография", upload_to="trainings/plans/gallery/")
+    caption = models.CharField("Подпись", max_length=180, blank=True)
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Фотография тарифа"
+        verbose_name_plural = "Фотографии тарифов"
+
+    def __str__(self) -> str:
+        return self.caption or self.image.name
+
+
 class SessionTariff(models.Model):
     title = models.CharField("Название", max_length=160)
+    slug = models.SlugField(
+        "Слаг",
+        max_length=180,
+        unique=True,
+        blank=True,
+        null=True,
+        help_text="Используется в адресе страницы тарифа",
+    )
     category = models.CharField(
         "Тип тарифа", max_length=32, choices=SessionTariffCategory.choices, blank=True
     )
     description = models.TextField("Описание", blank=True)
+    video_file = models.FileField(
+        "Видео файл",
+        upload_to="trainings/session-tariffs/videos/",
+        blank=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=["mp4", "webm", "mov", "m4v"])
+        ],
+        help_text="Необязательно. Поддерживаются MP4, WebM, MOV и M4V.",
+    )
+    video_vk_embed_url = models.URLField(
+        "Ссылка на VK Видео",
+        blank=True,
+        help_text=(
+            "Необязательно. Вставьте embed-ссылку VK Видео. "
+            "Если заполнены и ссылка, и файл, на сайте будет показано VK-видео."
+        ),
+    )
     is_featured = models.BooleanField("Выделить", default=False)
     order = models.PositiveIntegerField("Порядок", default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -267,6 +342,13 @@ class SessionTariff(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+    def save(self, *args, **kwargs) -> None:
+        if not self.slug:
+            self.slug = build_unique_slug(
+                SessionTariff, self.title, self.pk, fallback="session-tariff"
+            )
+        super().save(*args, **kwargs)
 
 
 class SessionTariffPrice(models.Model):
@@ -288,6 +370,41 @@ class SessionTariffPrice(models.Model):
 
     def __str__(self) -> str:
         return f"{self.label} — {self.price}"
+
+
+class SessionTariffBenefit(models.Model):
+    tariff = models.ForeignKey(
+        SessionTariff, related_name="benefits", on_delete=models.CASCADE
+    )
+    text = models.CharField("Преимущество", max_length=200)
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Преимущество тарифа занятия"
+        verbose_name_plural = "Преимущества тарифов занятий"
+
+    def __str__(self) -> str:
+        return self.text
+
+
+class SessionTariffPhoto(models.Model):
+    tariff = models.ForeignKey(
+        SessionTariff, related_name="photos", on_delete=models.CASCADE
+    )
+    image = models.ImageField(
+        "Фотография", upload_to="trainings/session-tariffs/gallery/"
+    )
+    caption = models.CharField("Подпись", max_length=180, blank=True)
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Фотография тарифа занятия"
+        verbose_name_plural = "Фотографии тарифов занятий"
+
+    def __str__(self) -> str:
+        return self.caption or self.image.name
 
 
 class TrainingDirectionLocation(models.Model):

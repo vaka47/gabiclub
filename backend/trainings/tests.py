@@ -4,16 +4,27 @@ import importlib
 from datetime import date, time
 
 from django.apps import apps
+from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
+from django.urls import reverse
 
 from trainings.models import (
     Coach,
+    LevelChoices,
+    LevelTag,
     Location,
+    SessionAttachment,
+    SessionTariffBenefit,
+    SessionTariffPhoto,
     SessionTariff,
     TrainingDirection,
+    TrainingPlan,
+    TrainingPlanBenefit,
+    TrainingPlanPhoto,
     TrainingSession,
     TrainingType,
 )
+from trainings.schedule_copy import copy_previous_week_schedule
 
 
 class TrainingDirectionModelTests(TestCase):
@@ -113,3 +124,209 @@ class StagingSessionTariffSeedTests(TestCase):
         migration.seed_staging_session_tariffs(apps, None)
 
         self.assertEqual(SessionTariff.objects.count(), 0)
+
+
+class TariffDetailApiTests(TestCase):
+    def test_training_plan_detail_endpoint_uses_slug_and_returns_media(self):
+        plan = TrainingPlan.objects.create(
+            title="План на выносливость",
+            category="athlete",
+            description="Подготовка к длинным стартам.",
+            price="12900.00",
+            period="в месяц",
+            video_vk_embed_url="https://vkvideo.ru/video_ext.php?oid=-1&id=2&hd=2",
+        )
+        TrainingPlanBenefit.objects.create(plan=plan, text="Разбор техники", order=1)
+        TrainingPlanPhoto.objects.create(
+            plan=plan,
+            image="trainings/plans/gallery/endurance.jpg",
+            caption="Интервальная работа",
+            order=1,
+        )
+
+        response = self.client.get(f"/api/trainings/plans/{plan.slug}/")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["slug"], plan.slug)
+        self.assertEqual(payload["video_vk_embed_url"], plan.video_vk_embed_url)
+        self.assertEqual(len(payload["benefits"]), 1)
+        self.assertEqual(len(payload["photos"]), 1)
+
+    def test_session_tariff_detail_endpoint_uses_slug_and_returns_benefits(self):
+        tariff = SessionTariff.objects.create(
+            title="Парная тренировка",
+            category="personal",
+            description="Формат для двоих.",
+            video_file="trainings/session-tariffs/videos/pair.mp4",
+        )
+        SessionTariffBenefit.objects.create(
+            tariff=tariff,
+            text="Общий разбор техники",
+            order=1,
+        )
+        SessionTariffPhoto.objects.create(
+            tariff=tariff,
+            image="trainings/session-tariffs/gallery/pair.jpg",
+            caption="Тренировка на трассе",
+            order=1,
+        )
+
+        response = self.client.get(f"/api/trainings/session-tariffs/{tariff.slug}/")
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["slug"], tariff.slug)
+        self.assertTrue(payload["video_file"].endswith("pair.mp4"))
+        self.assertEqual(len(payload["benefits"]), 1)
+        self.assertEqual(len(payload["photos"]), 1)
+
+
+class CopyPreviousWeekScheduleTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.location = Location.objects.create(title="Манеж", address="Москва")
+        self.coach = Coach.objects.create(full_name="Илья Морозов")
+        self.direction = TrainingDirection.objects.create(title="Лыжи", is_active=True)
+        self.level = LevelTag.objects.create(tag=LevelChoices.ANY)
+
+    def _create_session(
+        self,
+        *,
+        session_date: date,
+        start: time,
+        end: time,
+        title: str,
+    ) -> TrainingSession:
+        session = TrainingSession.objects.create(
+            title=title,
+            date=session_date,
+            start_time=start,
+            end_time=end,
+            type=TrainingType.GROUP,
+            direction=self.direction,
+            coach=self.coach,
+            location=self.location,
+            intensity="Средняя",
+            spots_total=10,
+            spots_available=6,
+            description=f"Описание {title}",
+            registration_link="https://example.com/signup",
+            color="#123456",
+        )
+        session.levels.add(self.level)
+        return session
+
+    def test_copy_previous_week_copies_sessions_levels_and_attachments(self):
+        source_session = self._create_session(
+            session_date=date(2026, 6, 15),
+            start=time(9, 0),
+            end=time(10, 0),
+            title="Утренний блок",
+        )
+        SessionAttachment.objects.create(
+            session=source_session,
+            title="План занятия",
+            file="trainings/attachments/plan.pdf",
+        )
+
+        result = copy_previous_week_schedule(date(2026, 6, 22))
+
+        copied_sessions = TrainingSession.objects.filter(date=date(2026, 6, 22))
+        self.assertEqual(result.copied_sessions_count, 1)
+        self.assertEqual(result.replaced_sessions_count, 0)
+        self.assertEqual(copied_sessions.count(), 1)
+        copied_session = copied_sessions.get()
+        self.assertEqual(copied_session.title, source_session.title)
+        self.assertEqual(copied_session.start_time, source_session.start_time)
+        self.assertEqual(copied_session.end_time, source_session.end_time)
+        self.assertEqual(
+            list(copied_session.levels.values_list("tag", flat=True)),
+            [LevelChoices.ANY],
+        )
+        self.assertEqual(copied_session.attachments.count(), 1)
+        self.assertEqual(copied_session.attachments.get().title, "План занятия")
+
+    def test_copy_previous_week_replaces_only_overlapping_existing_sessions(self):
+        self._create_session(
+            session_date=date(2026, 6, 15),
+            start=time(9, 0),
+            end=time(10, 0),
+            title="Копируемый слот",
+        )
+        overlapping_target = self._create_session(
+            session_date=date(2026, 6, 22),
+            start=time(9, 30),
+            end=time(10, 15),
+            title="Удалить при копировании",
+        )
+        keep_target = self._create_session(
+            session_date=date(2026, 6, 22),
+            start=time(10, 30),
+            end=time(11, 15),
+            title="Оставить",
+        )
+
+        result = copy_previous_week_schedule(date(2026, 6, 22))
+
+        self.assertEqual(result.copied_sessions_count, 1)
+        self.assertEqual(result.replaced_sessions_count, 1)
+        self.assertFalse(
+            TrainingSession.objects.filter(pk=overlapping_target.pk).exists()
+        )
+        self.assertTrue(TrainingSession.objects.filter(pk=keep_target.pk).exists())
+        self.assertTrue(
+            TrainingSession.objects.filter(
+                date=date(2026, 6, 22),
+                title="Копируемый слот",
+                start_time=time(9, 0),
+                end_time=time(10, 0),
+            ).exists()
+        )
+
+
+class TrainingSessionAdminCopyWeekTests(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.user = get_user_model().objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="password",
+        )
+        self.client.force_login(self.user)
+        self.location = Location.objects.create(title="Манеж", address="Москва")
+        self.coach = Coach.objects.create(full_name="Илья Морозов")
+        self.direction = TrainingDirection.objects.create(
+            title="Роллеры",
+            is_active=True,
+        )
+        TrainingSession.objects.create(
+            title="Вечерняя тренировка",
+            date=date(2026, 6, 15),
+            start_time=time(19, 0),
+            end_time=time(20, 0),
+            type=TrainingType.GROUP,
+            direction=self.direction,
+            coach=self.coach,
+            location=self.location,
+            spots_total=12,
+            spots_available=12,
+        )
+
+    def test_admin_copy_previous_week_view_creates_sessions(self):
+        response = self.client.post(
+            reverse("admin:trainings_trainingsession_copy_previous_week"),
+            {
+                "target_date": "2026-06-22",
+                "next": reverse("admin:trainings_trainingsession_changelist"),
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            TrainingSession.objects.filter(
+                title="Вечерняя тренировка",
+                date=date(2026, 6, 22),
+            ).exists()
+        )

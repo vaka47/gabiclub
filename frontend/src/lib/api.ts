@@ -17,6 +17,7 @@ import {
   TrainingSession,
   SessionTariff,
 } from "./types";
+import { fallbackTariffSlug } from "./tariffRoutes";
 
 // When the env is missing (e.g., preview/prod deployment forgot to set it),
 // fall back to the public API host so schedule data is still fetched.
@@ -150,9 +151,28 @@ const normalizeLocation = <T extends Location>(location: T): T => ({
 
 const normalizeSessionTariff = (tariff: SessionTariff): SessionTariff => ({
   ...tariff,
+  slug: fallbackTariffSlug(tariff, "session-tariff"),
+  video_file: resolveMediaUrl(tariff.video_file) ?? tariff.video_file,
   prices: (tariff.prices ?? []).map((option) => ({
     ...option,
     price: typeof option.price === "string" ? Number(option.price) : option.price,
+  })),
+  benefits: ensureArray(tariff.benefits),
+  photos: ensureArray(tariff.photos).map((photo) => ({
+    ...photo,
+    image: resolveMediaUrl(photo.image) ?? photo.image,
+  })),
+});
+
+const normalizeTrainingPlan = (plan: TrainingPlan): TrainingPlan => ({
+  ...plan,
+  slug: fallbackTariffSlug(plan, "training-plan"),
+  price: typeof plan.price === "string" ? Number(plan.price) : plan.price,
+  video_file: resolveMediaUrl(plan.video_file) ?? plan.video_file,
+  benefits: ensureArray(plan.benefits),
+  photos: ensureArray(plan.photos).map((photo) => ({
+    ...photo,
+    image: resolveMediaUrl(photo.image) ?? photo.image,
   })),
 });
 
@@ -321,10 +341,7 @@ export async function getTrainingPlans(category?: string): Promise<TrainingPlan[
   const data = await fetchFromApi<TrainingPlan[]>(`/trainings/plans/${query}`);
   const plans = asArray(data);
   const source = plans.length > 0 ? plans : mockData.plans;
-  return source.map((plan) => ({
-    ...plan,
-    price: typeof plan.price === "string" ? Number(plan.price) : plan.price,
-  }));
+  return source.map(normalizeTrainingPlan);
 }
 
 export async function getSessionTariffs(category?: string): Promise<SessionTariff[]> {
@@ -333,6 +350,52 @@ export async function getSessionTariffs(category?: string): Promise<SessionTarif
   const tariffs = asArray(data);
   const source = tariffs.length > 0 ? tariffs : mockData.sessionTariffs;
   return source.map(normalizeSessionTariff);
+}
+
+export async function getTrainingPlanBySlug(
+  slug: string,
+): Promise<TrainingPlan | null> {
+  const normalizedSlug = (() => {
+    try {
+      return decodeURIComponent(slug);
+    } catch {
+      return slug;
+    }
+  })();
+  const data = await fetchFromApi<TrainingPlan>(
+    `/trainings/plans/${encodeURIComponent(normalizedSlug)}/`,
+  );
+  if (data) {
+    return normalizeTrainingPlan(data);
+  }
+
+  const fallback = mockData.plans.find(
+    (plan) => fallbackTariffSlug(plan, "training-plan") === normalizedSlug,
+  );
+  return fallback ? normalizeTrainingPlan(fallback) : null;
+}
+
+export async function getSessionTariffBySlug(
+  slug: string,
+): Promise<SessionTariff | null> {
+  const normalizedSlug = (() => {
+    try {
+      return decodeURIComponent(slug);
+    } catch {
+      return slug;
+    }
+  })();
+  const data = await fetchFromApi<SessionTariff>(
+    `/trainings/session-tariffs/${encodeURIComponent(normalizedSlug)}/`,
+  );
+  if (data) {
+    return normalizeSessionTariff(data);
+  }
+
+  const fallback = mockData.sessionTariffs.find(
+    (tariff) => fallbackTariffSlug(tariff, "session-tariff") === normalizedSlug,
+  );
+  return fallback ? normalizeSessionTariff(fallback) : null;
 }
 
 export async function getTrainingDirections(): Promise<TrainingDirection[]> {

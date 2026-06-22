@@ -2,13 +2,15 @@
 
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { getSessionTariffHref } from "@/lib/tariffRoutes";
 import type { SessionTariff } from "@/lib/types";
-import { useLeadModal } from "./providers/LeadModalProvider";
 
 type SessionTariffCarouselProps = {
   tariffs: SessionTariff[];
+  title?: string;
   subtitle?: string | null;
 };
 
@@ -20,10 +22,9 @@ const formatPrice = (value: number) => {
 
 export default function SessionTariffCarousel({
   tariffs,
+  title = "Тарифы занятий",
   subtitle = "Индивидуальные, групповые форматы и абонементы в одном блоке.",
 }: SessionTariffCarouselProps) {
-  const { openLeadModal } = useLeadModal();
-
   const items = (Array.isArray(tariffs) ? tariffs : []).filter(
     (tariff): tariff is SessionTariff => Boolean(tariff),
   );
@@ -63,7 +64,13 @@ export default function SessionTariffCarousel({
     );
     const primaryPrice = priceOptions[0];
     return (
-      <div className={clsx("card-surface flex h-full flex-col justify-between", className)}>
+      <Link
+        href={getSessionTariffHref(tariff)}
+        className={clsx(
+          "card-surface group flex h-full flex-col justify-between transition-transform duration-300 hover:-translate-y-1",
+          className,
+        )}
+      >
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between gap-3">
@@ -100,20 +107,10 @@ export default function SessionTariffCarousel({
             <p className="text-sm text-slate-500">Стоимость по запросу.</p>
           )}
         </div>
-        <button
-          className="btn-primary mt-6 w-full"
-          onClick={() =>
-            openLeadModal({
-              source: "session-tariff",
-              preferred_direction: tariff.title,
-              message: `Интересует тариф занятий "${tariff.title}"`,
-            })
-          }
-          type="button"
-        >
-          Записаться
-        </button>
-      </div>
+        <span className="btn-primary mt-6 w-full text-center group-hover:shadow-glow">
+          Подробнее
+        </span>
+      </Link>
     );
   };
 
@@ -126,7 +123,7 @@ export default function SessionTariffCarousel({
       transition={{ duration: 0.75, ease: "easeOut" }}
     >
       <div className="flex flex-col gap-2">
-        <h2 className="section-title section-accent">Тарифы занятий</h2>
+        <h2 className="section-title section-accent">{title}</h2>
         {subtitle ? <p className="section-subtitle">{subtitle}</p> : null}
       </div>
 

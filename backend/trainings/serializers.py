@@ -5,13 +5,16 @@ from .models import (
     LevelTag,
     Location,
     SessionAttachment,
+    SessionTariffBenefit,
     SessionTariff,
+    SessionTariffPhoto,
     SessionTariffPrice,
     TrainingDirection,
     TrainingDirectionLocation,
     TrainingDirectionPhoto,
     TrainingPlan,
     TrainingPlanBenefit,
+    TrainingPlanPhoto,
     TrainingSession,
 )
 
@@ -106,8 +109,27 @@ class TrainingPlanBenefitSerializer(serializers.ModelSerializer):
         fields = ("id", "text", "order")
 
 
+class TrainingPlanPhotoSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TrainingPlanPhoto
+        fields = ("id", "image", "caption", "order")
+
+    def get_image(self, obj: TrainingPlanPhoto):
+        image = getattr(obj, "image", None)
+        if not image:
+            return None
+        try:
+            return image.url
+        except Exception:
+            return None
+
+
 class TrainingPlanSerializer(serializers.ModelSerializer):
     benefits = TrainingPlanBenefitSerializer(many=True, read_only=True)
+    photos = TrainingPlanPhotoSerializer(many=True, read_only=True)
+    video_file = serializers.SerializerMethodField()
     category_display = serializers.CharField(
         source="get_category_display", read_only=True
     )
@@ -117,10 +139,13 @@ class TrainingPlanSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "title",
+            "slug",
             "category",
             "category_display",
             "icon",
             "description",
+            "video_file",
+            "video_vk_embed_url",
             "price",
             "period",
             "buy_link",
@@ -128,7 +153,17 @@ class TrainingPlanSerializer(serializers.ModelSerializer):
             "is_featured",
             "order",
             "benefits",
+            "photos",
         )
+
+    def get_video_file(self, obj: TrainingPlan):
+        video = getattr(obj, "video_file", None)
+        if not video:
+            return None
+        try:
+            return video.url
+        except Exception:
+            return None
 
 
 class SessionTariffPriceSerializer(serializers.ModelSerializer):
@@ -137,8 +172,34 @@ class SessionTariffPriceSerializer(serializers.ModelSerializer):
         fields = ("id", "label", "price", "order")
 
 
+class SessionTariffBenefitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SessionTariffBenefit
+        fields = ("id", "text", "order")
+
+
+class SessionTariffPhotoSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SessionTariffPhoto
+        fields = ("id", "image", "caption", "order")
+
+    def get_image(self, obj: SessionTariffPhoto):
+        image = getattr(obj, "image", None)
+        if not image:
+            return None
+        try:
+            return image.url
+        except Exception:
+            return None
+
+
 class SessionTariffSerializer(serializers.ModelSerializer):
     prices = SessionTariffPriceSerializer(many=True, read_only=True)
+    benefits = SessionTariffBenefitSerializer(many=True, read_only=True)
+    photos = SessionTariffPhotoSerializer(many=True, read_only=True)
+    video_file = serializers.SerializerMethodField()
     category_display = serializers.CharField(
         source="get_category_display", read_only=True
     )
@@ -148,13 +209,27 @@ class SessionTariffSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "title",
+            "slug",
             "category",
             "category_display",
             "description",
+            "video_file",
+            "video_vk_embed_url",
             "is_featured",
             "order",
             "prices",
+            "benefits",
+            "photos",
         )
+
+    def get_video_file(self, obj: SessionTariff):
+        video = getattr(obj, "video_file", None)
+        if not video:
+            return None
+        try:
+            return video.url
+        except Exception:
+            return None
 
 
 class TrainingDirectionPhotoSerializer(serializers.ModelSerializer):

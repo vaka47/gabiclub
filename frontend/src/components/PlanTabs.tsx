@@ -2,13 +2,16 @@
 
 import { clsx } from "clsx";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { getTrainingPlanHref } from "@/lib/tariffRoutes";
 import type { TrainingPlan } from "@/lib/types";
-import { useLeadModal } from "./providers/LeadModalProvider";
 
 type PlanTabsProps = {
   plans: TrainingPlan[];
+  title?: string;
+  subtitle?: string;
 };
 
 type CategoryOption = {
@@ -16,9 +19,11 @@ type CategoryOption = {
   label: string;
 };
 
-export default function PlanTabs({ plans }: PlanTabsProps) {
-  const { openLeadModal } = useLeadModal();
-
+export default function PlanTabs({
+  plans,
+  title = "Тренировочные планы",
+  subtitle = "Подберите комфортный формат наших взаимодействий.",
+}: PlanTabsProps) {
   const categories = useMemo<CategoryOption[]>(() => {
     const map = new Map<TrainingPlan["category"], string>();
     plans.forEach((plan) => {
@@ -77,8 +82,8 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
       transition={{ duration: 0.75, ease: "easeOut" }}
     >
       <div className="flex flex-col gap-2">
-        <h2 className="section-title section-accent">Тренировочные планы</h2>
-        <p className="section-subtitle">Подберите комфортный формат наших взаимодействий.</p>
+        <h2 className="section-title section-accent">{title}</h2>
+        <p className="section-subtitle">{subtitle}</p>
       </div>
       {showTabs && (
       <div className="flex flex-wrap gap-3">
@@ -160,7 +165,10 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                 const nextIdx = (idx + 1) % filteredPlans.length;
 
                 const Card = ({ plan }: { plan: TrainingPlan }) => (
-                  <div className="card-surface my-2 flex h-full flex-col justify-between">
+                  <Link
+                    href={getTrainingPlanHref(plan)}
+                    className="card-surface group my-2 flex h-full flex-col justify-between transition-transform duration-300 hover:-translate-y-1"
+                  >
                     <div className="space-y-4">
                       <div>
                         <div className="flex items-center justify-between gap-3">
@@ -187,26 +195,10 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                         ))}
                       </ul>
                     </div>
-                    {plan.buy_link ? (
-                      <a className="btn-primary mt-6 w-full text-center" href={plan.buy_link} target="_blank" rel="noreferrer">
-                        {plan.buy_label || "Приобрести"}
-                      </a>
-                    ) : (
-                      <button
-                        className="btn-primary mt-6 w-full"
-                        onClick={() =>
-                          openLeadModal({
-                            source: "plan",
-                            preferred_direction: plan.title,
-                            message: `Хочу тариф \"${plan.title}\"`,
-                          })
-                        }
-                        type="button"
-                      >
-                        Подробнее
-                      </button>
-                    )}
-                  </div>
+                    <span className="btn-primary mt-6 w-full justify-center text-center group-hover:shadow-glow">
+                      Подробнее
+                    </span>
+                  </Link>
                 );
 
                 return (
@@ -269,9 +261,10 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
             )}
           >
             {desktopPlansToRender.map((plan, idx) => (
-              <div
+              <Link
                 key={`${plan.id}-${idx}`}
-                className="card-surface flex h-full flex-col justify-between"
+                href={getTrainingPlanHref(plan)}
+                className="card-surface group flex h-full flex-col justify-between transition-transform duration-300 hover:-translate-y-1"
               >
                 <div className="space-y-4">
                   <div>
@@ -301,31 +294,10 @@ export default function PlanTabs({ plans }: PlanTabsProps) {
                     ))}
                   </ul>
                 </div>
-                {plan.buy_link ? (
-                  <a
-                    className="btn-primary mt-6 w-full text-center"
-                    href={plan.buy_link}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {plan.buy_label || "Приобрести"}
-                  </a>
-                ) : (
-                  <button
-                    className="btn-primary mt-6 w-full"
-                    onClick={() =>
-                      openLeadModal({
-                        source: "plan",
-                        preferred_direction: plan.title,
-                        message: `Хочу тариф \"${plan.title}\"`,
-                      })
-                    }
-                    type="button"
-                  >
-                    Подробнее
-                  </button>
-                )}
-              </div>
+                <span className="btn-primary mt-6 w-full justify-center text-center group-hover:shadow-glow">
+                  Подробнее
+                </span>
+              </Link>
             ))}
           </div>
           {showDesktopNav && (

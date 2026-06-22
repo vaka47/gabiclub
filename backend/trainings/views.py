@@ -91,8 +91,9 @@ class TrainingSessionViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TrainingPlanViewSet(viewsets.ReadOnlyModelViewSet):
+    lookup_field = "slug"
     serializer_class = TrainingPlanSerializer
-    queryset = TrainingPlan.objects.prefetch_related("benefits").order_by(
+    queryset = TrainingPlan.objects.prefetch_related("benefits", "photos").order_by(
         "category", "order", "price"
     )
     filter_backends = (DjangoFilterBackend,)
@@ -100,10 +101,11 @@ class TrainingPlanViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SessionTariffViewSet(viewsets.ReadOnlyModelViewSet):
+    lookup_field = "slug"
     serializer_class = SessionTariffSerializer
-    queryset = SessionTariff.objects.prefetch_related("prices").order_by(
-        "category", "order", "id"
-    )
+    queryset = SessionTariff.objects.prefetch_related(
+        "prices", "benefits", "photos"
+    ).order_by("category", "order", "id")
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = {"category": ["exact"], "is_featured": ["exact"]}
 
@@ -125,7 +127,9 @@ class TrainingDirectionViewSet(viewsets.ReadOnlyModelViewSet):
         ).order_by("order", "id")
         tariff_queryset = TrainingDirectionTariff.objects.select_related(
             "tariff"
-        ).prefetch_related("tariff__prices").order_by("order", "id")
+        ).prefetch_related(
+            "tariff__prices", "tariff__benefits", "tariff__photos"
+        ).order_by("order", "id")
         return (
             TrainingDirection.objects.filter(is_active=True)
             .prefetch_related(
