@@ -1,0 +1,64 @@
+{% extends "admin/change_form.html" %}
+
+{% block after_field_sets %}
+  {{ block.super }}
+  <div class="submit-row">
+    <button type="button" class="button" id="copy-previous-week-trigger">Копировать прошлую неделю</button>
+    <p class="help" style="margin: 0 0 0 12px;">
+      Сначала выберите дату занятия. Копирование перенесет всю предыдущую календарную неделю в неделю этой даты и заменит только пересекающиеся по времени занятия.
+    </p>
+  </div>
+{% endblock %}
+
+{% block admin_change_form_document_ready %}
+  {{ block.super }}
+  <script>
+    (function() {
+      const button = document.getElementById("copy-previous-week-trigger");
+      if (!button) {
+        return;
+      }
+
+      button.addEventListener("click", function() {
+        const dateInput = document.getElementById("id_date");
+        if (!dateInput || !dateInput.value) {
+          alert("Сначала выберите дату недели, в которую нужно скопировать прошлую неделю.");
+          if (dateInput) {
+            dateInput.focus();
+          }
+          return;
+        }
+
+        if (!confirm("Скопировать прошлую календарную неделю в неделю выбранной даты? Пересекающиеся по времени занятия в целевой неделе будут удалены.")) {
+          return;
+        }
+
+        const csrf = document.querySelector("input[name=csrfmiddlewaretoken]");
+        const form = document.createElement("form");
+        form.method = "post";
+        form.action = "{{ copy_previous_week_url|escapejs }}";
+
+        const csrfField = document.createElement("input");
+        csrfField.type = "hidden";
+        csrfField.name = "csrfmiddlewaretoken";
+        csrfField.value = csrf ? csrf.value : "";
+        form.appendChild(csrfField);
+
+        const targetDateField = document.createElement("input");
+        targetDateField.type = "hidden";
+        targetDateField.name = "target_date";
+        targetDateField.value = dateInput.value;
+        form.appendChild(targetDateField);
+
+        const nextField = document.createElement("input");
+        nextField.type = "hidden";
+        nextField.name = "next";
+        nextField.value = "{{ copy_previous_week_next|escapejs }}";
+        form.appendChild(nextField);
+
+        document.body.appendChild(form);
+        form.submit();
+      });
+    })();
+  </script>
+{% endblock %}
