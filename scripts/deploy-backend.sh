@@ -10,13 +10,48 @@ APP_USER="${APP_USER:-app}"
 WEB_USER="${WEB_USER:-www-data}"
 STATIC_OWNER="${STATIC_OWNER:-$APP_USER}"
 STATIC_GROUP="${STATIC_GROUP:-$WEB_USER}"
+ENV_FILE="${ENV_FILE:-$REPO_DIR/.env}"
+
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
+fi
+
 STATIC_ROOT_PATH="${GABI_STATIC_ROOT:-$APP_DIR/static}"
+
+propagate_app_env() {
+  env \
+    DJANGO_SECRET_KEY="${DJANGO_SECRET_KEY:-}" \
+    DJANGO_DEBUG="${DJANGO_DEBUG:-}" \
+    GABI_DB_PATH="${GABI_DB_PATH:-}" \
+    GABI_ALLOWED_HOSTS="${GABI_ALLOWED_HOSTS:-}" \
+    GABI_CORS_ALLOWED_ORIGINS="${GABI_CORS_ALLOWED_ORIGINS:-}" \
+    GABI_CSRF_TRUSTED_ORIGINS="${GABI_CSRF_TRUSTED_ORIGINS:-}" \
+    GABI_ADMIN_SITE_URL="${GABI_ADMIN_SITE_URL:-}" \
+    GABI_NO_INDEX="${GABI_NO_INDEX:-}" \
+    GABI_MEDIA_ROOT="${GABI_MEDIA_ROOT:-}" \
+    GABI_STATIC_ROOT="${GABI_STATIC_ROOT:-}" \
+    "$@"
+}
 
 run_as_app() {
   if [ "$(id -un)" = "$APP_USER" ]; then
-    "$@"
+    propagate_app_env "$@"
   else
-    sudo -u "$APP_USER" "$@"
+    sudo -u "$APP_USER" "$(command -v env)" \
+      DJANGO_SECRET_KEY="${DJANGO_SECRET_KEY:-}" \
+      DJANGO_DEBUG="${DJANGO_DEBUG:-}" \
+      GABI_DB_PATH="${GABI_DB_PATH:-}" \
+      GABI_ALLOWED_HOSTS="${GABI_ALLOWED_HOSTS:-}" \
+      GABI_CORS_ALLOWED_ORIGINS="${GABI_CORS_ALLOWED_ORIGINS:-}" \
+      GABI_CSRF_TRUSTED_ORIGINS="${GABI_CSRF_TRUSTED_ORIGINS:-}" \
+      GABI_ADMIN_SITE_URL="${GABI_ADMIN_SITE_URL:-}" \
+      GABI_NO_INDEX="${GABI_NO_INDEX:-}" \
+      GABI_MEDIA_ROOT="${GABI_MEDIA_ROOT:-}" \
+      GABI_STATIC_ROOT="${GABI_STATIC_ROOT:-}" \
+      "$@"
   fi
 }
 
