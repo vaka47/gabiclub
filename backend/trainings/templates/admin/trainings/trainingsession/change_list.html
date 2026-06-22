@@ -1,0 +1,10 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+  <li>
+    <a href="{{ copy_previous_week_url }}?target_date={{ copy_previous_week_target_date }}">
+      Копировать прошлую неделю
+    </a>
+  </li>
+  {{ block.super }}
+{% endblock %}
