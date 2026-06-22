@@ -87,6 +87,9 @@ echo "[deploy] Installing requirements"
 python3 -m pip install --upgrade pip wheel
 python3 -m pip install -r requirements.txt
 
+echo "[deploy] Running Django system checks"
+run_manage_as_app check
+
 echo "[deploy] Applying migrations"
 run_manage_as_app migrate --noinput
 
