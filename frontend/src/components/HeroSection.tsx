@@ -8,7 +8,6 @@ import heroAltTwo from "@public/hero-2-min.jpg";
 import type { HeroSlide } from "@/lib/types";
 import { resolveMediaUrl } from "@/lib/api";
 import LeadCtaButton from "./LeadCtaButton";
-import DebugImage from "./DebugImage";
 
 type PromoItem = {
   id: string | number;
@@ -108,7 +107,7 @@ function sampleEdgeColor(src: string): Promise<string | null> {
   });
 }
 
-export default function HeroSection({ slides, clubName, tagline, description, promos = [] }: HeroSectionProps) {
+export default function HeroSection({ slides, clubName: _clubName, tagline, description, promos = [] }: HeroSectionProps) {
   const fallbackBgSlides = useMemo(() => {
     // Importing the assets ensures they are bundled into the standalone build and
     // remain accessible even if the `public` folder is not copied during deploys.
@@ -129,7 +128,18 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
       .map((slide) => resolveMediaUrl(slide.image) ?? slide.image)
       .filter(Boolean) as string[];
 
-    return dynamicSlides.length ? dynamicSlides : fallbackBgSlides;
+    if (!dynamicSlides.length) {
+      return fallbackBgSlides.slice(0, 3);
+    }
+
+    const paddedSlides = [...dynamicSlides.slice(0, 3)];
+    for (const src of fallbackBgSlides) {
+      if (paddedSlides.length >= 3) break;
+      if (!paddedSlides.includes(src)) {
+        paddedSlides.push(src);
+      }
+    }
+    return paddedSlides;
   }, [fallbackBgSlides, slides]);
 
   const promoSlides = useMemo(
@@ -265,16 +275,16 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
     return () => clearTimeout(timer);
   }, [promos, promoIndex, loadedPromos]);
 
-  const [edgeColors, setEdgeColors] = useState<Record<string, string>>({});
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ РЕЗУЛЬТАТ");
+  const [edgeColors, setEdgeColors] = useState<Record<string, string>>({});
   const heroDescriptionVariants = useMemo<ReactNode[]>(() => {
     return [
       (
         <>
           <span className="hidden md:inline">
-            <span className="hero-chat-line">Лыжи, лыжероллеры и ОФП. Технично и с удовольствием</span>
+            Лыжи, лыжероллеры и ОФП. Технично и с удовольствием
             <br />
-            <span className="hero-chat-line">под руководством Габриеллы Калугер и Андрея{"\u00A0"}Краснова.</span>
+            под руководством Габриеллы Калугер и Андрея Краснова.
           </span>
           <span className="md:hidden inline">
             <span>Лыжи, лыжероллеры и ОФП.</span>
@@ -290,9 +300,8 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
       (
         <>
           <span className="hidden md:inline">
-            <span className="hero-chat-line">Современные методики, забота о здоровье учеников</span>
-            <br />
-            <span className="hero-chat-line">и индивидуальный подход.</span>
+            Современные методики, забота о здоровье учеников
+            <br />и индивидуальный подход.
           </span>
           <span className="md:hidden inline">
             <span>Современные методики,</span>
@@ -306,9 +315,8 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
       (
         <>
           <span className="hidden md:inline">
-            <span className="hero-chat-line">Помогаем добиваться результатов новичкам</span>
-            <br />
-            <span className="hero-chat-line">и опытным спортсменам в Санкт-Петербурге и онлайн.</span>
+            Помогаем добиваться результатов новичкам
+            <br />и опытным спортсменам в Санкт-Петербурге и онлайн.
           </span>
           <span className="md:hidden inline">
             <span>Помогаем добиваться результатов</span>
@@ -409,7 +417,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
 
       <div className="relative z-20 px-6 py-10 md:px-12 lg:px-16 md:py-12 lg:py-14">
         <div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
-          <div className="max-w-3xl md:max-w-[50rem] lg:max-w-[52rem]">
+          <div className="max-w-3xl">
             <div className="space-y-4">
               {/* Wordmark as text (Halenoir) */}
               <div
@@ -419,20 +427,27 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
                 GABI
               </div>
               <h1
-                className="font-wordmark text-3xl uppercase tracking-[0.18em] leading-[1.05] md:text-5xl"
+                className="font-wordmark text-3xl uppercase leading-[1.05] tracking-[0.18em] md:text-5xl"
                 style={{ color: "#FF6A00" }}
               >
                 {l1}
-                {l2 && (<><br />{l2}</>)}
-                {l3 && (<><br />{l3}</>)}
+                {l2 && (
+                  <>
+                    <br />
+                    {l2}
+                  </>
+                )}
+                {l3 && (
+                  <>
+                    <br />
+                    {l3}
+                  </>
+                )}
               </h1>
 
-              <div
-                key={`hero-desc-${bgIndex}`}
-                className="fade-in inline-flex max-w-full rounded-2xl bg-white/68 px-4 py-3 shadow-[0_16px_40px_-26px_rgba(15,23,42,0.45)] backdrop-blur-[10px] md:-ml-4 md:max-w-[44rem]"
-              >
-                <p className="hero-desc text-base text-slate-800 md:text-lg">{descNode}</p>
-              </div>
+              <p key={`hero-description-${bgIndex}`} className="hero-desc fade-in max-w-2xl text-base text-slate-700 md:text-lg">
+                {descNode}
+              </p>
             </div>
 
             {/* Primary CTA */}
@@ -443,7 +458,7 @@ export default function HeroSection({ slides, clubName, tagline, description, pr
               style={{ backgroundColor: "rgb(20, 80, 170)", borderRadius: 14, padding: "16px 28px" }}
             />
 
-            <div className="mt-6 inline-flex flex-wrap items-center gap-3 rounded-2xl bg-white/68 px-4 py-3 text-sm shadow-[0_16px_40px_-26px_rgba(15,23,42,0.45)] backdrop-blur-[10px]">
+            <div className="mt-6 flex items-center gap-3 text-sm">
               <div className="flex items-center gap-1">
                 <span className="h-3 w-3 rounded-full bg-emerald-300" aria-hidden />
                 <span className="hero-stat-text">Расписание обновляется ежедневно</span>

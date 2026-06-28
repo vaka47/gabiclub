@@ -1,39 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { clsx } from "clsx";
 import type { TrainingDirection } from "@/lib/types";
 
-const TAB_INTRO_START_DELAY_MS = 2600;
-const TAB_INTRO_STAGGER_MS = 1880;
-const TAB_INTRO_DURATION_MS = 1760;
+const TAB_CYCLE_STEP_MS = 2000;
+const TAB_CYCLE_MIN_DURATION_MS = 6600;
 
 type TabButtonStyle = CSSProperties & {
   "--tab-base-bg": string;
   "--tab-base-fg": string;
   "--tab-base-shadow": string;
+  "--tab-cycle-delay": string;
+  "--tab-cycle-duration": string;
 };
 
 type ActivityTabsProps = {
   directions: TrainingDirection[];
 };
 
-const shortenTitle = (title: string) => {
-  const compactMap: Record<string, string> = {
-    "Лыжероллеры": "Роллеры",
-    "Функциональный треннинг": "ОФП",
-    "Функциональный тренинг": "ОФП",
-  };
-  return compactMap[title] ?? title;
-};
-
 export default function ActivityTabs({ directions }: ActivityTabsProps) {
-  const [isIntroActive, setIsIntroActive] = useState(false);
-  const [hasPlayedIntro, setHasPlayedIntro] = useState(false);
-  const introStartTimerRef = useRef<number | null>(null);
-
   const items = useMemo(
     () =>
       (Array.isArray(directions) ? directions : []).filter(
@@ -42,39 +30,48 @@ export default function ActivityTabs({ directions }: ActivityTabsProps) {
       ),
     [directions],
   );
+  const cycleDurationMs = useMemo(
+    () => Math.max(items.length * TAB_CYCLE_STEP_MS, TAB_CYCLE_MIN_DURATION_MS),
+    [items.length],
+  );
+  const cycleDelayStepMs = useMemo(
+    () => (items.length ? Math.round(cycleDurationMs / items.length) : 0),
+    [cycleDurationMs, items.length],
+  );
+  const rows = useMemo(() => {
+    const indexedItems = items.map((direction, index) => ({ direction, index }));
 
-  useEffect(() => {
-    if (!isIntroActive) return;
-    const totalDuration =
-      TAB_INTRO_DURATION_MS + TAB_INTRO_STAGGER_MS * Math.max(items.length - 1, 0) + 80;
-    const timer = window.setTimeout(() => {
-      setIsIntroActive(false);
-    }, totalDuration);
-    return () => window.clearTimeout(timer);
-  }, [isIntroActive, items.length]);
+    if (indexedItems.length <= 3) {
+      return [indexedItems];
+    }
+    if (indexedItems.length === 4) {
+      return [indexedItems.slice(0, 2), indexedItems.slice(2, 4)];
+    }
+    if (indexedItems.length === 5) {
+      return [indexedItems.slice(0, 3), indexedItems.slice(3, 5)];
+    }
 
-  useEffect(() => {
-    return () => {
-      if (introStartTimerRef.current !== null) {
-        window.clearTimeout(introStartTimerRef.current);
-      }
-    };
-  }, []);
+    const groupedRows: Array<typeof indexedItems> = [];
+    for (let start = 0; start < indexedItems.length; start += 3) {
+      groupedRows.push(indexedItems.slice(start, start + 3));
+    }
+    return groupedRows;
+  }, [items]);
 
-  const handleViewportEnter = () => {
-    if (hasPlayedIntro || introStartTimerRef.current !== null) return;
-    setHasPlayedIntro(true);
-    introStartTimerRef.current = window.setTimeout(() => {
-      setIsIntroActive(true);
-      introStartTimerRef.current = null;
-    }, TAB_INTRO_START_DELAY_MS);
+  const getMobileTitle = (title: string) => {
+    const normalizedTitle = title.trim().toLowerCase();
+    if (normalizedTitle === "функциональный треннинг" || normalizedTitle === "функциональный тренинг") {
+      return "ОФП";
+    }
+    return title;
   };
 
   const getTabButtonStyle = (index: number): TabButtonStyle => ({
     "--tab-base-bg": "#ffffff",
     "--tab-base-fg": "var(--hero-tagline-color)",
     "--tab-base-shadow": "0 1px 2px rgba(15, 23, 42, 0.08)",
-    animationDelay: `${index * TAB_INTRO_STAGGER_MS}ms`,
+    "--tab-cycle-delay": `${index * cycleDelayStepMs}ms`,
+    "--tab-cycle-duration": `${cycleDurationMs}ms`,
   });
 
   if (items.length === 0) {
@@ -86,32 +83,35 @@ export default function ActivityTabs({ directions }: ActivityTabsProps) {
       className="activity-tabs mt-10 space-y-4"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      onViewportEnter={handleViewportEnter}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      <div className="tabs-row flex flex-nowrap gap-2 justify-start md:justify-center">
-        {items.map((direction, index) => (
-          <motion.div
-            key={direction.id}
-            className={clsx(isIntroActive && "activity-tab-intro")}
-            style={getTabButtonStyle(index)}
+      <div className="space-y-7 md:space-y-8">
+        {rows.map((row, rowIndex) => (
+          <div
+            key={`directions-row-${rowIndex}`}
+            className="grid w-full gap-2"
+            style={{ gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}
           >
-            <Link
-              href={`/trainings/${encodeURIComponent(direction.slug ?? String(direction.id))}`}
-              className={clsx(
-                "tab-btn rounded-full font-semibold transition transform-gpu",
-                "bg-white shadow-sm hover:bg-slate-100 hover:text-gabi-blue",
-              )}
-            >
-              <span className="tab-btn-label">
-                <>
-                  <span className="md:hidden">{shortenTitle(direction.title)}</span>
-                  <span className="hidden md:inline">{direction.title}</span>
-                </>
-              </span>
-            </Link>
-          </motion.div>
+            {row.map(({ direction, index }) => (
+              <motion.div key={direction.id} className="min-w-0">
+                <Link
+                  href={`/trainings/${encodeURIComponent(direction.slug ?? String(direction.id))}`}
+                  className={clsx(
+                    "tab-btn flex w-full items-center justify-center rounded-full font-semibold transition transform-gpu",
+                    "bg-white shadow-sm",
+                    "activity-tab-cycle",
+                  )}
+                  style={getTabButtonStyle(index)}
+                >
+                  <span className="tab-btn-label">
+                    <span className="md:hidden">{getMobileTitle(direction.title)}</span>
+                    <span className="hidden md:inline">{direction.title}</span>
+                  </span>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         ))}
       </div>
     </motion.section>

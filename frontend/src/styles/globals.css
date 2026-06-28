@@ -130,7 +130,7 @@ a:hover {
               radial-gradient(60% 120% at 100% 100%, color-mix(in srgb, var(--brand-grad-end) 8%, transparent) 0%, transparent 60%);
 }
 
-/* Haze overlay for the whole hero container: soft white film keeping images visible */
+/* Haze overlay for the whole hero container: soft white film keeping images readable */
 .hero-haze {
   pointer-events: none;
   z-index: 10;
@@ -279,7 +279,10 @@ a:hover {
   --tab-px: clamp(8px, 2.6vw, 20px);
   /* Match hero tagline color */
   --hero-tagline-color: rgb(58, 52, 71);
-  --activity-tab-flash-color: var(--brand-primary);
+  --activity-tab-hover-bg: #eef2f8;
+  --activity-tab-hover-shadow: 0 12px 24px -22px rgba(15, 23, 42, 0.24);
+  --activity-tab-active-shadow: 0 10px 22px -18px rgba(15, 23, 42, 0.18);
+  --activity-tab-active-lift: -1.5px;
 }
 .activity-tabs .tab-btn {
   font-size: var(--tab-fs);
@@ -294,24 +297,37 @@ a:hover {
   border: 1px solid transparent;
   background-clip: padding-box;
   will-change: transform, color;
+  transition:
+    background-color 260ms ease,
+    color 260ms ease,
+    box-shadow 260ms ease,
+    transform 260ms ease;
+}
+.activity-tabs .tab-btn:hover,
+.activity-tabs .tab-btn:focus-visible {
+  background-color: var(--activity-tab-hover-bg);
+  color: var(--brand-primary);
+  box-shadow: var(--activity-tab-hover-shadow);
+  transform: translateY(-1px);
+}
+.activity-tabs .tab-btn:hover,
+.activity-tabs .tab-btn:focus-visible,
+.activity-tabs .tab-btn:hover::before,
+.activity-tabs .tab-btn:focus-visible::before,
+.activity-tabs .tab-btn:hover::after,
+.activity-tabs .tab-btn:focus-visible::after {
+  animation: none;
 }
 .activity-tabs .tab-btn::before {
-  content: "";
+  content: none;
   position: absolute;
   inset: 0;
   z-index: 0;
   border-radius: inherit;
   pointer-events: none;
   opacity: 0;
-  transform: scale(0.992);
-  background:
-    radial-gradient(120% 140% at 22% 18%, color-mix(in srgb, white 36%, transparent) 0%, transparent 38%),
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--activity-tab-flash-color) 94%, white) 0%,
-      color-mix(in srgb, var(--activity-tab-flash-color) 84%, white 16%) 48%,
-      color-mix(in srgb, #9ed2ff 18%, var(--activity-tab-flash-color) 82%) 100%
-    );
+  transform: none;
+  background: transparent;
 }
 .activity-tabs .tab-btn::after {
   content: "";
@@ -331,91 +347,68 @@ a:hover {
 .activity-tabs .tab-btn-label {
   position: relative;
   z-index: 2;
+  display: block;
+  width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: normal;
 }
 .activity-tabs .tab-active {
   /* Softer variant of the hero tagline color */
   background-color: color-mix(in srgb, var(--hero-tagline-color) 70%, white);
   color: #fff;
 }
-.activity-tabs .activity-tab-intro {
-  animation: activity-tab-click-hint 1760ms linear both;
+.activity-tabs .activity-tab-cycle {
+  animation: activity-tab-hover-cycle var(--tab-cycle-duration, 14000ms) cubic-bezier(0.45, 0.05, 0.2, 1) infinite both;
+  animation-delay: var(--tab-cycle-delay, 0ms);
 }
-.activity-tabs .activity-tab-intro::before {
-  animation: activity-tab-fill 1760ms linear both;
+.activity-tabs .activity-tab-cycle::after {
+  animation: activity-tab-hover-cycle-outline var(--tab-cycle-duration, 14000ms) cubic-bezier(0.45, 0.05, 0.2, 1) infinite both;
+  animation-delay: var(--tab-cycle-delay, 0ms);
 }
-.activity-tabs .activity-tab-intro::after {
-  animation: activity-tab-spark 1760ms linear both;
-}
-/* Ensure single row on mobile without wrapping */
-.activity-tabs .tabs-row {
-  flex-wrap: nowrap;
-}
-@keyframes activity-tab-click-hint {
+@keyframes activity-tab-hover-cycle {
   0% {
     transform: scale(1);
     color: var(--tab-base-fg, var(--hero-tagline-color));
+    background-color: var(--tab-base-bg, #ffffff);
+    box-shadow: var(--tab-base-shadow, 0 1px 2px rgba(15, 23, 42, 0.08));
   }
-  46% {
+  10% {
+    transform: translateY(0);
+    color: var(--tab-base-fg, var(--hero-tagline-color));
+    background-color: var(--tab-base-bg, #ffffff);
+    box-shadow: var(--tab-base-shadow, 0 1px 2px rgba(15, 23, 42, 0.08));
+  }
+  16% {
+    transform: translateY(var(--activity-tab-active-lift));
+    color: var(--tab-base-fg, var(--hero-tagline-color));
+    background-color: var(--activity-tab-hover-bg);
+    box-shadow: var(--activity-tab-active-shadow);
+  }
+  28% {
+    transform: translateY(var(--activity-tab-active-lift));
+    color: var(--tab-base-fg, var(--hero-tagline-color));
+    background-color: var(--activity-tab-hover-bg);
+    box-shadow: var(--activity-tab-active-shadow);
+  }
+  40% {
     transform: scale(1);
     color: var(--tab-base-fg, var(--hero-tagline-color));
-  }
-  58% {
-    transform: scale(1.004);
-    color: color-mix(in srgb, #ffffff 18%, var(--tab-base-fg, var(--hero-tagline-color)));
-  }
-  70% {
-    transform: scale(1.011);
-    color: color-mix(in srgb, #ffffff 60%, var(--tab-base-fg, var(--hero-tagline-color)));
-  }
-  78% {
-    transform: scale(1.015);
-    color: color-mix(in srgb, #ffffff 82%, var(--tab-base-fg, var(--hero-tagline-color)));
-  }
-  86% {
-    transform: scale(1.011);
-    color: color-mix(in srgb, #ffffff 58%, var(--tab-base-fg, var(--hero-tagline-color)));
-  }
-  94% {
-    transform: scale(1.004);
-    color: color-mix(in srgb, #ffffff 18%, var(--tab-base-fg, var(--hero-tagline-color)));
+    background-color: var(--tab-base-bg, #ffffff);
+    box-shadow: var(--tab-base-shadow, 0 1px 2px rgba(15, 23, 42, 0.08));
   }
   100% {
     transform: scale(1);
     color: var(--tab-base-fg, var(--hero-tagline-color));
+    background-color: var(--tab-base-bg, #ffffff);
+    box-shadow: var(--tab-base-shadow, 0 1px 2px rgba(15, 23, 42, 0.08));
   }
 }
-@keyframes activity-tab-fill {
-  0%, 46% {
-    opacity: 0;
-    transform: scale(0.992);
-  }
-  58% {
-    opacity: 0.12;
-    transform: scale(0.996);
-  }
-  70% {
-    opacity: 0.34;
-    transform: scale(1);
-  }
-  78% {
-    opacity: 0.56;
-    transform: scale(1.004);
-  }
-  86% {
-    opacity: 0.32;
-    transform: scale(1.002);
-  }
-  94% {
-    opacity: 0.1;
-    transform: scale(0.996);
-  }
+@keyframes activity-tab-hover-cycle-outline {
+  0%,
+  10%,
+  40%,
   100% {
-    opacity: 0;
-    transform: scale(0.992);
-  }
-}
-@keyframes activity-tab-spark {
-  0%, 46% {
     opacity: 0;
     box-shadow:
       0 0 0 1px rgba(255, 255, 255, 0),
@@ -424,65 +417,20 @@ a:hover {
       0 0 0 rgba(255, 255, 255, 0),
       0 0 0 rgba(158, 210, 255, 0);
   }
-  58% {
-    opacity: 0.28;
+  16%,
+  28% {
+    opacity: 1;
     box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.74),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.14),
-      0 0 6px rgba(255, 255, 255, 0.12),
-      0 0 10px rgba(158, 210, 255, 0.06);
-  }
-  70% {
-    opacity: 0.66;
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.56),
-      inset 0 1px 0 rgba(255, 255, 255, 0.92),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.24),
-      0 0 9px rgba(255, 255, 255, 0.24),
-      0 0 16px rgba(158, 210, 255, 0.12);
-  }
-  78% {
-    opacity: 0.92;
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.72),
-      inset 0 1px 0 rgba(255, 255, 255, 0.98),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.32),
-      0 0 10px rgba(255, 255, 255, 0.32),
-      0 0 18px rgba(158, 210, 255, 0.16);
-  }
-  86% {
-    opacity: 0.6;
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.52),
-      inset 0 1px 0 rgba(255, 255, 255, 0.88),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.24),
-      0 0 8px rgba(255, 255, 255, 0.24),
-      0 0 14px rgba(158, 210, 255, 0.12);
-  }
-  94% {
-    opacity: 0.24;
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.72),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.14),
-      0 0 5px rgba(255, 255, 255, 0.12),
-      0 0 8px rgba(158, 210, 255, 0.06);
-  }
-  100% {
-    opacity: 0;
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0),
-      inset 0 1px 0 rgba(255, 255, 255, 0),
-      inset 0 -1px 0 rgba(255, 255, 255, 0),
-      0 0 0 rgba(255, 255, 255, 0),
-      0 0 0 rgba(158, 210, 255, 0);
+      0 0 0 1px rgba(255, 255, 255, 0.44),
+      inset 0 1px 0 rgba(255, 255, 255, 0.82),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+      0 10px 22px -18px rgba(15, 23, 42, 0.14),
+      0 4px 10px rgba(226, 232, 240, 0.18);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .activity-tabs .activity-tab-intro,
-  .activity-tabs .activity-tab-intro::before,
-  .activity-tabs .activity-tab-intro::after {
+  .activity-tabs .activity-tab-cycle,
+  .activity-tabs .activity-tab-cycle::after {
     animation: none;
   }
 }
