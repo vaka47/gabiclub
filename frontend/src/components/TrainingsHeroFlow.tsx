@@ -18,7 +18,7 @@ const WHEEL_THRESHOLD = 24;
 const TOUCH_THRESHOLD = 42;
 const TRANSITION_LOCK_MS = 760;
 const EXIT_DELAY_MS = 440;
-const DIRECTIONS_TOP_OFFSET = 86;
+const DIRECTIONS_TOP_OFFSET = 132;
 const STANDARD_MODE_RESTORE_OFFSET = 52;
 
 type PromoItem = {
@@ -309,10 +309,6 @@ export default function TrainingsHeroFlow({
                   G
                 </div>
               )}
-              <div className="trainings-scroll-intro-brand-copy">
-                <span className="trainings-scroll-intro-brand-title">{clubName || "GABI"}</span>
-                <span className="trainings-scroll-intro-brand-subtitle">SPORT CLUB</span>
-              </div>
             </div>
 
             {INTRO_TEXTS.map((text, index) => {
