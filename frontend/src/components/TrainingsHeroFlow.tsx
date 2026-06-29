@@ -119,25 +119,6 @@ export default function TrainingsHeroFlow({
   }, [shouldSnapToDirections]);
 
   useEffect(() => {
-    if (!postIntroLandingActive || typeof window === "undefined") return;
-
-    const maybeRestoreStandardHeroCopy = () => {
-      if (
-        !shouldSnapToDirections &&
-        window.scrollY < Math.max(getDirectionsTargetScrollTop() - STANDARD_MODE_RESTORE_OFFSET, 0)
-      ) {
-        setIsPostIntroLandingActive(false);
-      }
-    };
-
-    window.addEventListener("scroll", maybeRestoreStandardHeroCopy, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", maybeRestoreStandardHeroCopy);
-    };
-  }, [postIntroLandingActive, shouldSnapToDirections]);
-
-  useEffect(() => {
     if (!introActive || typeof document === "undefined") return;
 
     const previousHtmlOverflow = document.documentElement.style.overflow;
@@ -210,6 +191,25 @@ export default function TrainingsHeroFlow({
 
     completeIntro();
   };
+
+  useEffect(() => {
+    if (!introCompleted || !isDesktop || typeof window === "undefined") return;
+
+    const syncPostIntroLandingState = () => {
+      if (shouldSnapToDirections) return;
+      const restoreThreshold = Math.max(getDirectionsTargetScrollTop() - STANDARD_MODE_RESTORE_OFFSET, 0);
+      setIsPostIntroLandingActive(window.scrollY >= restoreThreshold);
+    };
+
+    syncPostIntroLandingState();
+    window.addEventListener("scroll", syncPostIntroLandingState, { passive: true });
+    window.addEventListener("resize", syncPostIntroLandingState);
+
+    return () => {
+      window.removeEventListener("scroll", syncPostIntroLandingState);
+      window.removeEventListener("resize", syncPostIntroLandingState);
+    };
+  }, [introCompleted, isDesktop, shouldSnapToDirections]);
 
   useEffect(() => {
     if (!introActive || typeof window === "undefined") return;
