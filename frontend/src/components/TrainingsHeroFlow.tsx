@@ -57,9 +57,13 @@ export default function TrainingsHeroFlow({
   const [shouldUseIntro, setShouldUseIntro] = useState(false);
   const [introPhase, setIntroPhase] = useState(0);
   const [introCompleted, setIntroCompleted] = useState(false);
+  const [isPostIntroLandingActive, setIsPostIntroLandingActive] = useState(false);
+  const [shouldSnapToDirections, setShouldSnapToDirections] = useState(false);
   const [isTransitionLocked, setIsTransitionLocked] = useState(false);
 
   const introActive = isDesktop && shouldUseIntro && !introCompleted;
+  const postIntroLandingActive = isDesktop && isPostIntroLandingActive;
+  const hideRotatingCopy = introActive || postIntroLandingActive;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -91,6 +95,42 @@ export default function TrainingsHeroFlow({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!shouldSnapToDirections || typeof window === "undefined") return;
+
+    const snapToDirections = () => {
+      const targetScrollTop = getDirectionsTargetScrollTop();
+      window.scrollTo({ top: targetScrollTop, behavior: "auto" });
+      settleScrollTimerRef.current = window.setTimeout(() => {
+        window.scrollTo({ top: targetScrollTop, behavior: "auto" });
+        settleScrollTimerRef.current = null;
+      }, 140);
+      setShouldSnapToDirections(false);
+    };
+
+    const rafId = window.requestAnimationFrame(snapToDirections);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+    };
+  }, [shouldSnapToDirections]);
+
+  useEffect(() => {
+    if (!postIntroLandingActive || typeof window === "undefined") return;
+
+    const maybeRestoreStandardHeroCopy = () => {
+      if (!shouldSnapToDirections && window.scrollY <= 8) {
+        setIsPostIntroLandingActive(false);
+      }
+    };
+
+    window.addEventListener("scroll", maybeRestoreStandardHeroCopy, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", maybeRestoreStandardHeroCopy);
+    };
+  }, [postIntroLandingActive, shouldSnapToDirections]);
 
   useEffect(() => {
     if (!introActive || typeof document === "undefined") return;
@@ -134,23 +174,15 @@ export default function TrainingsHeroFlow({
   const completeIntro = () => {
     lockTransitions();
     setIntroPhase(EXIT_PHASE);
-    const targetScrollTop = getDirectionsTargetScrollTop();
     if (exitTimerRef.current !== null) {
       window.clearTimeout(exitTimerRef.current);
     }
     exitTimerRef.current = window.setTimeout(() => {
       setIntroCompleted(true);
       setIntroPhase(0);
+      setIsPostIntroLandingActive(true);
+      setShouldSnapToDirections(true);
       exitTimerRef.current = null;
-      if (typeof window !== "undefined") {
-        window.requestAnimationFrame(() => {
-          window.scrollTo({ top: targetScrollTop, behavior: "auto" });
-          settleScrollTimerRef.current = window.setTimeout(() => {
-            window.scrollTo({ top: targetScrollTop, behavior: "auto" });
-            settleScrollTimerRef.current = null;
-          }, 140);
-        });
-      }
     }, EXIT_DELAY_MS);
   };
 
@@ -249,7 +281,7 @@ export default function TrainingsHeroFlow({
             tagline={tagline}
             description={description}
             promos={promos}
-            hideRotatingCopy={introActive}
+            hideRotatingCopy={hideRotatingCopy}
           />
         </div>
 
