@@ -52,6 +52,7 @@ export default function TrainingsHeroFlow({
   const touchStartYRef = useRef<number | null>(null);
   const lockTimerRef = useRef<number | null>(null);
   const exitTimerRef = useRef<number | null>(null);
+  const settleScrollTimerRef = useRef<number | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
   const [shouldUseIntro, setShouldUseIntro] = useState(false);
   const [introPhase, setIntroPhase] = useState(0);
@@ -85,6 +86,9 @@ export default function TrainingsHeroFlow({
       if (exitTimerRef.current !== null) {
         window.clearTimeout(exitTimerRef.current);
       }
+      if (settleScrollTimerRef.current !== null) {
+        window.clearTimeout(settleScrollTimerRef.current);
+      }
     };
   }, []);
 
@@ -106,24 +110,6 @@ export default function TrainingsHeroFlow({
     };
   }, [introActive]);
 
-  useEffect(() => {
-    if (!introCompleted || !shouldUseIntro || typeof window === "undefined") return;
-
-    const rafId = window.requestAnimationFrame(() => {
-      const tabsBox = tabsAnchorRef.current?.getBoundingClientRect();
-      if (!tabsBox) return;
-      const targetScrollTop =
-        window.scrollY +
-        tabsBox.top -
-        Math.max((window.innerHeight - Math.min(tabsBox.height, window.innerHeight * 0.72)) / 2, 120);
-      window.scrollTo({ top: Math.max(targetScrollTop, 0), behavior: "auto" });
-    });
-
-    return () => {
-      window.cancelAnimationFrame(rafId);
-    };
-  }, [introCompleted, shouldUseIntro]);
-
   const lockTransitions = () => {
     setIsTransitionLocked(true);
     if (lockTimerRef.current !== null) {
@@ -135,9 +121,20 @@ export default function TrainingsHeroFlow({
     }, TRANSITION_LOCK_MS);
   };
 
+  const getDirectionsTargetScrollTop = () => {
+    if (typeof window === "undefined") return 0;
+    const tabsSection = tabsAnchorRef.current;
+    if (!tabsSection) return 0;
+    const sectionTop = tabsSection.offsetTop;
+    const sectionHeight = tabsSection.offsetHeight;
+    const centerOffset = Math.max((window.innerHeight - Math.min(sectionHeight, window.innerHeight * 0.72)) / 2, 120);
+    return Math.max(sectionTop - centerOffset, 0);
+  };
+
   const completeIntro = () => {
     lockTransitions();
     setIntroPhase(EXIT_PHASE);
+    const targetScrollTop = getDirectionsTargetScrollTop();
     if (exitTimerRef.current !== null) {
       window.clearTimeout(exitTimerRef.current);
     }
@@ -145,6 +142,15 @@ export default function TrainingsHeroFlow({
       setIntroCompleted(true);
       setIntroPhase(0);
       exitTimerRef.current = null;
+      if (typeof window !== "undefined") {
+        window.requestAnimationFrame(() => {
+          window.scrollTo({ top: targetScrollTop, behavior: "auto" });
+          settleScrollTimerRef.current = window.setTimeout(() => {
+            window.scrollTo({ top: targetScrollTop, behavior: "auto" });
+            settleScrollTimerRef.current = null;
+          }, 140);
+        });
+      }
     }, EXIT_DELAY_MS);
   };
 
