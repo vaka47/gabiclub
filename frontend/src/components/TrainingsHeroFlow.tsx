@@ -56,16 +56,24 @@ export default function TrainingsHeroFlow({
   const exitTimerRef = useRef<number | null>(null);
   const settleScrollTimerRef = useRef<number | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [desktopScrollY, setDesktopScrollY] = useState(0);
   const [shouldUseIntro, setShouldUseIntro] = useState(false);
   const [introPhase, setIntroPhase] = useState(0);
   const [introCompleted, setIntroCompleted] = useState(false);
   const [directionsLandingScrollTop, setDirectionsLandingScrollTop] = useState<number | null>(null);
-  const [isPostIntroLandingActive, setIsPostIntroLandingActive] = useState(false);
   const [shouldSnapToDirections, setShouldSnapToDirections] = useState(false);
   const [isTransitionLocked, setIsTransitionLocked] = useState(false);
 
   const introActive = isDesktop && shouldUseIntro && !introCompleted;
-  const postIntroLandingActive = isDesktop && isPostIntroLandingActive;
+  const postIntroRestoreThreshold =
+    directionsLandingScrollTop === null
+      ? Number.POSITIVE_INFINITY
+      : Math.max(directionsLandingScrollTop - STANDARD_MODE_RESTORE_OFFSET, 0);
+  const postIntroLandingActive =
+    isDesktop &&
+    introCompleted &&
+    directionsLandingScrollTop !== null &&
+    (shouldSnapToDirections || desktopScrollY >= postIntroRestoreThreshold);
   const hideRotatingCopy = introActive || postIntroLandingActive;
 
   useEffect(() => {
@@ -96,6 +104,23 @@ export default function TrainingsHeroFlow({
       if (settleScrollTimerRef.current !== null) {
         window.clearTimeout(settleScrollTimerRef.current);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const syncScrollY = () => {
+      setDesktopScrollY(window.scrollY);
+    };
+
+    syncScrollY();
+    window.addEventListener("scroll", syncScrollY, { passive: true });
+    window.addEventListener("resize", syncScrollY);
+
+    return () => {
+      window.removeEventListener("scroll", syncScrollY);
+      window.removeEventListener("resize", syncScrollY);
     };
   }, []);
 
@@ -166,7 +191,6 @@ export default function TrainingsHeroFlow({
       setIntroCompleted(true);
       setIntroPhase(0);
       setDirectionsLandingScrollTop(targetScrollTop);
-      setIsPostIntroLandingActive(true);
       setShouldSnapToDirections(true);
       exitTimerRef.current = null;
     }, EXIT_DELAY_MS);
@@ -194,27 +218,6 @@ export default function TrainingsHeroFlow({
 
     completeIntro();
   };
-
-  useEffect(() => {
-    if (!introCompleted || !isDesktop || typeof window === "undefined") return;
-
-    const syncPostIntroLandingState = () => {
-      if (shouldSnapToDirections) return;
-      const landingTop = directionsLandingScrollTop ?? getDirectionsTargetScrollTop();
-      const restoreThreshold = Math.max(landingTop - STANDARD_MODE_RESTORE_OFFSET, 0);
-      setIsPostIntroLandingActive(window.scrollY >= restoreThreshold);
-    };
-
-    syncPostIntroLandingState();
-    window.addEventListener("scroll", syncPostIntroLandingState, { passive: true });
-    window.addEventListener("resize", syncPostIntroLandingState);
-
-    return () => {
-      window.removeEventListener("scroll", syncPostIntroLandingState);
-      window.removeEventListener("resize", syncPostIntroLandingState);
-    };
-  }, [directionsLandingScrollTop, introCompleted, isDesktop, shouldSnapToDirections]);
-
   useEffect(() => {
     if (!introActive || typeof window === "undefined") return;
 
