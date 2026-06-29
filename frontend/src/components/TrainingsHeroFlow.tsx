@@ -285,7 +285,12 @@ export default function TrainingsHeroFlow({
 
         {introActive && (
           <div className="trainings-scroll-intro-copy-layer" aria-live="polite">
-            <div className="trainings-scroll-intro-brand">
+            <div
+              className={clsx(
+                "trainings-scroll-intro-brand",
+                introPhase > 0 && "is-visible",
+              )}
+            >
               {logoSrc ? (
                 <img
                   src={logoSrc}

@@ -332,7 +332,15 @@ a:hover {
       0 18px 42px -30px rgba(37, 50, 74, 0.46),
       inset 0 1px 0 rgba(255, 255, 255, 0.76);
     backdrop-filter: blur(18px);
-    transform: translateX(-50%);
+    opacity: 0;
+    transform: translateX(-50%) translateY(-1rem) scale(0.94);
+    transition:
+      opacity 520ms cubic-bezier(0.22, 0.74, 0.24, 1),
+      transform 520ms cubic-bezier(0.22, 0.74, 0.24, 1);
+  }
+  .trainings-scroll-intro-brand.is-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
   }
   .trainings-scroll-intro-brand-mark {
     width: 2.8rem;
