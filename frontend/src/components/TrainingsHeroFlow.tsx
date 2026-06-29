@@ -59,6 +59,7 @@ export default function TrainingsHeroFlow({
   const [shouldUseIntro, setShouldUseIntro] = useState(false);
   const [introPhase, setIntroPhase] = useState(0);
   const [introCompleted, setIntroCompleted] = useState(false);
+  const [directionsLandingScrollTop, setDirectionsLandingScrollTop] = useState<number | null>(null);
   const [isPostIntroLandingActive, setIsPostIntroLandingActive] = useState(false);
   const [shouldSnapToDirections, setShouldSnapToDirections] = useState(false);
   const [isTransitionLocked, setIsTransitionLocked] = useState(false);
@@ -102,7 +103,7 @@ export default function TrainingsHeroFlow({
     if (!shouldSnapToDirections || typeof window === "undefined") return;
 
     const snapToDirections = () => {
-      const targetScrollTop = getDirectionsTargetScrollTop();
+      const targetScrollTop = directionsLandingScrollTop ?? getDirectionsTargetScrollTop();
       window.scrollTo({ top: targetScrollTop, behavior: "auto" });
       settleScrollTimerRef.current = window.setTimeout(() => {
         window.scrollTo({ top: targetScrollTop, behavior: "auto" });
@@ -116,7 +117,7 @@ export default function TrainingsHeroFlow({
     return () => {
       window.cancelAnimationFrame(rafId);
     };
-  }, [shouldSnapToDirections]);
+  }, [directionsLandingScrollTop, shouldSnapToDirections]);
 
   useEffect(() => {
     if (!introActive || typeof document === "undefined") return;
@@ -157,12 +158,14 @@ export default function TrainingsHeroFlow({
   const completeIntro = () => {
     lockTransitions();
     setIntroPhase(EXIT_PHASE);
+    const targetScrollTop = getDirectionsTargetScrollTop();
     if (exitTimerRef.current !== null) {
       window.clearTimeout(exitTimerRef.current);
     }
     exitTimerRef.current = window.setTimeout(() => {
       setIntroCompleted(true);
       setIntroPhase(0);
+      setDirectionsLandingScrollTop(targetScrollTop);
       setIsPostIntroLandingActive(true);
       setShouldSnapToDirections(true);
       exitTimerRef.current = null;
@@ -197,7 +200,8 @@ export default function TrainingsHeroFlow({
 
     const syncPostIntroLandingState = () => {
       if (shouldSnapToDirections) return;
-      const restoreThreshold = Math.max(getDirectionsTargetScrollTop() - STANDARD_MODE_RESTORE_OFFSET, 0);
+      const landingTop = directionsLandingScrollTop ?? getDirectionsTargetScrollTop();
+      const restoreThreshold = Math.max(landingTop - STANDARD_MODE_RESTORE_OFFSET, 0);
       setIsPostIntroLandingActive(window.scrollY >= restoreThreshold);
     };
 
@@ -209,7 +213,7 @@ export default function TrainingsHeroFlow({
       window.removeEventListener("scroll", syncPostIntroLandingState);
       window.removeEventListener("resize", syncPostIntroLandingState);
     };
-  }, [introCompleted, isDesktop, shouldSnapToDirections]);
+  }, [directionsLandingScrollTop, introCompleted, isDesktop, shouldSnapToDirections]);
 
   useEffect(() => {
     if (!introActive || typeof window === "undefined") return;
