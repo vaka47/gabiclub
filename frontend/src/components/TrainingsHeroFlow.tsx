@@ -129,7 +129,8 @@ export default function TrainingsHeroFlow({
     if (!shouldSnapToDirections || typeof window === "undefined") return;
 
     const snapToDirections = () => {
-      const targetScrollTop = directionsLandingScrollTop ?? getDirectionsTargetScrollTop();
+      const targetScrollTop = getDirectionsTargetScrollTop();
+      setDirectionsLandingScrollTop(targetScrollTop);
       window.scrollTo({ top: targetScrollTop, behavior: "auto" });
       settleScrollTimerRef.current = window.setTimeout(() => {
         window.scrollTo({ top: targetScrollTop, behavior: "auto" });
@@ -193,14 +194,13 @@ export default function TrainingsHeroFlow({
   const completeIntro = () => {
     lockTransitions();
     setIntroPhase(EXIT_PHASE);
-    const targetScrollTop = getDirectionsTargetScrollTop();
     if (exitTimerRef.current !== null) {
       window.clearTimeout(exitTimerRef.current);
     }
     exitTimerRef.current = window.setTimeout(() => {
       setIntroCompleted(true);
       setIntroPhase(0);
-      setDirectionsLandingScrollTop(targetScrollTop);
+      setDirectionsLandingScrollTop(null);
       setShouldSnapToDirections(true);
       exitTimerRef.current = null;
     }, EXIT_DELAY_MS);
