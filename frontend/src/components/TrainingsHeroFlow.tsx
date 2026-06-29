@@ -18,7 +18,8 @@ const WHEEL_THRESHOLD = 24;
 const TOUCH_THRESHOLD = 42;
 const TRANSITION_LOCK_MS = 760;
 const EXIT_DELAY_MS = 440;
-const DIRECTIONS_TOP_OFFSET = 184;
+const DIRECTIONS_HEADER_GAP = 28;
+const FALLBACK_DIRECTIONS_TOP_OFFSET = 184;
 const STANDARD_MODE_RESTORE_OFFSET = 52;
 
 type PromoItem = {
@@ -177,7 +178,16 @@ export default function TrainingsHeroFlow({
     if (typeof window === "undefined") return 0;
     const tabsSection = tabsAnchorRef.current;
     if (!tabsSection) return 0;
-    return Math.max(tabsSection.offsetTop - DIRECTIONS_TOP_OFFSET, 0);
+
+    const heading = tabsSection.querySelector<HTMLElement>("[data-activity-tabs-heading]");
+    const header = document.querySelector<HTMLElement>("[data-site-header]");
+    const headerOffset = header
+      ? header.getBoundingClientRect().height + DIRECTIONS_HEADER_GAP
+      : FALLBACK_DIRECTIONS_TOP_OFFSET;
+    const anchor = heading ?? tabsSection;
+    const anchorTop = window.scrollY + anchor.getBoundingClientRect().top;
+
+    return Math.max(anchorTop - headerOffset, 0);
   };
 
   const completeIntro = () => {

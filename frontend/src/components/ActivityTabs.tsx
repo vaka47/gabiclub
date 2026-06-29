@@ -96,7 +96,12 @@ export default function ActivityTabs({
     >
       <div className="space-y-7 md:space-y-8">
         <div className="flex justify-center text-center">
-          <h2 className="section-title section-accent section-accent-centered">Выберете тренировку</h2>
+          <h2
+            data-activity-tabs-heading
+            className="section-title section-accent section-accent-centered"
+          >
+            Выберете тренировку
+          </h2>
         </div>
         {rows.map((row, rowIndex) => (
           <div

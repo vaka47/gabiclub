@@ -178,7 +178,10 @@ export default function Header({ contact, socialLinks, logoSrc }: HeaderProps) {
   );
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-lg">
+    <header
+      data-site-header
+      className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-lg"
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 md:py-5">
         <Link href="/" className="flex items-center gap-3 text-xl font-semibold text-gabi-dark">
           {resolvedLogo ? (
