@@ -10,6 +10,7 @@ import {
   getCamps,
   getClubProfile,
   getCoaches,
+  getTheme,
   getTrainingDirections,
   getTrainingMeta,
   resolveMediaUrl,
@@ -18,14 +19,18 @@ import {
 
 
 export default async function TrainingsPage() {
-  const [meta, directions, coaches, club, camps, articles] = await Promise.all([
+  const [meta, directions, coaches, club, camps, articles, theme] = await Promise.all([
     getTrainingMeta(),
     getTrainingDirections(),
     getCoaches(),
     getClubProfile(),
     getCamps(new URLSearchParams("is_featured=1")),
     getArticles(new URLSearchParams("is_featured=1")),
+    getTheme(),
   ]);
+  const envLogo = process.env.NEXT_PUBLIC_LOGO?.trim() || "";
+  const themedLogo = theme?.club_photo ? resolveMediaUrl(theme.club_photo) : "";
+  const introLogoSrc = envLogo || themedLogo || "/gabi-logo.png";
 
   const safeCoaches = Array.isArray(coaches) ? coaches : [];
   const safeCamps = Array.isArray(camps) ? camps : [];
@@ -83,6 +88,7 @@ export default async function TrainingsPage() {
           })),
         ]}
         directions={directions}
+        logoSrc={introLogoSrc}
       />
 
       <CoachShowcase coaches={featuredCoaches} />

@@ -13,12 +13,13 @@ const INTRO_TEXTS = [
   "Современные методики, забота о здоровье учеников и индивидуальный подход.",
   "Помогаем добиваться результатов новичкам и опытным спортсменам в Санкт-Петербурге и онлайн.",
 ];
-const DIRECTIONS_PHASE = INTRO_TEXTS.length + 1;
-const EXIT_PHASE = DIRECTIONS_PHASE + 1;
+const EXIT_PHASE = INTRO_TEXTS.length + 1;
 const WHEEL_THRESHOLD = 24;
 const TOUCH_THRESHOLD = 42;
 const TRANSITION_LOCK_MS = 760;
 const EXIT_DELAY_MS = 440;
+const DIRECTIONS_TOP_OFFSET = 86;
+const STANDARD_MODE_RESTORE_OFFSET = 52;
 
 type PromoItem = {
   id: string | number;
@@ -37,6 +38,7 @@ type TrainingsHeroFlowProps = {
   description?: string;
   promos?: PromoItem[];
   directions: TrainingDirection[];
+  logoSrc?: string;
 };
 
 export default function TrainingsHeroFlow({
@@ -46,8 +48,8 @@ export default function TrainingsHeroFlow({
   description,
   promos = [],
   directions,
+  logoSrc,
 }: TrainingsHeroFlowProps) {
-  const heroRegionRef = useRef<HTMLDivElement | null>(null);
   const tabsAnchorRef = useRef<HTMLDivElement | null>(null);
   const touchStartYRef = useRef<number | null>(null);
   const lockTimerRef = useRef<number | null>(null);
@@ -120,7 +122,10 @@ export default function TrainingsHeroFlow({
     if (!postIntroLandingActive || typeof window === "undefined") return;
 
     const maybeRestoreStandardHeroCopy = () => {
-      if (!shouldSnapToDirections && window.scrollY <= 8) {
+      if (
+        !shouldSnapToDirections &&
+        window.scrollY < Math.max(getDirectionsTargetScrollTop() - STANDARD_MODE_RESTORE_OFFSET, 0)
+      ) {
         setIsPostIntroLandingActive(false);
       }
     };
@@ -165,10 +170,7 @@ export default function TrainingsHeroFlow({
     if (typeof window === "undefined") return 0;
     const tabsSection = tabsAnchorRef.current;
     if (!tabsSection) return 0;
-    const sectionTop = tabsSection.offsetTop;
-    const sectionHeight = tabsSection.offsetHeight;
-    const centerOffset = Math.max((window.innerHeight - Math.min(sectionHeight, window.innerHeight * 0.72)) / 2, 120);
-    return Math.max(sectionTop - centerOffset, 0);
+    return Math.max(tabsSection.offsetTop - DIRECTIONS_TOP_OFFSET, 0);
   };
 
   const completeIntro = () => {
@@ -200,7 +202,7 @@ export default function TrainingsHeroFlow({
       return;
     }
 
-    if (introPhase < DIRECTIONS_PHASE) {
+    if (introPhase < INTRO_TEXTS.length) {
       lockTransitions();
       setIntroPhase((current) => current + 1);
       return;
@@ -257,13 +259,9 @@ export default function TrainingsHeroFlow({
     };
   }, [introActive, introPhase, isTransitionLocked]);
 
-  const isDirectionsStageActive = introPhase === DIRECTIONS_PHASE;
-  const isDirectionsStageExiting = introPhase === EXIT_PHASE;
-
   return (
     <div className="space-y-20">
       <div
-        ref={heroRegionRef}
         className={clsx(
           "trainings-scroll-intro-shell",
           introActive && "is-intro-active",
@@ -287,6 +285,24 @@ export default function TrainingsHeroFlow({
 
         {introActive && (
           <div className="trainings-scroll-intro-copy-layer" aria-live="polite">
+            <div className="trainings-scroll-intro-brand">
+              {logoSrc ? (
+                <img
+                  src={logoSrc}
+                  alt={`${clubName} logo`}
+                  className="trainings-scroll-intro-brand-mark"
+                />
+              ) : (
+                <div className="trainings-scroll-intro-brand-fallback" aria-hidden>
+                  G
+                </div>
+              )}
+              <div className="trainings-scroll-intro-brand-copy">
+                <span className="trainings-scroll-intro-brand-title">{clubName || "GABI"}</span>
+                <span className="trainings-scroll-intro-brand-subtitle">SPORT CLUB</span>
+              </div>
+            </div>
+
             {INTRO_TEXTS.map((text, index) => {
               const slidePhase = index + 1;
               const stateClassName =
@@ -305,24 +321,6 @@ export default function TrainingsHeroFlow({
                 </p>
               );
             })}
-          </div>
-        )}
-
-        {introActive && (
-          <div
-            className={clsx(
-              "trainings-scroll-intro-directions-layer",
-              isDirectionsStageActive && "is-active",
-              isDirectionsStageExiting && "is-exiting",
-            )}
-            aria-hidden={!isDirectionsStageActive && !isDirectionsStageExiting}
-          >
-            <ActivityTabs
-              directions={directions}
-              className="w-full max-w-5xl"
-              disableEntranceAnimation
-              withTopMargin={false}
-            />
           </div>
         )}
       </div>
