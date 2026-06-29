@@ -19,9 +19,17 @@ type TabButtonStyle = CSSProperties & {
 
 type ActivityTabsProps = {
   directions: TrainingDirection[];
+  className?: string;
+  disableEntranceAnimation?: boolean;
+  withTopMargin?: boolean;
 };
 
-export default function ActivityTabs({ directions }: ActivityTabsProps) {
+export default function ActivityTabs({
+  directions,
+  className,
+  disableEntranceAnimation = false,
+  withTopMargin = true,
+}: ActivityTabsProps) {
   const items = useMemo(
     () =>
       (Array.isArray(directions) ? directions : []).filter(
@@ -80,11 +88,11 @@ export default function ActivityTabs({ directions }: ActivityTabsProps) {
 
   return (
     <motion.section
-      className="activity-tabs mt-10 space-y-4"
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={clsx("activity-tabs space-y-4", withTopMargin && "mt-10", className)}
+      initial={disableEntranceAnimation ? undefined : { opacity: 0, y: 24 }}
+      whileInView={disableEntranceAnimation ? undefined : { opacity: 1, y: 0 }}
+      viewport={disableEntranceAnimation ? undefined : { once: true, amount: 0.2 }}
+      transition={disableEntranceAnimation ? undefined : { duration: 0.6, ease: "easeOut" }}
     >
       <div className="space-y-7 md:space-y-8">
         <div className="flex justify-center text-center">

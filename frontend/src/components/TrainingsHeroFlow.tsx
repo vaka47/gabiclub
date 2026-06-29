@@ -13,7 +13,8 @@ const INTRO_TEXTS = [
   "Современные методики, забота о здоровье учеников и индивидуальный подход.",
   "Помогаем добиваться результатов новичкам и опытным спортсменам в Санкт-Петербурге и онлайн.",
 ];
-const EXIT_PHASE = INTRO_TEXTS.length + 1;
+const DIRECTIONS_PHASE = INTRO_TEXTS.length + 1;
+const EXIT_PHASE = DIRECTIONS_PHASE + 1;
 const WHEEL_THRESHOLD = 24;
 const TOUCH_THRESHOLD = 42;
 const TRANSITION_LOCK_MS = 760;
@@ -47,6 +48,7 @@ export default function TrainingsHeroFlow({
   directions,
 }: TrainingsHeroFlowProps) {
   const heroRegionRef = useRef<HTMLDivElement | null>(null);
+  const tabsAnchorRef = useRef<HTMLDivElement | null>(null);
   const touchStartYRef = useRef<number | null>(null);
   const lockTimerRef = useRef<number | null>(null);
   const exitTimerRef = useRef<number | null>(null);
@@ -108,7 +110,12 @@ export default function TrainingsHeroFlow({
     if (!introCompleted || !shouldUseIntro || typeof window === "undefined") return;
 
     const rafId = window.requestAnimationFrame(() => {
-      const targetScrollTop = heroRegionRef.current?.offsetHeight ?? window.innerHeight;
+      const tabsBox = tabsAnchorRef.current?.getBoundingClientRect();
+      if (!tabsBox) return;
+      const targetScrollTop =
+        window.scrollY +
+        tabsBox.top -
+        Math.max((window.innerHeight - Math.min(tabsBox.height, window.innerHeight * 0.72)) / 2, 120);
       window.scrollTo({ top: Math.max(targetScrollTop, 0), behavior: "auto" });
     });
 
@@ -155,7 +162,7 @@ export default function TrainingsHeroFlow({
       return;
     }
 
-    if (introPhase < INTRO_TEXTS.length) {
+    if (introPhase < DIRECTIONS_PHASE) {
       lockTransitions();
       setIntroPhase((current) => current + 1);
       return;
@@ -212,6 +219,9 @@ export default function TrainingsHeroFlow({
     };
   }, [introActive, introPhase, isTransitionLocked]);
 
+  const isDirectionsStageActive = introPhase === DIRECTIONS_PHASE;
+  const isDirectionsStageExiting = introPhase === EXIT_PHASE;
+
   return (
     <div className="space-y-20">
       <div
@@ -259,9 +269,28 @@ export default function TrainingsHeroFlow({
             })}
           </div>
         )}
+
+        {introActive && (
+          <div
+            className={clsx(
+              "trainings-scroll-intro-directions-layer",
+              isDirectionsStageActive && "is-active",
+              isDirectionsStageExiting && "is-exiting",
+            )}
+            aria-hidden={!isDirectionsStageActive && !isDirectionsStageExiting}
+          >
+            <ActivityTabs
+              directions={directions}
+              className="w-full max-w-5xl"
+              disableEntranceAnimation
+              withTopMargin={false}
+            />
+          </div>
+        )}
       </div>
 
       <div
+        ref={tabsAnchorRef}
         className={clsx(
           "transition-opacity duration-500",
           introActive && "lg:pointer-events-none lg:select-none lg:opacity-0",
