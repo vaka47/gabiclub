@@ -87,6 +87,9 @@ export default function ActivityTabs({ directions }: ActivityTabsProps) {
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <div className="space-y-7 md:space-y-8">
+        <div className="flex justify-center text-center">
+          <h2 className="section-title section-accent section-accent-centered">Выберете тренировку</h2>
+        </div>
         {rows.map((row, rowIndex) => (
           <div
             key={`directions-row-${rowIndex}`}

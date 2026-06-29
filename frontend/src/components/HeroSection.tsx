@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import heroPrimaryBg from "@public/gabigroup-main.jpg";
 import heroAltOne from "@public/hero-1-min.jpg";
 import heroAltTwo from "@public/hero-2-min.jpg";
@@ -18,7 +18,15 @@ type PromoItem = {
   label?: string;
   startDate?: string;
 };
-type HeroSectionProps = { slides: HeroSlide[]; clubName: string; tagline?: string; description?: string; promos?: PromoItem[] };
+
+type HeroSectionProps = {
+  slides: HeroSlide[];
+  clubName: string;
+  tagline?: string;
+  description?: string;
+  promos?: PromoItem[];
+  hideRotatingCopy?: boolean;
+};
 
 const AUTO_SWITCH = 6000;
 const PROMO_SWITCH = 4500;
@@ -29,7 +37,6 @@ const EDGE_ALPHA = 0.82;
 
 function splitHeading(rawText: string): [string, string, string] {
   const raw = rawText.toUpperCase();
-  // 1) If tagline has commas/newlines, split into up to 3 parts
   if (/[,\n]/.test(raw) && raw.length > 0) {
     const parts = raw
       .split(/[,|\n]/)
@@ -38,7 +45,6 @@ function splitHeading(rawText: string): [string, string, string] {
       .slice(0, 3);
     return [parts[0] ?? raw, parts[1] ?? "", parts[2] ?? ""];
   }
-  // 2) Legacy split by "КТО ...", keeping anchors
   const ktoIdx = raw.indexOf("КТО");
   if (ktoIdx === -1) return [raw, "", ""];
   const before = raw.slice(0, ktoIdx).trim();
@@ -107,10 +113,15 @@ function sampleEdgeColor(src: string): Promise<string | null> {
   });
 }
 
-export default function HeroSection({ slides, clubName: _clubName, tagline, description, promos = [] }: HeroSectionProps) {
+export default function HeroSection({
+  slides,
+  clubName: _clubName,
+  tagline,
+  description,
+  promos = [],
+  hideRotatingCopy = false,
+}: HeroSectionProps) {
   const fallbackBgSlides = useMemo(() => {
-    // Importing the assets ensures they are bundled into the standalone build and
-    // remain accessible even if the `public` folder is not copied during deploys.
     const ordered = [heroPrimaryBg.src, heroAltOne.src, heroAltTwo.src];
     return ordered.map((src) => resolveMediaUrl(src) ?? src).filter(Boolean) as string[];
   }, []);
@@ -146,7 +157,6 @@ export default function HeroSection({ slides, clubName: _clubName, tagline, desc
     () =>
       promos.map((p) => ({
         ...p,
-        // image для промо уже приходит из API как абсолютный URL; оставляем как есть
         imageSrc: p.image,
       })),
     [promos],
@@ -178,6 +188,7 @@ export default function HeroSection({ slides, clubName: _clubName, tagline, desc
   const [transitionBg, setTransitionBg] = useState<string | null>(null);
   const [transitionTargetIndex, setTransitionTargetIndex] = useState<number | null>(null);
   const [isBgTransitionVisible, setIsBgTransitionVisible] = useState(false);
+  const [isDesktopCopyRevealed, setIsDesktopCopyRevealed] = useState(false);
   const [promoIndex, setPromoIndex] = useState(initialPromoIndex);
   const [loadedBackgrounds, setLoadedBackgrounds] = useState<Record<string, boolean>>({});
   const [failedBackgrounds, setFailedBackgrounds] = useState<Record<string, boolean>>({});
@@ -193,6 +204,28 @@ export default function HeroSection({ slides, clubName: _clubName, tagline, desc
     }
     setBgIndex((current) => current % bgSlides.length);
   }, [bgSlides.length]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const desktopMedia = window.matchMedia("(min-width: 1024px)");
+    const updateRevealState = () => {
+      if (!desktopMedia.matches || window.scrollY > 16) {
+        setIsDesktopCopyRevealed(true);
+      }
+    };
+    const handleMediaChange = () => {
+      updateRevealState();
+    };
+
+    updateRevealState();
+    window.addEventListener("scroll", updateRevealState, { passive: true });
+    desktopMedia.addEventListener?.("change", handleMediaChange);
+
+    return () => {
+      window.removeEventListener("scroll", updateRevealState);
+      desktopMedia.removeEventListener?.("change", handleMediaChange);
+    };
+  }, []);
 
   useEffect(() => {
     setPromoIndex(initialPromoIndex);
@@ -233,7 +266,6 @@ export default function HeroSection({ slides, clubName: _clubName, tagline, desc
 
   useEffect(() => {
     if (typeof window === "undefined" || promoSlides.length === 0) return;
-    // Preload all promo images once so that switching never shows unloaded photos.
     promoSlides.forEach((promo) => {
       const key = String(promo.id);
       if (loadedPromos[key]) return;
@@ -243,7 +275,7 @@ export default function HeroSection({ slides, clubName: _clubName, tagline, desc
       }
       const img = new window.Image();
       img.decoding = "async";
-      (img as any).fetchPriority = "high";
+      img.fetchPriority = "high";
       img.src = promo.imageSrc;
       if (img.complete) {
         setLoadedPromos((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
@@ -252,7 +284,6 @@ export default function HeroSection({ slides, clubName: _clubName, tagline, desc
           setLoadedPromos((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
         };
         img.onerror = () => {
-          // Even при ошибке считаем слайд "готовым", чтобы карусель не зависла.
           setLoadedPromos((prev) => (prev[key] ? prev : { ...prev, [key]: true }));
         };
       }
@@ -262,7 +293,6 @@ export default function HeroSection({ slides, clubName: _clubName, tagline, desc
   const currentBg = bgSlides[bgIndex] ?? null;
   const currentPromo = promos.length > 0 ? promos[promoIndex % promos.length] : undefined;
 
-  // Автопрокрутка: переключаемся только если следующий слайд уже в кеше.
   useEffect(() => {
     if (promos.length < 2) return;
     const nextIndex = (promoIndex + 1) % promos.length;
@@ -277,73 +307,35 @@ export default function HeroSection({ slides, clubName: _clubName, tagline, desc
 
   const [l1, l2, l3] = splitHeading(tagline ?? "КЛУБ ДЛЯ ТЕХ, КТО ВЫБИРАЕТ РЕЗУЛЬТАТ");
   const [edgeColors, setEdgeColors] = useState<Record<string, string>>({});
-  const heroDescriptionVariants = useMemo<ReactNode[]>(() => {
-    return [
-      (
-        <>
-          <span className="hidden md:inline">
-            Лыжи, лыжероллеры и ОФП. Технично и с удовольствием
-            <br />
-            под руководством Габриеллы Калугер и Андрея Краснова.
-          </span>
-          <span className="md:hidden inline">
-            <span>Лыжи, лыжероллеры и ОФП.</span>
-            <br />
-            <span>Технично и с удовольствием</span>
-            <br />
-            <span>под руководством Габриеллы</span>
-            <br />
-            <span>Калугер и Андрея Краснова.</span>
-          </span>
-        </>
-      ),
-      (
-        <>
-          <span className="hidden md:inline">
-            Современные методики, забота о здоровье учеников
-            <br />и индивидуальный подход.
-          </span>
-          <span className="md:hidden inline">
-            <span>Современные методики,</span>
-            <br />
-            <span>забота о здоровье учеников</span>
-            <br />
-            <span>и индивидуальный подход.</span>
-          </span>
-        </>
-      ),
-      (
-        <>
-          <span className="hidden md:inline">
-            Помогаем добиваться результатов новичкам
-            <br />и опытным спортсменам в Санкт-Петербурге и онлайн.
-          </span>
-          <span className="md:hidden inline">
-            <span>Помогаем добиваться результатов</span>
-            <br />
-            <span>новичкам и опытным спортсменам</span>
-            <br />
-            <span>в Санкт-Петербурге</span>
-            <br />
-            <span>и онлайн.</span>
-          </span>
-        </>
-      ),
-    ];
-  }, []);
+  const heroDescriptionVariants = useMemo(
+    () => [
+      "Лыжи, лыжероллеры и ОФП. Технично и с удовольствием под руководством Габриеллы Калугер и Андрея Краснова.",
+      "Современные методики, забота о здоровье учеников и индивидуальный подход.",
+      "Помогаем добиваться результатов новичкам и опытным спортсменам в Санкт-Петербурге и онлайн.",
+    ],
+    [],
+  );
+  const activeSlideIndex = transitionTargetIndex ?? bgIndex;
+  const switchSlide = (index: number) => {
+    const targetBg = bgSlides[index];
+    if (!targetBg || !loadedBackgrounds[targetBg] || index === activeSlideIndex || transitionTargetIndex !== null) return;
+    setIsBgTransitionVisible(false);
+    setTransitionTargetIndex(index);
+    setTransitionBg(targetBg);
+  };
   const fallbackDescription = description ?? "Лыжи, роллеры и бег под руководством Габриеллы Калугер и Андрея Краснова.";
   const descNode = heroDescriptionVariants.length
-    ? heroDescriptionVariants[bgIndex % heroDescriptionVariants.length]
+    ? heroDescriptionVariants[activeSlideIndex % heroDescriptionVariants.length]
     : fallbackDescription;
+  const heroCopyAnimationStyle = { "--hero-copy-duration": `${AUTO_SWITCH}ms` } as CSSProperties;
 
-  // Preload all backgrounds once on mount to make crossfade smooth
   useEffect(() => {
     if (typeof window === "undefined") return;
     bgSlides.forEach((src) => {
       if (!src || loadedBackgrounds[src] || failedBackgrounds[src]) return;
       const img = new window.Image();
       img.decoding = "async";
-      (img as any).fetchPriority = "high";
+      img.fetchPriority = "high";
       img.src = src;
       if (img.complete && img.naturalWidth > 0) {
         img.decode?.()
@@ -385,153 +377,188 @@ export default function HeroSection({ slides, clubName: _clubName, tagline, desc
   const heroEdgeColor = currentBg ? edgeColors[currentBg] : undefined;
   const edgeStyle = heroEdgeColor ? ({ "--hero-edge-color": heroEdgeColor } as CSSProperties) : undefined;
 
-  // Wordmark now rendered as text using Halenoir (self-hosted); PNG/SVG is no longer needed
-
   return (
-    <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow" style={edgeStyle}>
-      <div className="absolute inset-0 z-0" aria-hidden>
-        {currentBg && (
-          <img
-            key={`hero-current-${currentBg}`}
-            src={currentBg}
-            alt="Hero background"
-            className="hero-bg-image absolute inset-0 h-full w-full object-cover pointer-events-none"
-            loading="eager"
-          />
-        )}
-        {transitionBg && (
-          <img
-            key={`hero-transition-${transitionBg}`}
-            src={transitionBg}
-            alt=""
-            className={clsx(
-              "hero-bg-image hero-bg-crossfade absolute inset-0 h-full w-full object-cover pointer-events-none",
-              isBgTransitionVisible && "hero-bg-crossfade-visible",
-            )}
-            loading="eager"
-          />
-        )}
-      </div>
-      <div className="absolute inset-0 hero-edge-bleed" aria-hidden />
-      <div className="absolute inset-0 hero-haze" aria-hidden />
-
-      <div className="relative z-20 px-6 py-10 md:px-12 lg:px-16 md:py-12 lg:py-14">
-        <div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
-          <div className="max-w-3xl">
-            <div className="space-y-4">
-              {/* Wordmark as text (Halenoir) */}
-              <div
-                className="font-wordmark text-[42px] leading-none md:text-[56px] lg:text-[72px]"
-                style={{ color: "rgb(20, 80, 170)" }}
-              >
-                GABI
-              </div>
-              <h1
-                className="font-wordmark text-3xl uppercase leading-[1.05] tracking-[0.18em] md:text-5xl"
-                style={{ color: "#FF6A00" }}
-              >
-                {l1}
-                {l2 && (
-                  <>
-                    <br />
-                    {l2}
-                  </>
-                )}
-                {l3 && (
-                  <>
-                    <br />
-                    {l3}
-                  </>
-                )}
-              </h1>
-
-              <p key={`hero-description-${bgIndex}`} className="hero-desc fade-in max-w-2xl text-base text-slate-700 md:text-lg">
-                {descNode}
-              </p>
-            </div>
-
-            {/* Primary CTA */}
-            <LeadCtaButton
-              label="Присоединиться к GABI"
-              className="btn-primary mt-6"
-              source="hero-cta"
-              style={{ backgroundColor: "rgb(20, 80, 170)", borderRadius: 14, padding: "16px 28px" }}
+    <div>
+      <section className="relative overflow-hidden rounded-[36px] text-gabi-dark shadow-glow" style={edgeStyle}>
+        <div className="absolute inset-0 z-0" aria-hidden>
+          {currentBg && (
+            <img
+              key={`hero-current-${currentBg}`}
+              src={currentBg}
+              alt="Hero background"
+              className="hero-bg-image absolute inset-0 h-full w-full object-cover pointer-events-none"
+              loading="eager"
             />
+          )}
+          {transitionBg && (
+            <img
+              key={`hero-transition-${transitionBg}`}
+              src={transitionBg}
+              alt=""
+              className={clsx(
+                "hero-bg-image hero-bg-crossfade absolute inset-0 h-full w-full object-cover pointer-events-none",
+                isBgTransitionVisible && "hero-bg-crossfade-visible",
+              )}
+              loading="eager"
+            />
+          )}
+        </div>
+        <div className="absolute inset-0 hero-edge-bleed" aria-hidden />
+        <div className="absolute inset-0 hero-haze" aria-hidden />
 
-            <div className="mt-6 flex items-center gap-3 text-sm">
-              <div className="flex items-center gap-1">
-                <span className="h-3 w-3 rounded-full bg-emerald-300" aria-hidden />
-                <span className="hero-stat-text">Расписание обновляется ежедневно</span>
+        <div className="relative z-20 px-6 py-10 md:px-12 lg:px-16 md:py-12 lg:py-14">
+          <div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
+            <div className="max-w-3xl">
+              <div className="space-y-4">
+                <div
+                  className="font-wordmark text-[42px] leading-none md:text-[56px] lg:text-[72px]"
+                  style={{ color: "rgb(20, 80, 170)" }}
+                >
+                  GABI
+                </div>
+                <h1
+                  className="font-wordmark text-3xl uppercase leading-[1.05] tracking-[0.18em] md:text-5xl"
+                  style={{ color: "#FF6A00" }}
+                >
+                  {l1}
+                  {l2 && (
+                    <>
+                      <br />
+                      {l2}
+                    </>
+                  )}
+                  {l3 && (
+                    <>
+                      <br />
+                      {l3}
+                    </>
+                  )}
+                </h1>
               </div>
-              <div className="hidden items-center gap-1 md:flex">
-                <span className="h-3 w-3 rounded-full bg-white/70" aria-hidden />
-                <span className="hero-stat-text">200+ участников клуба</span>
+
+              <LeadCtaButton
+                label="Присоединиться к GABI"
+                className="btn-primary mt-6"
+                source="hero-cta"
+                style={{ backgroundColor: "rgb(20, 80, 170)", borderRadius: 14, padding: "16px 28px" }}
+              />
+
+              <div className="mt-6 flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-1">
+                  <span className="h-3 w-3 rounded-full bg-emerald-300" aria-hidden />
+                  <span className="hero-stat-text">Расписание обновляется ежедневно</span>
+                </div>
+                <div className="hidden items-center gap-1 md:flex">
+                  <span className="h-3 w-3 rounded-full bg-white/70" aria-hidden />
+                  <span className="hero-stat-text">200+ участников клуба</span>
+                </div>
               </div>
+
+              {bgSlides.length > 1 && (
+                <div className="mt-4 flex gap-2">
+                  {bgSlides.map((src, idx) => (
+                    <button
+                      key={src + String(idx)}
+                      onClick={() => switchSlide(idx)}
+                      className={clsx(
+                        "h-2.5 w-6 rounded-full transition",
+                        idx === activeSlideIndex ? "bg-white" : "bg-white/40 hover:bg-white/70",
+                        !loadedBackgrounds[src] && "cursor-not-allowed opacity-50 hover:bg-white/40",
+                      )}
+                      aria-label={`Слайд ${idx + 1}`}
+                      type="button"
+                      disabled={!loadedBackgrounds[src] || transitionTargetIndex !== null}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
-            {bgSlides.length > 1 && (
-              <div className="mt-4 flex gap-2">
-                {bgSlides.map((src, idx) => (
-                  <button
-                    key={src + String(idx)}
-                    onClick={() => {
-                      if (!loadedBackgrounds[src] || idx === bgIndex || transitionTargetIndex !== null) return;
-                      setIsBgTransitionVisible(false);
-                      setTransitionTargetIndex(idx);
-                      setTransitionBg(src);
-                    }}
-                    className={clsx(
-                      "h-2.5 w-6 rounded-full transition",
-                      idx === bgIndex ? "bg-white" : "bg-white/40 hover:bg-white/70",
-                      !loadedBackgrounds[src] && "cursor-not-allowed opacity-50 hover:bg-white/40",
+            <div className="hidden md:block">
+              <div className="relative h-[420px]">
+                {currentPromo && (
+                  <a
+                    href={currentPromo.href}
+                    className="relative block h-full overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow"
+                  >
+                    {promoSlides.map((promo, idx) =>
+                      promo.imageSrc ? (
+                        <img
+                          key={promo.id}
+                          src={promo.imageSrc}
+                          alt={promo.title}
+                          className={clsx(
+                            "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
+                            idx === promoIndex ? "opacity-100" : "opacity-0",
+                          )}
+                          style={{ willChange: "opacity", backfaceVisibility: "hidden", transform: "translateZ(0)" }}
+                        />
+                      ) : null,
                     )}
-                    aria-label={`Слайд ${idx + 1}`}
-                    type="button"
-                    disabled={!loadedBackgrounds[src] || transitionTargetIndex !== null}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="hidden md:block">
-            <div className="relative h-[420px]">
-              {currentPromo && (
-                <a
-                  href={currentPromo.href}
-                  className="relative block h-full overflow-hidden rounded-3xl border border-white/40 bg-white/70 backdrop-blur shadow-glow"
-                >
-                  {promoSlides.map((promo, idx) =>
-                    promo.imageSrc ? (
-                      <img
-                        key={promo.id}
-                        src={promo.imageSrc}
-                        alt={promo.title}
-                        className={clsx(
-                          "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
-                          idx === promoIndex ? "opacity-100" : "opacity-0",
-                        )}
-                        style={{ willChange: "opacity", backfaceVisibility: "hidden", transform: "translateZ(0)" }}
-                      />
-                    ) : null,
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <div className="text-xs uppercase tracking-[0.2em] text-white/80">
-                      {currentPromo.label ??
-                        (typeof currentPromo.id === "string" && currentPromo.id.startsWith("article-")
-                          ? "Статья"
-                          : "Анонс")}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                      <div className="text-xs uppercase tracking-[0.2em] text-white/80">
+                        {currentPromo.label ??
+                          (typeof currentPromo.id === "string" && currentPromo.id.startsWith("article-")
+                            ? "Статья"
+                            : "Анонс")}
+                      </div>
+                      <div className="text-lg font-semibold text-white">{currentPromo.title}</div>
+                      {currentPromo.subtitle && <div className="text-white/80">{currentPromo.subtitle}</div>}
                     </div>
-                    <div className="text-lg font-semibold text-white">{currentPromo.title}</div>
-                    {currentPromo.subtitle && <div className="text-white/80">{currentPromo.subtitle}</div>}
-                  </div>
-                </a>
-              )}
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {!hideRotatingCopy && (
+        <div
+          className={clsx(
+            "hero-rotating-copy-shell w-full px-1 text-center",
+            isDesktopCopyRevealed && "is-visible",
+          )}
+        >
+          <div className="hero-rotating-copy-block">
+            <p
+              key={`hero-rotating-copy-${activeSlideIndex}-${isDesktopCopyRevealed ? "visible" : "hidden"}`}
+              className={clsx(
+                "hero-rotating-copy",
+                isDesktopCopyRevealed && "hero-rotating-copy-animate",
+              )}
+              style={heroCopyAnimationStyle}
+            >
+              {descNode}
+            </p>
+            {heroDescriptionVariants.length > 1 && (
+              <div className="hero-rotating-copy-dots" aria-label="Навигация по текстовым слайдам" role="tablist">
+                {heroDescriptionVariants.map((_, idx) => {
+                  const targetBg = bgSlides[idx];
+                  const isReady = !!targetBg && !!loadedBackgrounds[targetBg];
+                  return (
+                    <button
+                      key={`hero-copy-dot-${idx}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={idx === activeSlideIndex}
+                      aria-label={`Текстовый слайд ${idx + 1}`}
+                      className={clsx(
+                        "hero-rotating-copy-dot",
+                        idx === activeSlideIndex && "hero-rotating-copy-dot-active",
+                        !isReady && "hero-rotating-copy-dot-disabled",
+                      )}
+                      onClick={() => switchSlide(idx)}
+                      disabled={!isReady || transitionTargetIndex !== null}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

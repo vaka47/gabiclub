@@ -2,10 +2,9 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import CoachShowcase from "@/components/CoachShowcase";
-import HeroSection from "@/components/HeroSection";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import ScheduleExplorer from "@/components/ScheduleExplorer";
-import ActivityTabs from "@/components/ActivityTabs";
+import TrainingsHeroFlow from "@/components/TrainingsHeroFlow";
 import {
   getArticles,
   getCamps,
@@ -58,7 +57,7 @@ export default async function TrainingsPage() {
 
   return (
     <div className="space-y-20 pb-10">
-      <HeroSection
+      <TrainingsHeroFlow
         slides={club.hero_slides ?? []}
         clubName={club.name}
         tagline={"Тренировки\nВдохновение\nВовлеченность"}
@@ -83,9 +82,8 @@ export default async function TrainingsPage() {
             label: 'Статья',
           })),
         ]}
+        directions={directions}
       />
-
-      <ActivityTabs directions={directions} />
 
       <CoachShowcase coaches={featuredCoaches} />
 
