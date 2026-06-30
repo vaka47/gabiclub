@@ -218,7 +218,7 @@ class TrainingSessionSimpleView(APIView):
                     else None
                 ),
                 "levels": [
-                    {"id": l.id, "tag": l.tag, "name": l.get_tag_display()}
+                    {"id": l.id, "tag": l.tag, "name": l.tag}
                     for l in s.levels.all()
                 ],
                 "intensity": s.intensity,

@@ -8,7 +8,6 @@ from django.urls import reverse
 
 from trainings.models import (
     Coach,
-    LevelChoices,
     LevelTag,
     Location,
     SessionAttachment,
@@ -25,7 +24,7 @@ class CopyPreviousWeekScheduleTests(TestCase):
         self.location = Location.objects.create(title="Манеж", address="Москва")
         self.coach = Coach.objects.create(full_name="Илья Морозов")
         self.direction = TrainingDirection.objects.create(title="Лыжи", is_active=True)
-        self.level = LevelTag.objects.create(tag=LevelChoices.ANY)
+        self.level = LevelTag.objects.create(tag="Любой уровень")
 
     def _create_session(
         self,
@@ -79,7 +78,7 @@ class CopyPreviousWeekScheduleTests(TestCase):
         self.assertEqual(copied_session.end_time, source_session.end_time)
         self.assertEqual(
             list(copied_session.levels.values_list("tag", flat=True)),
-            [LevelChoices.ANY],
+            ["Любой уровень"],
         )
         self.assertEqual(copied_session.attachments.count(), 1)
         self.assertEqual(copied_session.attachments.get().title, "План занятия")

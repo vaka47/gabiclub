@@ -20,7 +20,7 @@ from .models import (
 
 
 class LevelTagSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source="get_tag_display", read_only=True)
+    name = serializers.CharField(source="tag", read_only=True)
 
     class Meta:
         model = LevelTag

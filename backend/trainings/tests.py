@@ -10,7 +10,6 @@ from django.urls import reverse
 
 from trainings.models import (
     Coach,
-    LevelChoices,
     LevelTag,
     Location,
     SessionAttachment,
@@ -100,6 +99,25 @@ class TrainingDirectionApiTests(TestCase):
         self.assertEqual(len(payload), 1)
         self.assertEqual(payload[0]["title"], "Утренний блок")
 
+    def test_training_meta_and_schedule_simple_return_custom_level_names(self):
+        level = LevelTag.objects.create(tag="PRO")
+        session = TrainingSession.objects.get(title="Утренний блок")
+        session.levels.add(level)
+
+        meta_response = self.client.get("/api/trainings/meta/")
+        self.assertEqual(meta_response.status_code, 200)
+        self.assertEqual(
+            meta_response.json()["levels"],
+            [{"id": level.id, "tag": "PRO", "name": "PRO"}],
+        )
+
+        schedule_response = self.client.get("/api/trainings/schedule-simple/")
+        self.assertEqual(schedule_response.status_code, 200)
+        self.assertEqual(
+            schedule_response.json()[0]["levels"],
+            [{"id": level.id, "tag": "PRO", "name": "PRO"}],
+        )
+
 
 class StagingSessionTariffSeedTests(TestCase):
     @override_settings(GABI_NO_INDEX=True)
@@ -188,7 +206,7 @@ class CopyPreviousWeekScheduleTests(TestCase):
         self.location = Location.objects.create(title="Манеж", address="Москва")
         self.coach = Coach.objects.create(full_name="Илья Морозов")
         self.direction = TrainingDirection.objects.create(title="Лыжи", is_active=True)
-        self.level = LevelTag.objects.create(tag=LevelChoices.ANY)
+        self.level = LevelTag.objects.create(tag="Любой уровень")
 
     def _create_session(
         self,
@@ -242,7 +260,7 @@ class CopyPreviousWeekScheduleTests(TestCase):
         self.assertEqual(copied_session.end_time, source_session.end_time)
         self.assertEqual(
             list(copied_session.levels.values_list("tag", flat=True)),
-            [LevelChoices.ANY],
+            ["Любой уровень"],
         )
         self.assertEqual(copied_session.attachments.count(), 1)
         self.assertEqual(copied_session.attachments.get().title, "План занятия")
