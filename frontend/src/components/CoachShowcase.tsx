@@ -55,6 +55,7 @@ type CoachShowcaseProps = {
   showHeading?: boolean;
   className?: string;
   avatarShape?: CoachAvatarShape;
+  desktopAlign?: "center" | "start";
 };
 
 export default function CoachShowcase({
@@ -62,12 +63,15 @@ export default function CoachShowcase({
   showHeading = true,
   className = "",
   avatarShape = "rect",
+  desktopAlign = "center",
 }: CoachShowcaseProps) {
   const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
   const openCoachDetails = (coach: Coach) => setSelectedCoach(coach);
   const hasThreeColumnLayout = coaches.length >= 3;
   const desktopBlockWidthClassName = hasThreeColumnLayout ? "md:w-[760px] xl:w-[1128px]" : "md:w-[760px]";
+  const desktopBlockAlignClassName =
+    desktopAlign === "start" ? "md:ml-0 md:mr-auto" : "md:mx-auto";
 
   if (process.env.NODE_ENV !== "production") {
     console.log("[CoachShowcase] layout debug", {
@@ -125,7 +129,13 @@ export default function CoachShowcase({
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.75, ease: "easeOut" }}
     >
-      <div className={clsx("space-y-8 md:mx-auto md:max-w-full", desktopBlockWidthClassName)}>
+      <div
+        className={clsx(
+          "space-y-8 md:max-w-full",
+          desktopBlockWidthClassName,
+          desktopBlockAlignClassName,
+        )}
+      >
         {showHeading && (
           <div className="flex flex-col gap-2 text-left md:items-center md:text-center">
             <h2 className="section-title section-accent coach-title">Команда тренеров</h2>

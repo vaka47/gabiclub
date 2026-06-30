@@ -125,7 +125,10 @@ const normalizeCampDetail = (camp: CampDetail): CampDetail => ({
   highlights: ensureArray(camp.highlights),
   inclusions: ensureArray(camp.inclusions),
   program: ensureArray(camp.program),
-  gallery: ensureArray(camp.gallery),
+  gallery: ensureArray(camp.gallery).map((image) => ({
+    ...image,
+    image: resolveMediaUrl(image.image) ?? image.image,
+  })),
   trainers: ensureArray(camp.trainers),
 });
 
@@ -229,7 +232,13 @@ export function resolveMediaUrl(src?: string | null): string | undefined {
     try {
       const parsed = new URL(src);
       const isDjangoAsset = parsed.pathname.startsWith("/media/") || parsed.pathname.startsWith("/static/");
-      if (PUBLIC_MEDIA_ORIGIN && isDjangoAsset && SERVER_API_ORIGIN && parsed.origin === SERVER_API_ORIGIN) {
+      const shouldRewriteToPublicOrigin =
+        PUBLIC_MEDIA_ORIGIN &&
+        isDjangoAsset &&
+        ((SERVER_API_ORIGIN && parsed.origin === SERVER_API_ORIGIN) ||
+          parsed.hostname === "127.0.0.1" ||
+          parsed.hostname === "localhost");
+      if (shouldRewriteToPublicOrigin) {
         return `${PUBLIC_MEDIA_ORIGIN}${parsed.pathname}${parsed.search}`;
       }
     } catch {

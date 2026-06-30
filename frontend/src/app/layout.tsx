@@ -11,6 +11,7 @@ import CursorTrail from "@/components/CursorTrail";
 import Footer from "@/components/Footer";
 import MobileCampTicker from "@/components/MobileCampTicker";
 import Header from "@/components/Header";
+import ScrollResetOnLoad from "@/components/ScrollResetOnLoad";
 import LeadModalProvider from "@/components/providers/LeadModalProvider";
 import NetworkDebugProbe from "@/components/NetworkDebugProbe";
 import { getClubProfile, getContactInfo, getTheme, getCamps, resolveMediaUrl } from "@/lib/api";
@@ -82,6 +83,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div className="fixed inset-0 -z-10 sky-gradient-layer" aria-hidden />
         <div className="relative min-h-screen">
           <LeadModalProvider>
+            <ScrollResetOnLoad />
             {process.env.NEXT_PUBLIC_DEBUG_NETWORK === "1" && <NetworkDebugProbe />}
             <CursorTrail />
             <Header contact={contact} socialLinks={headerLinks} logoSrc={logoSrc} />

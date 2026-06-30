@@ -183,7 +183,12 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
       {trainers.length > 0 && (
         <section className="space-y-6">
           <h2 className="section-title section-accent">Тренеры кэмпа</h2>
-          <CoachShowcase coaches={trainers} showHeading={false} className="mt-6" />
+          <CoachShowcase
+            coaches={trainers}
+            showHeading={false}
+            className="mt-6"
+            desktopAlign="start"
+          />
         </section>
       )}
 
