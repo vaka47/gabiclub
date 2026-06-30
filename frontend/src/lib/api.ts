@@ -153,6 +153,8 @@ const normalizeSessionTariff = (tariff: SessionTariff): SessionTariff => ({
   ...tariff,
   slug: fallbackTariffSlug(tariff, "session-tariff"),
   video_file: resolveMediaUrl(tariff.video_file) ?? tariff.video_file,
+  video_cover_image:
+    resolveMediaUrl(tariff.video_cover_image) ?? tariff.video_cover_image,
   prices: (tariff.prices ?? []).map((option) => ({
     ...option,
     price: typeof option.price === "string" ? Number(option.price) : option.price,
@@ -169,6 +171,8 @@ const normalizeTrainingPlan = (plan: TrainingPlan): TrainingPlan => ({
   slug: fallbackTariffSlug(plan, "training-plan"),
   price: typeof plan.price === "string" ? Number(plan.price) : plan.price,
   video_file: resolveMediaUrl(plan.video_file) ?? plan.video_file,
+  video_cover_image:
+    resolveMediaUrl(plan.video_cover_image) ?? plan.video_cover_image,
   benefits: ensureArray(plan.benefits),
   photos: ensureArray(plan.photos).map((photo) => ({
     ...photo,
@@ -278,11 +282,11 @@ async function fetchFromApi<T>(endpoint: string, init?: RequestInit): Promise<T 
     try {
       response = await fetch(url, {
         ...init,
+        cache: "no-store",
         headers: {
           "Content-Type": "application/json",
           ...(init?.headers ?? {}),
         },
-        next: { revalidate: 60 },
         signal: controller.signal,
       });
     } finally {

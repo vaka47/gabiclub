@@ -84,6 +84,7 @@ export type TrainingPlan = {
   category_display: string;
   description?: string;
   video_file?: string | null;
+  video_cover_image?: string | null;
   video_vk_embed_url?: string | null;
   price: number;
   period: string;
@@ -122,6 +123,7 @@ export type SessionTariff = {
   category?: SessionTariffCategory;
   category_display?: string;
   video_file?: string | null;
+  video_cover_image?: string | null;
   video_vk_embed_url?: string | null;
   is_featured?: boolean;
   order?: number;

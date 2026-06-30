@@ -180,7 +180,6 @@ export default function PlanTabs({
                             <span className="badge bg-gabi-orange/15 text-gabi-orange flex-shrink-0">Хит</span>
                           )}
                         </div>
-                        <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-semibold text-gabi-blue">{plan.price.toLocaleString("ru-RU")}</span>
@@ -277,7 +276,6 @@ export default function PlanTabs({
                         <span className="badge bg-gabi-orange/15 text-gabi-orange flex-shrink-0">Хит</span>
                       )}
                     </div>
-                    <p className="mt-1 text-sm text-slate-500">{plan.description}</p>
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-semibold text-gabi-blue">

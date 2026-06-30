@@ -1,10 +1,10 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import CampGallery from "@/components/CampGallery";
-import DebugImage from "@/components/DebugImage";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import TariffVideoBlock from "@/components/TariffVideoBlock";
@@ -15,6 +15,11 @@ type TrainingPlanDetailPageProps = {
 };
 
 const formatPrice = (value: number) => `${value.toLocaleString("ru-RU")} ₽`;
+const buildTariffLabel = (title: string) =>
+  `ТАРИФ "${title.toLocaleUpperCase("ru-RU")}"`;
+const normalizeDescription = (value?: string | null) =>
+  value?.replace(/\s*\r?\n+\s*/g, " ").trim() ||
+  "Описание этого тренировочного плана скоро появится.";
 
 export default async function TrainingPlanDetailPage({
   params,
@@ -37,119 +42,82 @@ export default async function TrainingPlanDetailPage({
   );
   const heroPhoto = photos[0]?.image ?? null;
   const otherPlans = plans.filter((item) => item.id !== plan.id);
+  const description = normalizeDescription(plan.description);
 
   return (
     <div className="space-y-16 pb-16">
-      <section className="relative overflow-hidden rounded-[36px] border border-slate-200 bg-white shadow-[0_28px_90px_-45px_rgba(15,23,42,0.35)]">
-        <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="space-y-8 px-8 py-10 sm:px-10 sm:py-12">
-            <div className="space-y-4">
-              {plan.category_display ? (
-                <span className="badge w-fit">{plan.category_display}</span>
-              ) : null}
-              <h1 className="max-w-3xl text-4xl font-semibold text-gabi-dark sm:text-5xl">
-                {plan.title}
-              </h1>
-              <div className="flex flex-wrap items-end gap-3">
-                <span className="text-4xl font-semibold text-gabi-blue">
-                  {formatPrice(plan.price)}
-                </span>
-                <span className="pb-1 text-sm uppercase tracking-[0.25em] text-slate-500">
-                  {plan.period}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-4">
-              <LeadCtaButton
-                className="btn-primary"
-                label="Узнать подробнее"
-                source={`training-plan-${plan.slug ?? plan.id}`}
-                initial={{
-                  preferred_direction: plan.title,
-                  message: `Хочу узнать подробнее о тренировочном плане "${plan.title}"`,
-                }}
-              />
+      <section>
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="space-y-5">
+            <h1 className="section-title max-w-4xl text-left">
+              {buildTariffLabel(plan.title)}
+            </h1>
+            <div className="flex flex-wrap items-end gap-3">
+              <span className="font-display text-4xl font-semibold tracking-[0.08em] text-gabi-blue sm:text-5xl">
+                {formatPrice(plan.price)}
+              </span>
+              <span className="font-display pb-1 text-base tracking-[0.14em] text-slate-500 sm:text-lg">
+                {plan.period}
+              </span>
             </div>
           </div>
 
-          <div className="relative min-h-[280px] border-t border-slate-200 bg-[radial-gradient(circle_at_top_left,_rgba(31,111,235,0.18),_transparent_42%),linear-gradient(135deg,_rgba(244,247,255,1),_rgba(235,240,248,0.96))] lg:min-h-full lg:border-l lg:border-t-0">
-            {heroPhoto ? (
-              <>
-                <DebugImage
-                  debugName={`training-plan-hero:${plan.slug ?? plan.id}`}
-                  src={heroPhoto}
-                  alt={plan.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-950/15 via-transparent to-slate-950/45" />
-              </>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-[84px] text-gabi-blue/25">
-                {plan.icon || "•"}
-              </div>
-            )}
-          </div>
+          <LeadCtaButton
+            className="btn-primary w-full justify-center px-8 lg:w-auto"
+            label="Узнать подробнее"
+            source={`training-plan-${plan.slug ?? plan.id}`}
+            initial={{
+              preferred_direction: plan.title,
+              message: `Хочу узнать подробнее о тренировочном плане "${plan.title}"`,
+            }}
+          />
         </div>
       </section>
 
       {(plan.video_vk_embed_url || plan.video_file) && (
-        <section className="space-y-6">
-          <div className="max-w-3xl space-y-3">
-            <h2 className="section-title section-accent">Видео тарифа</h2>
-            <p className="section-subtitle">
-              Если для этого плана добавлено видео, его можно посмотреть прямо на странице.
-            </p>
-          </div>
+        <section className="space-y-5">
           <TariffVideoBlock
             title={plan.title}
             videoFile={plan.video_file}
             videoVkEmbedUrl={plan.video_vk_embed_url}
-            poster={heroPhoto}
+            poster={plan.video_cover_image ?? heroPhoto}
           />
         </section>
       )}
 
-      <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-        <article className="rounded-[30px] border border-slate-200 bg-white p-8 shadow-[0_24px_70px_-40px_rgba(15,23,42,0.35)]">
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <h2 className="text-3xl font-semibold text-gabi-dark">
-                Описание тарифа
-              </h2>
-              <p className="text-base leading-8 text-slate-600 whitespace-pre-line">
-                {plan.description?.trim() || "Описание этого тренировочного плана скоро появится."}
-              </p>
-            </div>
+      <section className="space-y-6">
+        <p className="w-full text-base leading-8 text-slate-600 whitespace-normal sm:text-[1.05rem]">
+          {description}
+        </p>
 
-            {benefits.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-xl font-semibold text-gabi-dark">
-                  Преимущества
-                </h3>
-                <ul className="space-y-2 text-sm text-slate-600">
-                  {benefits.map((benefit) => (
-                    <li key={benefit.id} className="flex items-start gap-3">
-                      <span
-                        className="mt-1.5 h-1.5 w-1.5 rounded-full bg-gabi-blue/80"
-                        aria-hidden
-                      />
-                      <span>{benefit.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+        {benefits.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold text-gabi-dark">
+              Преимущества тарифа
+            </h2>
+            <ul className="grid list-none gap-3 pl-0 text-sm text-slate-600 sm:text-base">
+              {benefits.map((benefit) => (
+                <li key={benefit.id} className="flex items-start gap-4">
+                  <span
+                    className="mt-[0.7rem] h-2 w-2 shrink-0 rounded-full bg-gabi-blue"
+                    aria-hidden
+                  />
+                  <span>{benefit.text}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-        </article>
+        )}
+      </section>
 
-        <aside className="card-surface space-y-5">
+      <section className="rounded-[32px] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(243,247,255,0.96))] px-6 py-6 shadow-[0_28px_90px_-50px_rgba(15,23,42,0.3)] sm:px-8 lg:px-10">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-3">
-            <span className="badge w-fit">Стоимость</span>
+            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">
+              Стоимость
+            </p>
             <div className="flex flex-wrap items-end gap-3">
-              <span className="text-4xl font-semibold text-gabi-blue">
+              <span className="text-4xl font-semibold text-gabi-blue sm:text-[2.7rem]">
                 {formatPrice(plan.price)}
               </span>
               <span className="pb-1 text-sm uppercase tracking-[0.24em] text-slate-500">
@@ -157,11 +125,14 @@ export default async function TrainingPlanDetailPage({
               </span>
             </div>
           </div>
-          <p className="text-sm leading-7 text-slate-600">
-            Оставьте контакты, и мы поможем понять, подходит ли этот формат под вашу цель, график и уровень подготовки.
+
+          <p className="max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+            Оставьте контакты, и мы поможем понять, подходит ли этот формат под
+            вашу цель, график и уровень подготовки.
           </p>
+
           <LeadCtaButton
-            className="btn-primary w-full"
+            className="btn-primary w-full justify-center px-8 lg:w-auto"
             label="Узнать подробнее"
             source={`training-plan-side-${plan.slug ?? plan.id}`}
             initial={{
@@ -169,18 +140,17 @@ export default async function TrainingPlanDetailPage({
               message: `Хочу узнать подробнее о тренировочном плане "${plan.title}"`,
             }}
           />
-        </aside>
+        </div>
       </section>
 
       {photos.length > 0 && (
         <section className="space-y-8">
-          <div className="max-w-3xl space-y-3">
-            <h2 className="section-title section-accent">Фотографии тарифа</h2>
-          </div>
+          <div className="h-px w-full bg-[linear-gradient(90deg,rgba(31,111,235,0),rgba(31,111,235,0.7),rgba(255,164,87,0.55),rgba(31,111,235,0))]" />
           <CampGallery
             slug={plan.slug ?? String(plan.id)}
             title={plan.title}
             photos={photos}
+            layout="carousel"
           />
         </section>
       )}
@@ -192,6 +162,16 @@ export default async function TrainingPlanDetailPage({
           subtitle="Посмотрите ещё несколько форматов, которые можно сравнить перед заявкой."
         />
       )}
+
+      <div className="flex justify-center pt-2">
+        <Link
+          href="/pricing"
+          className="inline-flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.18em] text-gabi-blue transition hover:text-gabi-dark"
+        >
+          <span aria-hidden>←</span>
+          <span>Вернуться на страницу тарифов</span>
+        </Link>
+      </div>
     </div>
   );
 }

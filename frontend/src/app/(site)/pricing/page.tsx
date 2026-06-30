@@ -4,30 +4,22 @@ export const revalidate = 0;
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
 import SessionTariffCarousel from "@/components/SessionTariffCarousel";
-import { getClubProfile, getSessionTariffs, getTrainingPlans } from "@/lib/api";
+import { getSessionTariffs, getTrainingPlans } from "@/lib/api";
 
 export default async function PricingPage() {
-  const [sessionTariffs, plans, club] = await Promise.all([
+  const [sessionTariffs, plans] = await Promise.all([
     getSessionTariffs(),
     getTrainingPlans(),
-    getClubProfile(),
   ]);
 
   
   return (
     <div className="space-y-16 pb-16">
       <section className="relative mt-6 overflow-hidden rounded-[32px] border border-slate-200 bg-gradient-to-r from-gabi-blue/5 via-white to-gabi-orange/5 px-8 py-16 shadow-[0_35px_120px_-45px_rgba(15,23,42,0.35)]">
-        <div className="max-w-3xl space-y-6">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-gabi-blue/70">
-            GABI CLUB
-          </p>
+        <div className="max-w-4xl space-y-6">
           <h1 className="text-4xl font-semibold text-gabi-dark sm:text-5xl">
             Все тарифы на тренировки и планы в одном месте
           </h1>
-          <p className="text-lg text-slate-600">
-            {club?.mission ??
-              "Подберите формат взаимодействия с тренерами: персональные занятия, абонементы и продвинутые тренировочные планы."}
-          </p>
         </div>
         <div className="mt-10 flex flex-wrap gap-4">
           <LeadCtaButton className="btn-primary" label="Получить консультацию" source="pricing-hero" />

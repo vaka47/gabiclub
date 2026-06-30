@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { resolveMediaUrl } from "@/lib/api";
-import { FiX } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import DebugImage from "./DebugImage";
 
 type Photo = { id: number; image: string; caption?: string };
@@ -11,9 +11,15 @@ type CampGalleryProps = {
   slug: string;
   title: string;
   photos: Photo[];
+  layout?: "grid" | "carousel";
 };
 
-export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
+export default function CampGallery({
+  slug,
+  title,
+  photos,
+  layout = "grid",
+}: CampGalleryProps) {
   const items = useMemo(() => photos.map((p) => ({ ...p, src: resolveMediaUrl(p.image) ?? p.image })), [photos]);
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [dragStartX, setDragStartX] = useState<number | null>(null);
@@ -21,6 +27,18 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
   const [animating, setAnimating] = useState(false);
   const frameRef = useRef<HTMLDivElement | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [previewStart, setPreviewStart] = useState(0);
+  const previewSize = layout === "carousel" ? (isDesktop ? 3 : 1) : items.length;
+  const visibleCount = Math.min(previewSize, items.length);
+  const visibleItems = useMemo(() => {
+    if (layout !== "carousel") {
+      return items.map((item, idx) => ({ item, idx }));
+    }
+    return Array.from({ length: visibleCount }, (_, offset) => {
+      const idx = (previewStart + offset) % items.length;
+      return { item: items[idx], idx };
+    });
+  }, [items, layout, previewStart, visibleCount]);
 
   // Track viewport to disable drag on desktop completely
   useEffect(() => {
@@ -32,9 +50,22 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
     return () => mq.removeEventListener("change", apply);
   }, []);
 
+  useEffect(() => {
+    setPreviewStart(0);
+  }, [items.length, layout]);
+
   const close = useCallback(() => setOpenIdx(null), []);
   const prev = useCallback(() => setOpenIdx((i) => (i == null ? i : (i + items.length - 1) % items.length)), [items.length]);
   const next = useCallback(() => setOpenIdx((i) => (i == null ? i : (i + 1) % items.length)), [items.length]);
+  const movePreview = useCallback((direction: -1 | 1) => {
+    if (items.length <= 1) return;
+    setPreviewStart((current) => {
+      if (direction === 1) {
+        return (current + 1) % items.length;
+      }
+      return (current + items.length - 1) % items.length;
+    });
+  }, [items.length]);
 
   useEffect(() => {
     if (openIdx == null) return;
@@ -49,25 +80,80 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
-        {items.map((photo, idx) => (
-          <button
-            key={photo.id}
-            type="button"
-            className="group overflow-hidden rounded-3xl focus:outline-none"
-            onClick={() => setOpenIdx(idx)}
-          >
-            <DebugImage
-              debugName={`camp-gallery-thumb:${slug}:${photo.id}`}
-              src={photo.src}
-              alt={photo.caption || title}
-              width={640}
-              height={420}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-            />
-          </button>
-        ))}
-      </div>
+      {layout === "carousel" ? (
+        <div className="grid grid-cols-[auto,minmax(0,1fr),auto] items-center gap-3 md:gap-5">
+          <div className="flex justify-center">
+            {items.length > 1 ? (
+              <button
+                type="button"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-white/92 text-gabi-dark shadow-[0_16px_40px_-24px_rgba(15,23,42,0.55)] transition hover:bg-white"
+                onClick={() => movePreview(-1)}
+                aria-label="Предыдущие фотографии"
+              >
+                <FiChevronLeft size={20} />
+              </button>
+            ) : (
+              <div className="h-11 w-11" aria-hidden />
+            )}
+          </div>
+
+          <div className="grid gap-3 md:gap-4 md:grid-cols-3">
+            {visibleItems.map(({ item, idx }) => (
+              <button
+                key={`${item.id}-${idx}`}
+                type="button"
+                className="group relative aspect-[11/9] overflow-hidden rounded-[26px] focus:outline-none"
+                onClick={() => setOpenIdx(idx)}
+              >
+                <DebugImage
+                  debugName={`camp-gallery-thumb:${slug}:${item.id}`}
+                  src={item.src}
+                  alt={item.caption || title}
+                  width={640}
+                  height={480}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/18 via-transparent to-transparent" />
+              </button>
+            ))}
+          </div>
+
+          <div className="flex justify-center">
+            {items.length > 1 ? (
+              <button
+                type="button"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-white/92 text-gabi-dark shadow-[0_16px_40px_-24px_rgba(15,23,42,0.55)] transition hover:bg-white"
+                onClick={() => movePreview(1)}
+                aria-label="Следующие фотографии"
+              >
+                <FiChevronRight size={20} />
+              </button>
+            ) : (
+              <div className="h-11 w-11" aria-hidden />
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-3">
+          {visibleItems.map(({ item, idx }) => (
+            <button
+              key={item.id}
+              type="button"
+              className="group overflow-hidden rounded-3xl focus:outline-none"
+              onClick={() => setOpenIdx(idx)}
+            >
+              <DebugImage
+                debugName={`camp-gallery-thumb:${slug}:${item.id}`}
+                src={item.src}
+                alt={item.caption || title}
+                width={640}
+                height={420}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              />
+            </button>
+          ))}
+        </div>
+      )}
 
       {openIdx != null && (
         <div className="fixed left-0 right-0 bottom-0 top-[56px] md:top-[72px] z-40 flex items-center justify-center bg-black/90" onClick={close} role="dialog" aria-modal="true">
@@ -76,7 +162,6 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation();
-              console.log('[gallery] close click');
               close();
             }}
             aria-label="Закрыть"
@@ -86,12 +171,12 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
           </button>
           <button className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20"
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); console.log('[gallery] prev click'); prev(); }} aria-label="Предыдущее" type="button">
+            onClick={(e) => { e.stopPropagation(); prev(); }} aria-label="Предыдущее" type="button">
             ‹
           </button>
           <button className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20"
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); console.log('[gallery] next click'); next(); }} aria-label="Следующее" type="button">
+            onClick={(e) => { e.stopPropagation(); next(); }} aria-label="Следующее" type="button">
             ›
           </button>
           <div
@@ -102,7 +187,7 @@ export default function CampGallery({ slug, title, photos }: CampGalleryProps) {
               e.stopPropagation();
             }}
             onPointerDown={(e) => {
-              if (isDesktop) { console.log('[gallery] pointerDown ignored on desktop'); return; } // disable drag on desktop
+              if (isDesktop) return; // disable drag on desktop
               // Ignore pointer starts on controls to avoid hijacking their clicks
               const t = e.target as HTMLElement;
               if (t.closest('button')) return;
