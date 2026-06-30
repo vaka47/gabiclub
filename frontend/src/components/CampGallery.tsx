@@ -55,7 +55,7 @@ function GalleryPreview({
     return (
       <>
         <video
-          className={className}
+          className={`${className} brightness-[0.9]`}
           muted
           playsInline
           preload="metadata"
@@ -63,9 +63,9 @@ function GalleryPreview({
         >
           <source src={item.src} />
         </video>
-        <div className="absolute inset-0 bg-slate-950/24 transition-opacity duration-300 group-hover:bg-slate-950/30" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.12)_0%,rgba(15,23,42,0.42)_52%,rgba(15,23,42,0.62)_100%)] backdrop-blur-[1.5px] transition-opacity duration-300 group-hover:bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.16)_0%,rgba(15,23,42,0.5)_52%,rgba(15,23,42,0.7)_100%)]" />
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/88 text-gabi-dark shadow-[0_18px_40px_-22px_rgba(15,23,42,0.75)]">
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-white/55 bg-white/92 text-gabi-dark shadow-[0_18px_40px_-22px_rgba(15,23,42,0.82)]">
             <FiPlay size={24} className="translate-x-[1px]" />
           </span>
         </span>
