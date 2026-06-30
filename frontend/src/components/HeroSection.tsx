@@ -27,6 +27,8 @@ type HeroSectionProps = {
   promos?: PromoItem[];
   hideRotatingCopy?: boolean;
   revealRotatingCopyOnLoad?: boolean;
+  introOverlayActive?: boolean;
+  introLogoSrc?: string;
 };
 
 const AUTO_SWITCH = 6000;
@@ -122,6 +124,8 @@ export default function HeroSection({
   promos = [],
   hideRotatingCopy = false,
   revealRotatingCopyOnLoad = false,
+  introOverlayActive = false,
+  introLogoSrc,
 }: HeroSectionProps) {
   const fallbackBgSlides = useMemo(() => {
     const ordered = [heroPrimaryBg.src, heroAltOne.src, heroAltTwo.src];
@@ -407,6 +411,43 @@ export default function HeroSection({
         </div>
         <div className="absolute inset-0 hero-edge-bleed" aria-hidden />
         <div className="absolute inset-0 hero-haze" aria-hidden />
+        <div
+          className={clsx(
+            "trainings-scroll-intro-copy-layer",
+            introOverlayActive && "is-visible",
+          )}
+          aria-hidden={!introOverlayActive}
+        >
+          <div
+            className={clsx(
+              "trainings-scroll-intro-brand",
+              introOverlayActive && "is-visible",
+            )}
+          >
+            {introLogoSrc ? (
+              <img
+                src={introLogoSrc}
+                alt="Gabi logo"
+                className="trainings-scroll-intro-brand-mark"
+              />
+            ) : (
+              <div className="trainings-scroll-intro-brand-fallback" aria-hidden>
+                G
+              </div>
+            )}
+          </div>
+
+          <p
+            key={`hero-intro-copy-${activeSlideIndex}`}
+            className={clsx(
+              "trainings-scroll-intro-copy trainings-scroll-intro-copy-animate",
+              introOverlayActive && "is-visible",
+            )}
+            style={heroCopyAnimationStyle}
+          >
+            {descNode}
+          </p>
+        </div>
 
         <div className="relative z-20 px-6 py-10 md:px-12 lg:px-16 md:py-12 lg:py-14">
           <div className="grid items-start gap-8 md:grid-cols-[1.2fr_0.8fr]">
