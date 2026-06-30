@@ -11,6 +11,7 @@ import {
   LevelTag,
   Location,
   Product,
+  TariffGalleryItem,
   ThemeConfig,
   TrainingDirection,
   TrainingPlan,
@@ -149,6 +150,15 @@ const normalizeLocation = <T extends Location>(location: T): T => ({
     location.longitude == null ? null : toNumber(location.longitude, 0),
 });
 
+const normalizeTariffGalleryItem = (
+  item: TariffGalleryItem,
+): TariffGalleryItem => ({
+  ...item,
+  type: item.type ?? (item.video_file ? "video" : "image"),
+  image: resolveMediaUrl(item.image) ?? item.image,
+  video_file: resolveMediaUrl(item.video_file) ?? item.video_file,
+});
+
 const normalizeSessionTariff = (tariff: SessionTariff): SessionTariff => ({
   ...tariff,
   slug: fallbackTariffSlug(tariff, "session-tariff"),
@@ -160,10 +170,7 @@ const normalizeSessionTariff = (tariff: SessionTariff): SessionTariff => ({
     price: typeof option.price === "string" ? Number(option.price) : option.price,
   })),
   benefits: ensureArray(tariff.benefits),
-  photos: ensureArray(tariff.photos).map((photo) => ({
-    ...photo,
-    image: resolveMediaUrl(photo.image) ?? photo.image,
-  })),
+  photos: ensureArray(tariff.photos).map(normalizeTariffGalleryItem),
 });
 
 const normalizeTrainingPlan = (plan: TrainingPlan): TrainingPlan => ({
@@ -174,10 +181,7 @@ const normalizeTrainingPlan = (plan: TrainingPlan): TrainingPlan => ({
   video_cover_image:
     resolveMediaUrl(plan.video_cover_image) ?? plan.video_cover_image,
   benefits: ensureArray(plan.benefits),
-  photos: ensureArray(plan.photos).map((photo) => ({
-    ...photo,
-    image: resolveMediaUrl(photo.image) ?? photo.image,
-  })),
+  photos: ensureArray(plan.photos).map(normalizeTariffGalleryItem),
 });
 
 const normalizeProduct = (product: Product): Product => {

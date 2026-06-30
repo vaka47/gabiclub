@@ -68,7 +68,7 @@ if TrainingPlanPhoto is not None:
     class TrainingPlanPhotoInline(admin.TabularInline):
         model = TrainingPlanPhoto
         extra = 1
-        fields = ("order", "image", "caption")
+        fields = ("order", "image", "video_file", "caption")
         ordering = ("order", "id")
 else:
     TrainingPlanPhotoInline = None
@@ -104,8 +104,6 @@ class TrainingPlanAdmin(admin.ModelAdmin):
                     "fields": available_fields(
                         TrainingPlan,
                         "description",
-                        "video_vk_embed_url",
-                        "video_file",
                     ),
                 },
             ),
@@ -155,7 +153,7 @@ if SessionTariffPhoto is not None:
     class SessionTariffPhotoInline(admin.TabularInline):
         model = SessionTariffPhoto
         extra = 1
-        fields = ("order", "image", "caption")
+        fields = ("order", "image", "video_file", "caption")
         ordering = ("order", "id")
 else:
     SessionTariffPhotoInline = None
@@ -182,8 +180,6 @@ class SessionTariffAdmin(admin.ModelAdmin):
                         "title",
                         "category",
                         "description",
-                        "video_vk_embed_url",
-                        "video_file",
                     ),
                 },
             ),

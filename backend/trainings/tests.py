@@ -5,6 +5,7 @@ from datetime import date, time
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -145,7 +146,7 @@ class StagingSessionTariffSeedTests(TestCase):
 
 
 class TariffDetailApiTests(TestCase):
-    def test_training_plan_detail_endpoint_uses_slug_and_returns_media(self):
+    def test_training_plan_detail_endpoint_uses_slug_and_returns_mixed_gallery(self):
         plan = TrainingPlan.objects.create(
             title="План на выносливость",
             category="athlete",
@@ -157,9 +158,15 @@ class TariffDetailApiTests(TestCase):
         TrainingPlanBenefit.objects.create(plan=plan, text="Разбор техники", order=1)
         TrainingPlanPhoto.objects.create(
             plan=plan,
+            video_file="trainings/plans/gallery/videos/endurance.mp4",
+            caption="Видео с интервальной работой",
+            order=1,
+        )
+        TrainingPlanPhoto.objects.create(
+            plan=plan,
             image="trainings/plans/gallery/endurance.jpg",
             caption="Интервальная работа",
-            order=1,
+            order=2,
         )
 
         response = self.client.get(f"/api/trainings/plans/{plan.slug}/")
@@ -169,14 +176,18 @@ class TariffDetailApiTests(TestCase):
         self.assertEqual(payload["slug"], plan.slug)
         self.assertEqual(payload["video_vk_embed_url"], plan.video_vk_embed_url)
         self.assertEqual(len(payload["benefits"]), 1)
-        self.assertEqual(len(payload["photos"]), 1)
+        self.assertEqual(len(payload["photos"]), 2)
+        self.assertEqual(payload["photos"][0]["type"], "video")
+        self.assertTrue(payload["photos"][0]["video_file"].endswith("endurance.mp4"))
+        self.assertIsNone(payload["photos"][0]["image"])
+        self.assertEqual(payload["photos"][1]["type"], "image")
+        self.assertTrue(payload["photos"][1]["image"].endswith("endurance.jpg"))
 
-    def test_session_tariff_detail_endpoint_uses_slug_and_returns_benefits(self):
+    def test_session_tariff_detail_endpoint_uses_slug_and_returns_mixed_gallery(self):
         tariff = SessionTariff.objects.create(
             title="Парная тренировка",
             category="personal",
             description="Формат для двоих.",
-            video_file="trainings/session-tariffs/videos/pair.mp4",
         )
         SessionTariffBenefit.objects.create(
             tariff=tariff,
@@ -185,9 +196,15 @@ class TariffDetailApiTests(TestCase):
         )
         SessionTariffPhoto.objects.create(
             tariff=tariff,
+            video_file="trainings/session-tariffs/gallery/videos/pair.mp4",
+            caption="Видео с тренировкой",
+            order=1,
+        )
+        SessionTariffPhoto.objects.create(
+            tariff=tariff,
             image="trainings/session-tariffs/gallery/pair.jpg",
             caption="Тренировка на трассе",
-            order=1,
+            order=2,
         )
 
         response = self.client.get(f"/api/trainings/session-tariffs/{tariff.slug}/")
@@ -195,9 +212,63 @@ class TariffDetailApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         payload = response.json()
         self.assertEqual(payload["slug"], tariff.slug)
-        self.assertTrue(payload["video_file"].endswith("pair.mp4"))
         self.assertEqual(len(payload["benefits"]), 1)
-        self.assertEqual(len(payload["photos"]), 1)
+        self.assertEqual(len(payload["photos"]), 2)
+        self.assertEqual(payload["photos"][0]["type"], "video")
+        self.assertTrue(payload["photos"][0]["video_file"].endswith("pair.mp4"))
+        self.assertIsNone(payload["photos"][0]["image"])
+        self.assertEqual(payload["photos"][1]["type"], "image")
+        self.assertTrue(payload["photos"][1]["image"].endswith("pair.jpg"))
+
+
+class TariffGalleryModelTests(TestCase):
+    def test_training_plan_gallery_item_requires_exactly_one_media(self):
+        plan = TrainingPlan.objects.create(
+            title="План на технику",
+            category="athlete",
+            price="8900.00",
+            period="в месяц",
+        )
+
+        empty_item = TrainingPlanPhoto(plan=plan)
+        both_media_item = TrainingPlanPhoto(
+            plan=plan,
+            image="trainings/plans/gallery/technique.jpg",
+            video_file="trainings/plans/gallery/videos/technique.mp4",
+        )
+        image_only_item = TrainingPlanPhoto(
+            plan=plan,
+            image="trainings/plans/gallery/technique.jpg",
+        )
+
+        with self.assertRaises(ValidationError):
+            empty_item.full_clean()
+        with self.assertRaises(ValidationError):
+            both_media_item.full_clean()
+        image_only_item.full_clean()
+
+    def test_session_tariff_gallery_item_requires_exactly_one_media(self):
+        tariff = SessionTariff.objects.create(
+            title="Тариф для двоих",
+            category="personal",
+        )
+
+        empty_item = SessionTariffPhoto(tariff=tariff)
+        both_media_item = SessionTariffPhoto(
+            tariff=tariff,
+            image="trainings/session-tariffs/gallery/pair.jpg",
+            video_file="trainings/session-tariffs/gallery/videos/pair.mp4",
+        )
+        video_only_item = SessionTariffPhoto(
+            tariff=tariff,
+            video_file="trainings/session-tariffs/gallery/videos/pair.mp4",
+        )
+
+        with self.assertRaises(ValidationError):
+            empty_item.full_clean()
+        with self.assertRaises(ValidationError):
+            both_media_item.full_clean()
+        video_only_item.full_clean()
 
 
 class CopyPreviousWeekScheduleTests(TestCase):

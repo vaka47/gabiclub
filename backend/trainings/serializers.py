@@ -111,10 +111,12 @@ class TrainingPlanBenefitSerializer(serializers.ModelSerializer):
 
 class TrainingPlanPhotoSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
+    video_file = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
 
     class Meta:
         model = TrainingPlanPhoto
-        fields = ("id", "image", "caption", "order")
+        fields = ("id", "type", "image", "video_file", "caption", "order")
 
     def get_image(self, obj: TrainingPlanPhoto):
         image = getattr(obj, "image", None)
@@ -124,6 +126,18 @@ class TrainingPlanPhotoSerializer(serializers.ModelSerializer):
             return image.url
         except Exception:
             return None
+
+    def get_video_file(self, obj: TrainingPlanPhoto):
+        video = getattr(obj, "video_file", None)
+        if not video:
+            return None
+        try:
+            return video.url
+        except Exception:
+            return None
+
+    def get_type(self, obj: TrainingPlanPhoto):
+        return "video" if getattr(obj, "video_file", None) else "image"
 
 
 class TrainingPlanSerializer(serializers.ModelSerializer):
@@ -180,10 +194,12 @@ class SessionTariffBenefitSerializer(serializers.ModelSerializer):
 
 class SessionTariffPhotoSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
+    video_file = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
 
     class Meta:
         model = SessionTariffPhoto
-        fields = ("id", "image", "caption", "order")
+        fields = ("id", "type", "image", "video_file", "caption", "order")
 
     def get_image(self, obj: SessionTariffPhoto):
         image = getattr(obj, "image", None)
@@ -193,6 +209,18 @@ class SessionTariffPhotoSerializer(serializers.ModelSerializer):
             return image.url
         except Exception:
             return None
+
+    def get_video_file(self, obj: SessionTariffPhoto):
+        video = getattr(obj, "video_file", None)
+        if not video:
+            return None
+        try:
+            return video.url
+        except Exception:
+            return None
+
+    def get_type(self, obj: SessionTariffPhoto):
+        return "video" if getattr(obj, "video_file", None) else "image"
 
 
 class SessionTariffSerializer(serializers.ModelSerializer):

@@ -282,17 +282,42 @@ class TrainingPlanPhoto(models.Model):
     plan = models.ForeignKey(
         TrainingPlan, related_name="photos", on_delete=models.CASCADE
     )
-    image = models.ImageField("Фотография", upload_to="trainings/plans/gallery/")
+    image = models.ImageField(
+        "Изображение",
+        upload_to="trainings/plans/gallery/",
+        blank=True,
+    )
+    video_file = models.FileField(
+        "Видео",
+        upload_to="trainings/plans/gallery/videos/",
+        blank=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=["mp4", "webm", "mov", "m4v"])
+        ],
+        help_text="Необязательно. Поддерживаются MP4, WebM, MOV и M4V.",
+    )
     caption = models.CharField("Подпись", max_length=180, blank=True)
     order = models.PositiveIntegerField("Порядок", default=0)
 
     class Meta:
         ordering = ["order", "id"]
-        verbose_name = "Фотография тарифа"
-        verbose_name_plural = "Фотографии тарифов"
+        verbose_name = "Медиа тарифа"
+        verbose_name_plural = "Галерея тарифов"
 
     def __str__(self) -> str:
-        return self.caption or self.image.name
+        media_name = self.image.name if self.image else self.video_file.name
+        return self.caption or media_name
+
+    def clean(self) -> None:
+        super().clean()
+        has_image = bool(self.image)
+        has_video = bool(self.video_file)
+        if not has_image and not has_video:
+            raise ValidationError("Загрузите изображение или видео для элемента галереи.")
+        if has_image and has_video:
+            raise ValidationError(
+                "Для одного элемента галереи можно выбрать только изображение или только видео."
+            )
 
 
 class SessionTariff(models.Model):
@@ -389,18 +414,41 @@ class SessionTariffPhoto(models.Model):
         SessionTariff, related_name="photos", on_delete=models.CASCADE
     )
     image = models.ImageField(
-        "Фотография", upload_to="trainings/session-tariffs/gallery/"
+        "Изображение",
+        upload_to="trainings/session-tariffs/gallery/",
+        blank=True,
+    )
+    video_file = models.FileField(
+        "Видео",
+        upload_to="trainings/session-tariffs/gallery/videos/",
+        blank=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=["mp4", "webm", "mov", "m4v"])
+        ],
+        help_text="Необязательно. Поддерживаются MP4, WebM, MOV и M4V.",
     )
     caption = models.CharField("Подпись", max_length=180, blank=True)
     order = models.PositiveIntegerField("Порядок", default=0)
 
     class Meta:
         ordering = ["order", "id"]
-        verbose_name = "Фотография тарифа занятия"
-        verbose_name_plural = "Фотографии тарифов занятий"
+        verbose_name = "Медиа тарифа занятия"
+        verbose_name_plural = "Галерея тарифов занятий"
 
     def __str__(self) -> str:
-        return self.caption or self.image.name
+        media_name = self.image.name if self.image else self.video_file.name
+        return self.caption or media_name
+
+    def clean(self) -> None:
+        super().clean()
+        has_image = bool(self.image)
+        has_video = bool(self.video_file)
+        if not has_image and not has_video:
+            raise ValidationError("Загрузите изображение или видео для элемента галереи.")
+        if has_image and has_video:
+            raise ValidationError(
+                "Для одного элемента галереи можно выбрать только изображение или только видео."
+            )
 
 
 class TrainingDirectionLocation(models.Model):

@@ -7,7 +7,6 @@ import { notFound } from "next/navigation";
 import CampGallery from "@/components/CampGallery";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import PlanTabs from "@/components/PlanTabs";
-import TariffVideoBlock from "@/components/TariffVideoBlock";
 import { getTrainingPlanBySlug, getTrainingPlans } from "@/lib/api";
 
 type TrainingPlanDetailPageProps = {
@@ -40,7 +39,6 @@ export default async function TrainingPlanDetailPage({
   const benefits = [...(plan.benefits ?? [])].sort(
     (a, b) => (a.order ?? 0) - (b.order ?? 0),
   );
-  const heroPhoto = photos[0]?.image ?? null;
   const otherPlans = plans.filter((item) => item.id !== plan.id);
   const description = normalizeDescription(plan.description);
 
@@ -74,41 +72,42 @@ export default async function TrainingPlanDetailPage({
         </div>
       </section>
 
-      {(plan.video_vk_embed_url || plan.video_file) && (
-        <section className="space-y-5">
-          <TariffVideoBlock
+      <section>
+        <p className="w-full text-base leading-8 text-slate-600 whitespace-normal sm:text-[1.05rem]">
+          {description}
+        </p>
+      </section>
+
+      {photos.length > 0 && (
+        <section className="space-y-8">
+          <div className="h-px w-full bg-[linear-gradient(90deg,rgba(31,111,235,0),rgba(31,111,235,0.7),rgba(255,164,87,0.55),rgba(31,111,235,0))]" />
+          <CampGallery
+            slug={plan.slug ?? String(plan.id)}
             title={plan.title}
-            videoFile={plan.video_file}
-            videoVkEmbedUrl={plan.video_vk_embed_url}
-            poster={plan.video_cover_image ?? heroPhoto}
+            photos={photos}
+            layout="carousel"
           />
         </section>
       )}
 
-      <section className="space-y-6">
-        <p className="w-full text-base leading-8 text-slate-600 whitespace-normal sm:text-[1.05rem]">
-          {description}
-        </p>
-
-        {benefits.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-gabi-dark">
-              Преимущества тарифа
-            </h2>
-            <ul className="grid list-none gap-3 pl-0 text-sm text-slate-600 sm:text-base">
-              {benefits.map((benefit) => (
-                <li key={benefit.id} className="flex items-start gap-4">
-                  <span
-                    className="mt-[0.7rem] h-2 w-2 shrink-0 rounded-full bg-gabi-blue"
-                    aria-hidden
-                  />
-                  <span>{benefit.text}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </section>
+      {benefits.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold text-gabi-dark">
+            Преимущества тарифа
+          </h2>
+          <ul className="grid list-none gap-3 pl-0 text-sm text-slate-600 sm:text-base">
+            {benefits.map((benefit) => (
+              <li key={benefit.id} className="flex items-start gap-4">
+                <span
+                  className="mt-[0.7rem] h-2 w-2 shrink-0 rounded-full bg-gabi-blue"
+                  aria-hidden
+                />
+                <span>{benefit.text}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="rounded-[32px] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(243,247,255,0.96))] px-6 py-6 shadow-[0_28px_90px_-50px_rgba(15,23,42,0.3)] sm:px-8 lg:px-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -142,18 +141,6 @@ export default async function TrainingPlanDetailPage({
           />
         </div>
       </section>
-
-      {photos.length > 0 && (
-        <section className="space-y-8">
-          <div className="h-px w-full bg-[linear-gradient(90deg,rgba(31,111,235,0),rgba(31,111,235,0.7),rgba(255,164,87,0.55),rgba(31,111,235,0))]" />
-          <CampGallery
-            slug={plan.slug ?? String(plan.id)}
-            title={plan.title}
-            photos={photos}
-            layout="carousel"
-          />
-        </section>
-      )}
 
       {otherPlans.length > 0 && (
         <PlanTabs

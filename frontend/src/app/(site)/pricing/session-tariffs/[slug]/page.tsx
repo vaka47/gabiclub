@@ -7,7 +7,6 @@ import { notFound } from "next/navigation";
 import CampGallery from "@/components/CampGallery";
 import LeadCtaButton from "@/components/LeadCtaButton";
 import SessionTariffCarousel from "@/components/SessionTariffCarousel";
-import TariffVideoBlock from "@/components/TariffVideoBlock";
 import { getSessionTariffBySlug, getSessionTariffs } from "@/lib/api";
 
 type SessionTariffDetailPageProps = {
@@ -49,7 +48,6 @@ export default async function SessionTariffDetailPage({
     (a, b) => (a.order ?? 0) - (b.order ?? 0),
   );
   const primaryPrice = priceOptions[0];
-  const heroPhoto = photos[0]?.image ?? null;
   const otherTariffs = tariffs.filter((item) => item.id !== tariff.id);
   const accentPrice = primaryPrice
     ? `${priceOptions.length > 1 ? "от " : ""}${formatPrice(primaryPrice.price)}`
@@ -85,41 +83,42 @@ export default async function SessionTariffDetailPage({
         </div>
       </section>
 
-      {(tariff.video_vk_embed_url || tariff.video_file) && (
-        <section className="space-y-5">
-          <TariffVideoBlock
+      <section>
+        <p className="w-full text-base leading-8 text-slate-600 whitespace-normal sm:text-[1.05rem]">
+          {description}
+        </p>
+      </section>
+
+      {photos.length > 0 && (
+        <section className="space-y-8">
+          <div className="h-px w-full bg-[linear-gradient(90deg,rgba(31,111,235,0),rgba(31,111,235,0.7),rgba(255,164,87,0.55),rgba(31,111,235,0))]" />
+          <CampGallery
+            slug={tariff.slug ?? String(tariff.id)}
             title={tariff.title}
-            videoFile={tariff.video_file}
-            videoVkEmbedUrl={tariff.video_vk_embed_url}
-            poster={tariff.video_cover_image ?? heroPhoto}
+            photos={photos}
+            layout="carousel"
           />
         </section>
       )}
 
-      <section className="space-y-6">
-        <p className="w-full text-base leading-8 text-slate-600 whitespace-normal sm:text-[1.05rem]">
-          {description}
-        </p>
-
-        {benefits.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-gabi-dark">
-              Преимущества тарифа
-            </h2>
-            <ul className="grid list-none gap-3 pl-0 text-sm text-slate-600 sm:text-base">
-              {benefits.map((benefit) => (
-                <li key={benefit.id} className="flex items-start gap-4">
-                  <span
-                    className="mt-[0.7rem] h-2 w-2 shrink-0 rounded-full bg-gabi-blue"
-                    aria-hidden
-                  />
-                  <span>{benefit.text}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </section>
+      {benefits.length > 0 && (
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold text-gabi-dark">
+            Преимущества тарифа
+          </h2>
+          <ul className="grid list-none gap-3 pl-0 text-sm text-slate-600 sm:text-base">
+            {benefits.map((benefit) => (
+              <li key={benefit.id} className="flex items-start gap-4">
+                <span
+                  className="mt-[0.7rem] h-2 w-2 shrink-0 rounded-full bg-gabi-blue"
+                  aria-hidden
+                />
+                <span>{benefit.text}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="space-y-5">
         <div className="rounded-[32px] border border-slate-200 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(243,247,255,0.96))] px-6 py-6 shadow-[0_28px_90px_-50px_rgba(15,23,42,0.3)] sm:px-8 lg:rounded-none lg:border-0 lg:bg-none lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none">
@@ -163,18 +162,6 @@ export default async function SessionTariffDetailPage({
           формат занятий, количество посещений и тренера.
         </p>
       </section>
-
-      {photos.length > 0 && (
-        <section className="space-y-8">
-          <div className="h-px w-full bg-[linear-gradient(90deg,rgba(31,111,235,0),rgba(31,111,235,0.7),rgba(255,164,87,0.55),rgba(31,111,235,0))]" />
-          <CampGallery
-            slug={tariff.slug ?? String(tariff.id)}
-            title={tariff.title}
-            photos={photos}
-            layout="carousel"
-          />
-        </section>
-      )}
 
       {otherTariffs.length > 0 && (
         <SessionTariffCarousel

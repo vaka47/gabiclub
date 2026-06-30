@@ -62,9 +62,11 @@ export type TrainingPlanBenefit = {
   order?: number;
 };
 
-export type TariffPhoto = {
+export type TariffGalleryItem = {
   id: number;
-  image: string;
+  type?: "image" | "video";
+  image?: string | null;
+  video_file?: string | null;
   caption?: string;
   order?: number;
 };
@@ -93,7 +95,7 @@ export type TrainingPlan = {
   is_featured?: boolean;
   order?: number;
   benefits: TrainingPlanBenefit[];
-  photos?: TariffPhoto[];
+  photos?: TariffGalleryItem[];
 };
 
 export type SessionTariffCategory =
@@ -129,7 +131,7 @@ export type SessionTariff = {
   order?: number;
   prices: SessionTariffPrice[];
   benefits?: SessionTariffBenefit[];
-  photos?: TariffPhoto[];
+  photos?: TariffGalleryItem[];
 };
 
 export type TrainingSession = {
