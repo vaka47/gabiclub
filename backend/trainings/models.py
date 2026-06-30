@@ -31,13 +31,6 @@ class TrainingType(models.TextChoices):
     PERSONAL = "personal", "Индивидуальная"
 
 
-class LevelChoices(models.TextChoices):
-    BEGINNER = "beginner", "Начальный"
-    INTERMEDIATE = "intermediate", "Средний"
-    ADVANCED = "advanced", "Продвинутый"
-    ANY = "any", "Любой уровень"
-
-
 class TrainingPlanCategory(models.TextChoices):
     PERSONAL = "personal", "Индивидуальные outdoor"
     MINI_GROUP = "mini_group", "Мини-группы"
@@ -89,7 +82,10 @@ class Location(models.Model):
 
 class LevelTag(models.Model):
     tag = models.CharField(
-        "Уровень", choices=LevelChoices.choices, max_length=20, unique=True
+        "Название уровня",
+        max_length=80,
+        unique=True,
+        help_text="Например: Начальный, Продвинутый, Любой уровень, PRO.",
     )
 
     class Meta:
@@ -98,7 +94,7 @@ class LevelTag(models.Model):
         verbose_name_plural = "Уровни подготовки"
 
     def __str__(self) -> str:
-        return self.get_tag_display()
+        return self.tag
 
 
 class Coach(models.Model):

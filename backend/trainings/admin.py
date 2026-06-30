@@ -97,7 +97,8 @@ class LocationAdmin(admin.ModelAdmin):
 
 @admin.register(LevelTag)
 class LevelTagAdmin(admin.ModelAdmin):
-    list_display = ("tag", "__str__")
+    list_display = ("tag",)
+    search_fields = ("tag",)
 
 
 class SessionAttachmentInline(admin.TabularInline):
