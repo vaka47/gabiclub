@@ -137,7 +137,9 @@ export default async function CampDetailPage({ params }: { params: Promise<{ slu
                   <li key={day.id} className="rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
                     <div className="text-sm font-semibold text-gabi-blue">День {day.day_number}</div>
                     <div className="text-base font-semibold text-gabi-dark">{day.title}</div>
-                    <p className="text-sm text-slate-500">{day.description}</p>
+                    <p className="whitespace-pre-line text-sm leading-relaxed text-slate-500">
+                      {day.description}
+                    </p>
                   </li>
                 ))}
               </ul>

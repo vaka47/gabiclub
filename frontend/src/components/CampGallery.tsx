@@ -275,7 +275,7 @@ export default function CampGallery({
           </div>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4 xl:grid-cols-5">
           {visibleItems.map(({ item, idx }) => (
             <button
               key={item.id}
