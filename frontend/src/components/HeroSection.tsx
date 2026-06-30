@@ -26,6 +26,7 @@ type HeroSectionProps = {
   description?: string;
   promos?: PromoItem[];
   hideRotatingCopy?: boolean;
+  revealRotatingCopyOnLoad?: boolean;
 };
 
 const AUTO_SWITCH = 6000;
@@ -120,6 +121,7 @@ export default function HeroSection({
   description,
   promos = [],
   hideRotatingCopy = false,
+  revealRotatingCopyOnLoad = false,
 }: HeroSectionProps) {
   const fallbackBgSlides = useMemo(() => {
     const ordered = [heroPrimaryBg.src, heroAltOne.src, heroAltTwo.src];
@@ -188,7 +190,7 @@ export default function HeroSection({
   const [transitionBg, setTransitionBg] = useState<string | null>(null);
   const [transitionTargetIndex, setTransitionTargetIndex] = useState<number | null>(null);
   const [isBgTransitionVisible, setIsBgTransitionVisible] = useState(false);
-  const [isDesktopCopyRevealed, setIsDesktopCopyRevealed] = useState(false);
+  const [isDesktopCopyRevealed, setIsDesktopCopyRevealed] = useState(revealRotatingCopyOnLoad);
   const [promoIndex, setPromoIndex] = useState(initialPromoIndex);
   const [loadedBackgrounds, setLoadedBackgrounds] = useState<Record<string, boolean>>({});
   const [failedBackgrounds, setFailedBackgrounds] = useState<Record<string, boolean>>({});
@@ -209,7 +211,7 @@ export default function HeroSection({
     if (typeof window === "undefined") return;
     const desktopMedia = window.matchMedia("(min-width: 1024px)");
     const updateRevealState = () => {
-      if (!desktopMedia.matches || window.scrollY > 16) {
+      if (revealRotatingCopyOnLoad || !desktopMedia.matches || window.scrollY > 16) {
         setIsDesktopCopyRevealed(true);
       }
     };
@@ -225,7 +227,7 @@ export default function HeroSection({
       window.removeEventListener("scroll", updateRevealState);
       desktopMedia.removeEventListener?.("change", handleMediaChange);
     };
-  }, []);
+  }, [revealRotatingCopyOnLoad]);
 
   useEffect(() => {
     setPromoIndex(initialPromoIndex);
