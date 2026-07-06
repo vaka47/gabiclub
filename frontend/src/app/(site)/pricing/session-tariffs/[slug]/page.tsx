@@ -198,7 +198,7 @@ export default async function SessionTariffDetailPage({
                         return (
                           <div
                             key={`${item.id}-list-${index}`}
-                            className="rounded-[26px] border border-slate-200/80 bg-[linear-gradient(135deg,rgba(248,250,255,0.98),rgba(255,255,255,0.96))] px-5 py-5 shadow-[0_26px_70px_-56px_rgba(15,23,42,0.3)] sm:px-6"
+                            className="rounded-[24px] border border-gabi-blue/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(243,247,255,0.96))] px-5 py-5 shadow-[0_24px_60px_-40px_rgba(31,111,235,0.24)] sm:px-6"
                           >
                             <div
                               className={
@@ -219,7 +219,7 @@ export default async function SessionTariffDetailPage({
                                     >
                                       <span
                                         aria-hidden
-                                        className="mt-[0.9rem] h-2 w-2 shrink-0 rounded-full bg-slate-500"
+                                        className="mt-[0.9rem] h-2 w-2 shrink-0 rounded-full bg-gabi-blue"
                                       />
                                       <span>{listItem}</span>
                                     </li>
