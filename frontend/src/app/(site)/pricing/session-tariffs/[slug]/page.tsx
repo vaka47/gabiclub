@@ -24,6 +24,13 @@ const buildTariffLabel = (title: string) =>
 const normalizeDescription = (value?: string | null) =>
   value?.replace(/\s*\r?\n+\s*/g, " ").trim() ||
   "Описание этого тарифа занятий скоро появится.";
+const normalizeDetailDescription = (value?: string | null) =>
+  value
+    ?.replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => line.replace(/^(\s*)-\s*/, "$1• "))
+    .join("\n")
+    .trim() ?? "";
 
 export default async function SessionTariffDetailPage({
   params,
@@ -86,33 +93,34 @@ export default async function SessionTariffDetailPage({
         </div>
       </section>
 
-      <section>
+      <section className="space-y-5">
         <p className="w-full text-base leading-8 text-slate-600 whitespace-normal sm:text-[1.05rem]">
           {description}
         </p>
-      </section>
 
-      {detailItems.length > 0 && (
-        <section className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            {detailItems.map((item) => (
-              <article
-                key={item.id}
-                className="rounded-[26px] border border-slate-200/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(246,249,255,0.92))] px-5 py-5 shadow-[0_24px_60px_-48px_rgba(15,23,42,0.34)] sm:px-6"
-              >
-                <h3 className="text-sm font-extrabold uppercase tracking-[0.22em] text-gabi-dark sm:text-[0.95rem]">
-                  {item.subtitle}
-                </h3>
-                {item.description && (
-                  <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-[0.98rem]">
-                    {item.description}
-                  </p>
-                )}
-              </article>
-            ))}
+        {detailItems.length > 0 && (
+          <div className="space-y-5">
+            {detailItems.map((item) => {
+              const detailDescription = normalizeDetailDescription(
+                item.description,
+              );
+
+              return (
+                <article key={item.id} className="space-y-2">
+                  <h3 className="text-[0.95rem] font-extrabold uppercase tracking-[0.18em] text-gabi-dark sm:text-base">
+                    {item.subtitle}
+                  </h3>
+                  {detailDescription && (
+                    <p className="w-full whitespace-pre-line text-base leading-8 text-slate-600 sm:text-[1.05rem]">
+                      {detailDescription}
+                    </p>
+                  )}
+                </article>
+              );
+            })}
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       {photos.length > 0 && (
         <section className="space-y-8">
