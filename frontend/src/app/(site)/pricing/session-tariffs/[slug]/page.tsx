@@ -13,6 +13,10 @@ type SessionTariffDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+type DetailContentBlock =
+  | { type: "paragraph"; text: string }
+  | { type: "list"; items: string[] };
+
 const formatPrice = (value: number) => {
   if (typeof value !== "number" || Number.isNaN(value)) return "По запросу";
   if (value <= 0) return "0 ₽";
@@ -24,13 +28,75 @@ const buildTariffLabel = (title: string) =>
 const normalizeDescription = (value?: string | null) =>
   value?.replace(/\s*\r?\n+\s*/g, " ").trim() ||
   "Описание этого тарифа занятий скоро появится.";
-const normalizeDetailDescription = (value?: string | null) =>
-  value
-    ?.replace(/\r\n/g, "\n")
-    .split("\n")
-    .map((line) => line.replace(/^(\s*)-\s*/, "$1• "))
-    .join("\n")
-    .trim() ?? "";
+const listItemPattern = /^\s*-\s+(.+)\s*$/;
+
+const parseDetailContent = (value?: string | null): DetailContentBlock[] => {
+  if (!value) return [];
+
+  const blocks: DetailContentBlock[] = [];
+  const lines = value.replace(/\r\n/g, "\n").split("\n");
+  let paragraphLines: string[] = [];
+  let listItems: string[] = [];
+
+  const flushParagraph = () => {
+    const text = paragraphLines.join("\n").trim();
+    if (text) {
+      blocks.push({ type: "paragraph", text });
+    }
+    paragraphLines = [];
+  };
+
+  const flushList = () => {
+    if (listItems.length > 0) {
+      blocks.push({ type: "list", items: listItems });
+    }
+    listItems = [];
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trimEnd();
+    const trimmed = line.trim();
+    const listMatch = line.match(listItemPattern);
+
+    if (!trimmed) {
+      flushParagraph();
+      flushList();
+      continue;
+    }
+
+    if (listMatch) {
+      flushParagraph();
+      listItems.push(listMatch[1].trim());
+      continue;
+    }
+
+    flushList();
+    paragraphLines.push(trimmed);
+  }
+
+  flushParagraph();
+  flushList();
+
+  return blocks;
+};
+
+const shouldSplitListIntoColumns = (items: string[]) => {
+  if (items.length < 4) return false;
+
+  const maxLength = items.reduce(
+    (currentMax, item) => Math.max(currentMax, item.length),
+    0,
+  );
+  const averageLength =
+    items.reduce((sum, item) => sum + item.length, 0) / items.length;
+
+  return maxLength <= 72 || averageLength <= 54 || items.length >= 6;
+};
+
+const splitListIntoColumns = (items: string[]) => {
+  const pivot = Math.ceil(items.length / 2);
+  return [items.slice(0, pivot), items.slice(pivot)];
+};
 
 export default async function SessionTariffDetailPage({
   params,
@@ -99,21 +165,72 @@ export default async function SessionTariffDetailPage({
         </p>
 
         {detailItems.length > 0 && (
-          <div className="space-y-5">
+          <div className="space-y-8 md:space-y-9">
             {detailItems.map((item) => {
-              const detailDescription = normalizeDetailDescription(
-                item.description,
-              );
+              const contentBlocks = parseDetailContent(item.description);
 
               return (
-                <article key={item.id} className="space-y-2">
+                <article key={item.id} className="space-y-3">
                   <h3 className="text-[0.95rem] font-extrabold uppercase tracking-[0.18em] text-gabi-dark sm:text-base">
                     {item.subtitle}
                   </h3>
-                  {detailDescription && (
-                    <p className="w-full whitespace-pre-line text-base leading-8 text-slate-600 sm:text-[1.05rem]">
-                      {detailDescription}
-                    </p>
+                  {contentBlocks.length > 0 && (
+                    <div className="space-y-3">
+                      {contentBlocks.map((block, index) => {
+                        if (block.type === "paragraph") {
+                          return (
+                            <p
+                              key={`${item.id}-paragraph-${index}`}
+                              className="w-full whitespace-pre-line text-base leading-8 text-slate-600 sm:text-[1.05rem]"
+                            >
+                              {block.text}
+                            </p>
+                          );
+                        }
+
+                        const useTwoColumns = shouldSplitListIntoColumns(
+                          block.items,
+                        );
+                        const listColumns = useTwoColumns
+                          ? splitListIntoColumns(block.items)
+                          : [block.items];
+
+                        return (
+                          <div
+                            key={`${item.id}-list-${index}`}
+                            className="rounded-[26px] border border-slate-200/80 bg-[linear-gradient(135deg,rgba(248,250,255,0.98),rgba(255,255,255,0.96))] px-5 py-5 shadow-[0_26px_70px_-56px_rgba(15,23,42,0.3)] sm:px-6"
+                          >
+                            <div
+                              className={
+                                useTwoColumns
+                                  ? "grid gap-4 md:grid-cols-2 md:gap-x-8"
+                                  : "grid gap-3"
+                              }
+                            >
+                              {listColumns.map((columnItems, columnIndex) => (
+                                <ul
+                                  key={`${item.id}-list-${index}-column-${columnIndex}`}
+                                  className="space-y-3"
+                                >
+                                  {columnItems.map((listItem, listItemIndex) => (
+                                    <li
+                                      key={`${item.id}-list-${index}-item-${columnIndex}-${listItemIndex}`}
+                                      className="flex items-start gap-3 text-base leading-8 text-slate-600 sm:text-[1.05rem]"
+                                    >
+                                      <span
+                                        aria-hidden
+                                        className="mt-[0.9rem] h-2 w-2 shrink-0 rounded-full bg-slate-500"
+                                      />
+                                      <span>{listItem}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </article>
               );
