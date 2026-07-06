@@ -26,6 +26,7 @@ TrainingPlan = training_models.TrainingPlan
 TrainingPlanBenefit = training_models.TrainingPlanBenefit
 TrainingSession = training_models.TrainingSession
 SessionTariffBenefit = getattr(training_models, "SessionTariffBenefit", None)
+SessionTariffDetailItem = getattr(training_models, "SessionTariffDetailItem", None)
 SessionTariffPhoto = getattr(training_models, "SessionTariffPhoto", None)
 TrainingDirectionLocation = getattr(training_models, "TrainingDirectionLocation", None)
 TrainingDirectionPhoto = getattr(training_models, "TrainingDirectionPhoto", None)
@@ -149,6 +150,16 @@ else:
     SessionTariffBenefitInline = None
 
 
+if SessionTariffDetailItem is not None:
+    class SessionTariffDetailItemInline(admin.StackedInline):
+        model = SessionTariffDetailItem
+        extra = 1
+        fields = ("order", "subtitle", "description")
+        ordering = ("order", "id")
+else:
+    SessionTariffDetailItemInline = None
+
+
 if SessionTariffPhoto is not None:
     class SessionTariffPhotoInline(admin.TabularInline):
         model = SessionTariffPhoto
@@ -194,6 +205,7 @@ class SessionTariffAdmin(admin.ModelAdmin):
     )
     inlines = compact_inlines(
         SessionTariffPriceInline,
+        SessionTariffDetailItemInline,
         SessionTariffBenefitInline,
         SessionTariffPhotoInline,
     )

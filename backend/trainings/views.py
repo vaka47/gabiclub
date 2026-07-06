@@ -104,7 +104,7 @@ class SessionTariffViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "slug"
     serializer_class = SessionTariffSerializer
     queryset = SessionTariff.objects.prefetch_related(
-        "prices", "benefits", "photos"
+        "prices", "detail_items", "benefits", "photos"
     ).order_by("category", "order", "id")
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = {"category": ["exact"], "is_featured": ["exact"]}
@@ -128,7 +128,7 @@ class TrainingDirectionViewSet(viewsets.ReadOnlyModelViewSet):
         tariff_queryset = TrainingDirectionTariff.objects.select_related(
             "tariff"
         ).prefetch_related(
-            "tariff__prices", "tariff__benefits", "tariff__photos"
+            "tariff__prices", "tariff__detail_items", "tariff__benefits", "tariff__photos"
         ).order_by("order", "id")
         return (
             TrainingDirection.objects.filter(is_active=True)

@@ -117,6 +117,13 @@ export type SessionTariffBenefit = {
   order?: number;
 };
 
+export type SessionTariffDetailItem = {
+  id: number;
+  subtitle: string;
+  description?: string;
+  order?: number;
+};
+
 export type SessionTariff = {
   id: number;
   title: string;
@@ -130,6 +137,7 @@ export type SessionTariff = {
   is_featured?: boolean;
   order?: number;
   prices: SessionTariffPrice[];
+  detail_items?: SessionTariffDetailItem[];
   benefits?: SessionTariffBenefit[];
   photos?: TariffGalleryItem[];
 };

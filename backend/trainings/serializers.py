@@ -6,6 +6,7 @@ from .models import (
     Location,
     SessionAttachment,
     SessionTariffBenefit,
+    SessionTariffDetailItem,
     SessionTariff,
     SessionTariffPhoto,
     SessionTariffPrice,
@@ -192,6 +193,12 @@ class SessionTariffBenefitSerializer(serializers.ModelSerializer):
         fields = ("id", "text", "order")
 
 
+class SessionTariffDetailItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SessionTariffDetailItem
+        fields = ("id", "subtitle", "description", "order")
+
+
 class SessionTariffPhotoSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     video_file = serializers.SerializerMethodField()
@@ -225,6 +232,7 @@ class SessionTariffPhotoSerializer(serializers.ModelSerializer):
 
 class SessionTariffSerializer(serializers.ModelSerializer):
     prices = SessionTariffPriceSerializer(many=True, read_only=True)
+    detail_items = SessionTariffDetailItemSerializer(many=True, read_only=True)
     benefits = SessionTariffBenefitSerializer(many=True, read_only=True)
     photos = SessionTariffPhotoSerializer(many=True, read_only=True)
     video_file = serializers.SerializerMethodField()
@@ -246,6 +254,7 @@ class SessionTariffSerializer(serializers.ModelSerializer):
             "is_featured",
             "order",
             "prices",
+            "detail_items",
             "benefits",
             "photos",
         )

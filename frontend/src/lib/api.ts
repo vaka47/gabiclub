@@ -172,6 +172,7 @@ const normalizeSessionTariff = (tariff: SessionTariff): SessionTariff => ({
     ...option,
     price: typeof option.price === "string" ? Number(option.price) : option.price,
   })),
+  detail_items: ensureArray(tariff.detail_items),
   benefits: ensureArray(tariff.benefits),
   photos: ensureArray(tariff.photos).map(normalizeTariffGalleryItem),
 });

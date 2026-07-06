@@ -409,6 +409,23 @@ class SessionTariffBenefit(models.Model):
         return self.text
 
 
+class SessionTariffDetailItem(models.Model):
+    tariff = models.ForeignKey(
+        SessionTariff, related_name="detail_items", on_delete=models.CASCADE
+    )
+    subtitle = models.CharField("Подзаголовок", max_length=180)
+    description = models.TextField("Пояснение", blank=True)
+    order = models.PositiveIntegerField("Порядок", default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        verbose_name = "Пункт под описанием тарифа занятия"
+        verbose_name_plural = "Пункты под описанием тарифов занятий"
+
+    def __str__(self) -> str:
+        return self.subtitle
+
+
 class SessionTariffPhoto(models.Model):
     tariff = models.ForeignKey(
         SessionTariff, related_name="photos", on_delete=models.CASCADE

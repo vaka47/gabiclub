@@ -15,6 +15,7 @@ from trainings.models import (
     Location,
     SessionAttachment,
     SessionTariffBenefit,
+    SessionTariffDetailItem,
     SessionTariffPhoto,
     SessionTariff,
     TrainingDirection,
@@ -189,6 +190,18 @@ class TariffDetailApiTests(TestCase):
             category="personal",
             description="Формат для двоих.",
         )
+        SessionTariffDetailItem.objects.create(
+            tariff=tariff,
+            subtitle="Для кого",
+            description="Подходит для пары со схожими целями и уровнем подготовки.",
+            order=2,
+        )
+        SessionTariffDetailItem.objects.create(
+            tariff=tariff,
+            subtitle="Что внутри",
+            description="Совместная техника, темповые отрезки и разбор после занятия.",
+            order=1,
+        )
         SessionTariffBenefit.objects.create(
             tariff=tariff,
             text="Общий разбор техники",
@@ -212,6 +225,12 @@ class TariffDetailApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         payload = response.json()
         self.assertEqual(payload["slug"], tariff.slug)
+        self.assertEqual(len(payload["detail_items"]), 2)
+        self.assertEqual(payload["detail_items"][0]["subtitle"], "Что внутри")
+        self.assertEqual(
+            payload["detail_items"][0]["description"],
+            "Совместная техника, темповые отрезки и разбор после занятия.",
+        )
         self.assertEqual(len(payload["benefits"]), 1)
         self.assertEqual(len(payload["photos"]), 2)
         self.assertEqual(payload["photos"][0]["type"], "video")

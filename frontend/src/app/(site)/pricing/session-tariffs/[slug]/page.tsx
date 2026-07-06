@@ -41,6 +41,9 @@ export default async function SessionTariffDetailPage({
   const photos = [...(tariff.photos ?? [])].sort(
     (a, b) => (a.order ?? 0) - (b.order ?? 0),
   );
+  const detailItems = [...(tariff.detail_items ?? [])].sort(
+    (a, b) => (a.order ?? 0) - (b.order ?? 0),
+  );
   const benefits = [...(tariff.benefits ?? [])].sort(
     (a, b) => (a.order ?? 0) - (b.order ?? 0),
   );
@@ -88,6 +91,28 @@ export default async function SessionTariffDetailPage({
           {description}
         </p>
       </section>
+
+      {detailItems.length > 0 && (
+        <section className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            {detailItems.map((item) => (
+              <article
+                key={item.id}
+                className="rounded-[26px] border border-slate-200/80 bg-[linear-gradient(135deg,rgba(255,255,255,0.96),rgba(246,249,255,0.92))] px-5 py-5 shadow-[0_24px_60px_-48px_rgba(15,23,42,0.34)] sm:px-6"
+              >
+                <h3 className="text-sm font-extrabold uppercase tracking-[0.22em] text-gabi-dark sm:text-[0.95rem]">
+                  {item.subtitle}
+                </h3>
+                {item.description && (
+                  <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-[0.98rem]">
+                    {item.description}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       {photos.length > 0 && (
         <section className="space-y-8">
