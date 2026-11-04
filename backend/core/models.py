@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.db import models
+from django.utils import timezone
 
 
 class ContactInfo(models.Model):
@@ -101,6 +102,18 @@ class LeadRequest(models.Model):
 
     def __str__(self) -> str:
         return f"{self.full_name} ({self.created_at:%d.%m.%Y})"
+
+
+class LeadTelegramDelivery(models.Model):
+    lead = models.ForeignKey(LeadRequest, on_delete=models.CASCADE, related_name="telegram_deliveries")
+    chat_id = models.CharField(max_length=120)
+    attempts = models.PositiveIntegerField(default=0)
+    next_attempt_at = models.DateTimeField(default=timezone.now, db_index=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    last_error = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=("lead", "chat_id"), name="unique_lead_telegram_chat")]
 
 
 class ThemeSettings(models.Model):

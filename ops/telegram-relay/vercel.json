@@ -1,0 +1,4 @@
+{
+  "functions": { "api/sendMessage.mjs": { "maxDuration": 15 } },
+  "regions": ["iad1"]
+}

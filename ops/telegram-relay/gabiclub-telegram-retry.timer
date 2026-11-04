@@ -1,0 +1,11 @@
+[Unit]
+Description=Retry GabiClub Telegram notifications every minute
+
+[Timer]
+OnBootSec=1min
+OnUnitInactiveSec=1min
+Persistent=true
+Unit=gabiclub-telegram-retry.service
+
+[Install]
+WantedBy=timers.target

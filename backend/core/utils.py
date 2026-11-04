@@ -2,42 +2,26 @@ from __future__ import annotations
 
 import html
 import json
-import logging
+import os
+import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Tuple
-
-logger = logging.getLogger(__name__)
 
 
 def tg_escape(text: str) -> str:
     return html.escape(text or "", quote=False)
 
 
-def _to_utf8_bytes(value: Any) -> bytes:
-    """Convert supported types to UTF-8 encoded bytes."""
-    if isinstance(value, bytes):
-        return value
-    if value is None:
-        return b""
-    if isinstance(value, str):
-        return value.encode("utf-8")
-    return str(value).encode("utf-8")
+def send_telegram_message(token: str, chat_id: str, text: str, parse_mode: str = "HTML", timeout: int = 5) -> int:
+    """Send once and require Telegram's acknowledgement; callers own retries.
 
-
-def _utf8_pairs(payload: dict[str, Any]) -> Tuple[Tuple[bytes, bytes], ...]:
-    """Return payload as tuple pairs encoded to UTF-8 bytes."""
-    return tuple((_to_utf8_bytes(key), _to_utf8_bytes(val)) for key, val in payload.items())
-
-
-def send_telegram_message(token: str, chat_id: str, text: str, parse_mode: str = "HTML", timeout: int = 4) -> None:
-    """Send a message via Telegram Bot API.
-
-    Silent failure on network errors; logs warning.
+    A private HTTPS relay supports hosts without a route to Telegram. Never put
+    lead contents in query strings or include credentials in error messages.
     """
-    token_path = urllib.parse.quote(token or "", safe=":")
-    if token_path != token:
-        logger.warning("Telegram bot token contains non-ASCII characters; encoding for request path.")
+    relay_url = os.getenv("TELEGRAM_RELAY_URL", "").strip()
+    relay_token = os.getenv("TELEGRAM_RELAY_TOKEN", "").strip()
+    token = token.strip()
+    token_path = urllib.parse.quote(token, safe=":")
     url = f"https://api.telegram.org/bot{token_path}/sendMessage"
     payload = {
         "chat_id": chat_id,
@@ -46,37 +30,25 @@ def send_telegram_message(token: str, chat_id: str, text: str, parse_mode: str =
         # To avoid formatting surprises
         "disable_web_page_preview": True,
     }
-    payload_utf8 = _utf8_pairs(payload)
-    # Attempt 1: GET with UTF-8 percent-encoded query string
+    headers = {"Content-Type": "application/json; charset=utf-8"}
+    if relay_url:
+        parsed = urllib.parse.urlsplit(relay_url)
+        if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password or not relay_token:
+            raise RuntimeError("Telegram relay configuration is invalid")
+        url = relay_url.rstrip("/") + "/sendMessage"
+        headers["Authorization"] = f"Bearer {relay_token}"
+        payload["token"] = token
+    req = urllib.request.Request(
+        url, data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers=headers, method="POST",
+    )
     try:
-        qs = urllib.parse.urlencode(payload_utf8, safe="")
-        get_url = f"{url}?{qs}"
-        with urllib.request.urlopen(get_url, timeout=timeout) as resp:  # nosec - calling known Telegram API
-            resp.read()
-            return
-    except Exception:
-        pass
-
-    # Attempt 2: JSON body (UTF-8)
-    try:
-        data_json = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        req_json = urllib.request.Request(
-            url, data=data_json, headers={"Content-Type": "application/json; charset=utf-8"}, method="POST"
-        )
-        with urllib.request.urlopen(req_json, timeout=timeout) as resp:  # nosec - calling known Telegram API
-            resp.read()
-            return
-    except Exception:
-        pass
-
-    # Attempt 3: form-urlencoded body (UTF-8)
-    try:
-        form = urllib.parse.urlencode(payload_utf8, safe="").encode("ascii")
-        req_form = urllib.request.Request(
-            url, data=form, headers={"Content-Type": "application/x-www-form-urlencoded; charset=utf-8"}, method="POST"
-        )
-        with urllib.request.urlopen(req_form, timeout=timeout) as resp:  # nosec
-            resp.read()
-            return
-    except Exception as exc_final:  # pragma: no cover - network
-        logger.warning("Telegram notification failed: %s", exc_final, exc_info=True)
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec - configured private relay or Telegram
+            result = json.load(resp)
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError(f"Telegram delivery HTTP {exc.code}") from None
+    except Exception as exc:
+        raise RuntimeError(f"Telegram delivery connection failed ({type(exc).__name__})") from None
+    if result.get("ok") is not True or not isinstance(result.get("result", {}).get("message_id"), int):
+        raise RuntimeError("Telegram did not acknowledge delivery")
+    return result["result"]["message_id"]

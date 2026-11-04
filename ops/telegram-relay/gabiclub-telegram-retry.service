@@ -1,0 +1,15 @@
+[Unit]
+Description=Retry pending GabiClub Telegram notifications
+After=network-online.target gunicorn-gabiclub.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=app
+Group=app
+WorkingDirectory=/srv/gabiclub/backend/backend
+EnvironmentFile=/srv/gabiclub/backend/.env
+ExecStart=/srv/gabiclub/venv/bin/python manage.py retry_telegram_notifications --limit 50
+TimeoutStartSec=300
+NoNewPrivileges=true
+PrivateTmp=true

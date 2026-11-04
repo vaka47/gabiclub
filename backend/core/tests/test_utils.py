@@ -1,51 +1,51 @@
-from __future__ import annotations
-
-import urllib.parse
+import io
+import json
+import os
+import urllib.error
 from unittest import TestCase, mock
 
-from backend.core.utils import send_telegram_message
+from core.utils import send_telegram_message
 
 
+@mock.patch.dict(os.environ, {"TELEGRAM_RELAY_URL": "", "TELEGRAM_RELAY_TOKEN": ""})
 class SendTelegramMessageTests(TestCase):
-    def test_handles_cyrillic_text_when_ascii_only_urlencode(self) -> None:
-        real_urlencode = urllib.parse.urlencode
+    def response(self, payload):
+        response = mock.MagicMock()
+        response.__enter__.return_value = io.BytesIO(json.dumps(payload).encode())
+        return response
 
-        def ascii_only_urlencode(
-            query,
-            doseq: bool = False,
-            safe: str = "",
-            encoding: str | None = None,
-            errors: str | None = None,
-            quote_via=urllib.parse.quote_plus,
-        ) -> str:
-            def ensure_ascii(value) -> None:
-                if isinstance(value, bytes):
-                    return
-                if isinstance(value, (list, tuple)):
-                    for item in value:
-                        ensure_ascii(item)
-                    return
-                if isinstance(value, str):
-                    value.encode("ascii")
-                else:
-                    str(value).encode("ascii")
+    def test_cyrillic_is_posted_as_json_and_acknowledged(self):
+        with mock.patch("core.utils.urllib.request.urlopen", return_value=self.response({"ok": True, "result": {"message_id": 123}})) as request:
+            self.assertEqual(send_telegram_message("123:secret", "-100", "Имя: Тест & <текст>"), 123)
+        req = request.call_args[0][0]
+        self.assertEqual(req.method, "POST")
+        self.assertNotIn("?", req.full_url)
+        self.assertEqual(json.loads(req.data)["text"], "Имя: Тест & <текст>")
 
-            iterable = query.items() if hasattr(query, "items") else query
-            for key, value in iterable:
-                ensure_ascii(key)
-                if doseq and isinstance(value, (list, tuple)):
-                    for item in value:
-                        ensure_ascii(item)
-                else:
-                    ensure_ascii(value)
-            return real_urlencode(query, doseq=doseq, safe=safe, encoding=encoding, errors=errors, quote_via=quote_via)
+    def test_network_failure_is_reported_without_leaking_token(self):
+        with mock.patch("core.utils.urllib.request.urlopen", side_effect=urllib.error.URLError("https://api.telegram.org/bot123:secret")) as request:
+            with self.assertRaises(RuntimeError) as error:
+                send_telegram_message("123:secret", "-100", "Тест")
+        self.assertNotIn("secret", str(error.exception))
+        self.assertEqual(request.call_count, 1)
 
-        mock_response = mock.MagicMock()
-        mock_response.__enter__.return_value = mock_response
-        mock_response.read.return_value = b"{}"
+    def test_http_failure_is_not_acknowledged(self):
+        error = urllib.error.HTTPError("https://api.telegram.org/bot123:secret", 403, "Forbidden", {}, None)
+        with mock.patch("core.utils.urllib.request.urlopen", side_effect=error):
+            with self.assertRaisesRegex(RuntimeError, "HTTP 403"):
+                send_telegram_message("123:secret", "-100", "Тест")
 
-        with mock.patch("backend.core.utils.urllib.request.urlopen", return_value=mock_response) as mock_urlopen:
-            with mock.patch("backend.core.utils.urllib.parse.urlencode", side_effect=ascii_only_urlencode):
-                send_telegram_message("123:abc", "-100", "Имя: Тест")
+    def test_false_success_is_rejected(self):
+        for payload in [{"ok": False}, {}, {"ok": True, "result": {}}]:
+            with self.subTest(payload=payload), mock.patch("core.utils.urllib.request.urlopen", return_value=self.response(payload)):
+                with self.assertRaises(RuntimeError):
+                    send_telegram_message("123:secret", "-100", "Тест")
 
-        self.assertTrue(mock_urlopen.called)
+    @mock.patch.dict(os.environ, {"TELEGRAM_RELAY_URL": "https://relay.example/api", "TELEGRAM_RELAY_TOKEN": "relay-secret"})
+    def test_private_relay_uses_bearer_and_token_in_body(self):
+        with mock.patch("core.utils.urllib.request.urlopen", return_value=self.response({"ok": True, "result": {"message_id": 42}})) as request:
+            send_telegram_message("123:secret", "-100", "Тест")
+        req = request.call_args[0][0]
+        self.assertEqual(req.full_url, "https://relay.example/api/sendMessage")
+        self.assertEqual(req.get_header("Authorization"), "Bearer relay-secret")
+        self.assertEqual(json.loads(req.data)["token"], "123:secret")

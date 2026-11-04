@@ -337,6 +337,5 @@ export async function submitLead(data: LeadFormData): Promise<string> {
     }
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 800));
-  return "Заявка отправлена. Мы свяжемся с вами в ближайшее время.";
+  throw new Error("Не удалось отправить заявку. Попробуйте ещё раз.");
 }
