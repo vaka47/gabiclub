@@ -12,6 +12,12 @@ It requires a shared bearer secret and forwards JSON to the official Telegram
 HTTPS API. Credentials and applicant details are not logged. Git-based deployment
 is disconnected; deploy this directory explicitly with `vercel deploy --prod`.
 
+The REG.RU host also cannot complete TLS to Vercel's DNS-selected addresses
+`64.29.17.131` and `216.198.79.131`. Its `/etc/hosts` maps only
+`gabiclub-telegram-relay.vercel.app` to Vercel's reachable `76.76.21.21` edge.
+HTTPS still uses and verifies the real relay hostname. If reachability changes,
+check this mapping as well as the retry queue.
+
 Backend environment keys (keep values outside Git):
 
 - `TELEGRAM_BOT_TOKEN`: existing Telegram bot token.
